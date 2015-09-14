@@ -1,0 +1,167 @@
+@media (min-width: 1200px) {
+    .container {
+        max-width: 768px;
+    }
+}
+
+#header {
+    height: 75px;
+}
+#gear {
+    margin-top: 8px;
+    margin-right: -20px;
+}
+#about {
+    font-family: 'Roboto', sans-serif;
+    font-size: 26px;
+    font-weight: 300;
+}
+#header * {
+    display: block;
+}
+#seattle_header {
+    font-family: 'Roboto', sans-serif;
+    font-size: 26px;
+    line-height: 36px;
+    margin-left: 10px;
+}
+#bop_header {
+    font-family: 'Roboto', sans-serif;
+    font-size: 55px;
+    font-weight: 300;
+    color: #A223BC;
+    margin: 0;
+}
+
+#gradient_bar {
+    background-image: linear-gradient(0deg, #4E4E4E 0%, #000000 100%);
+    height: 68px;
+    margin-top: -6px;
+    display: flex;
+    align-items: center;
+}
+
+#gradient_bar i {
+  color: #FFFFFF;
+}
+
+body {
+  margin: 0 auto;
+  padding-bottom: 100px;
+}
+
+#video {
+  width: 798px;
+}
+
+.selected-purple {
+  color: purple;
+}
+
+#post_song {
+  color: #FFFFFF;
+  font-family: 'Roboto', sans-serif;
+  font-size: 20px;
+  font-weight: 100;
+}
+
+.time-since {
+  font-size: 18px;
+  color: #A223BC;
+  line-height: 25px;
+}
+
+.song-title {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  font-size: 30px;
+  color: #000000;
+  line-height: 41px;
+}
+
+.song-artist {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 100;
+    font-size: 20px;
+    color: #030303;
+    line-height: 27px;
+    margin: 0;
+}
+
+.vote-count {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    font-size: 24px;
+    color: #464444;
+    line-height: 33px;
+}
+
+.duration {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 100;
+    font-size: 18px;
+    color: #000000;
+    line-height: 25px;
+}
+
+.song-div {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display:         flex;
+  height: 100px;
+  border-bottom: 1px solid #DDD;
+}
+
+.padded-upvotes {
+  padding-left: 5px;
+}
+
+.song-div img {
+    height: 80px;
+}
+#img-div {
+    align-self: center;
+}
+
+.song-div i {
+    display: block;
+    text-align: center;
+}
+.song-div span {
+/*   text-align: center; */
+}
+
+.song-info, .play-info, .vote-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.song-info {
+    padding-top: 12px;
+}
+
+.age {
+    font-family: Roboto;
+    font-weight: 300;
+    font-size: 18px;
+    color: #A223BC;
+    line-height: 25px;
+}
+
+.duration {
+    font-family: Roboto;
+    font-weight: 100;
+    font-size: 18px;
+    line-height: 25px;
+}
+
+/*
+ * Thank you: http://getbootstrap.com.vn/examples/equal-height-columns/
+ * Row with equal height columns
+ * --------------------------------------------------
+ */
+.container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
