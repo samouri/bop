@@ -40,14 +40,14 @@ var Landing = React.createClass({
   },
 
   playVideo: function(videoId) {
-    if ($.isNumeric(videoId)) {
+    if (typeof videoId === 'string' || videoId instanceof String) {
      var index = 0;
      while (this.data[index].youtube_id !== videoId) {
        index++;
      }
       // only reload video if its new
       if (this.state.selectedVideoIndex != index) {
-        this.player.loadVideoById(_this.data[index].youtube_id);
+        this.player.loadVideoById(this.data[index].youtube_id);
         this.setState({selectedVideoIndex: index});
       }
     }
