@@ -6,6 +6,20 @@ var SongRow = React.createClass({
   getDefaultProps: function(){
     return { "data": {} };
   },
+
+  durationToString: function(duration) {
+    var duration = this.props.data.metadata.duration;
+    var duration_minutes = Math.floor(duration / 60);
+    var duration_seconds = duration - duration_minutes * 60;
+    return duration_minutes + ":" + duration_seconds;
+  },
+
+  ageToString: function(age) {
+    var age = this.props.data.age;
+    var age_minutes = Math.floor(age / 60);
+    return age_minutes + " minutes"
+  },
+
   render: function () {
     var playOrPauseClasses = cx('fa', 'fa-3x', {
       'fa-pause': this.props.data.playing && this.props.data.selected,
@@ -13,7 +27,7 @@ var SongRow = React.createClass({
       'selected-purple': this.props.data.selected
     });
     var upvotesClasses = cx('vote-count', {
-      'padded-upvotes': this.props.data.threeDigitUpvotes
+      'padded-upvotes': ! this.props.data.threeDigitUpvotes
     });
 
     return (
@@ -24,11 +38,11 @@ var SongRow = React.createClass({
             <div className="song-info pull-left col-xs-4">
                 <span className="song-title"> {this.props.data.metadata.track} </span>
                 <span className="song-artist"> {this.props.data.metadata.artist} </span>
-                <span className="time-since"> {this.props.data.age} </span>
+                <span className="time-since"> {this.ageToString(this.props.data.age)} </span>
             </div>
             <div className="play-info pull-right col-xs-1 col-xs-offset-2">
               <i className={playOrPauseClasses} onClick={this.props.data.clickPlayHandler(this.props.data.youtube_id, playOrPauseClasses)}></i>
-              <span className="duration">{this.props.data.metadata.duration}</span>
+              <span className="duration">{this.durationToString(this.props.data.metadata.duration)}</span>
             </div>
             <div className="vote-info pull-right col-xs-1">
                 <i className="fa fa-chevron-up fa-2x"></i>

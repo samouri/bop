@@ -1,14 +1,14 @@
 var React = require('react');
 var Youtube = require('react-youtube');
 var Griddle = require('griddle-react');
+var GriddleWithCallback = require('griddle-callback');
 var SongRow = require('./song-row.js');
-
-var FAKE_DATA = [{"youtube_id":"iP6XpLQM2Cs","upvotes":12,"user_upvote":0,"region_id":"98102","age":"2h","metadata":{"artist":"Ke$ha","track":"Tik Tok","duration":"4:36","thumbnail_url":"https://33.media.tumblr.com/avatar_868f2b44b588_128.png"}},{"youtube_id":"yFTvbcNhEgc","upvotes":100,"user_upvote":0,"region_id":"98102","age":"2h","metadata":{"artist":"Angus and Julia Stone","track":"Big Jet Plane","duration":"4:36","thumbnail_url":"http://33.media.tumblr.com/avatar_9361c5a980d9_128.png"}},{"youtube_id":"ugGN_Z1jPoM","upvotes":20,"user_upvote":0,"region_id":"98102","age":"2h","metadata":{"artist":"Benjamin Clementine","track":"Nemesis","duration":"4:36","thumbnail_url":"http://s3.evcdn.com/images/block/I0-001/020/753/082-2.jpeg_/benjamin-clementine-82.jpeg"}},{"youtube_id":"Bk12a5aklPg","upvotes":20,"user_upvote":0,"region_id":"98102","age":"2h","metadata":{"artist":"Handsome Ghost","track":"Blood Stutter","duration":"4:36","thumbnail_url":"http://38.media.tumblr.com/avatar_7ec096677bbc_128.png"}}]
+var SearchBar = require('./searchbar.js');
 
 var YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const opts = {
   playerVars: { // https://developers.google.com/youtube/player_parameters
-    autoplay: 1,
+    autoplay: 0,
     controls: 1,
     enablejsapi: 1,
     modestbranding: 1,
@@ -18,7 +18,8 @@ const opts = {
 
 var Landing = React.createClass({
   getInitialState: function() {
-    this.data = FAKE_DATA;
+    this.data = [];
+    this.optimisticAdds = [];
     return {
       selectedVideoIndex: 0,
       playing: true
@@ -39,17 +40,31 @@ var Landing = React.createClass({
     }
   },
 
+  handleSearchSelection: function(song_info) {
+    this.setState({selectedVideoIndex: -1});
+    this.optimisticAdd(song_info);
+    this.playVideo(song_info.youtube_id);
+  },
+
+  optimisticAdd: function(song_info) {
+    song_info.clickPlayHandler = this.clickPlayHandler;
+    song_info.selected = false;
+    song_info.playing = this.state.playing;
+    song_info.threeDigitUpvotes = song_info.upvotes.toString().length >= 3;
+    this.optimisticAdds.unshift(song_info);
+  },
+
   playVideo: function(videoId) {
     if (typeof videoId === 'string' || videoId instanceof String) {
      var index = 0;
      while (this.data[index].youtube_id !== videoId) {
        index++;
      }
-      // only reload video if its new
-      if (this.state.selectedVideoIndex != index) {
-        this.player.loadVideoById(this.data[index].youtube_id);
-        this.setState({selectedVideoIndex: index});
-      }
+     // only reload video if its new
+     if (this.state.selectedVideoIndex != index) {
+       this.player.loadVideoById(this.data[index].youtube_id);
+       this.setState({selectedVideoIndex: index});
+     }
     }
     this.setState({playing: true});
     this.player.playVideo();
@@ -67,20 +82,43 @@ var Landing = React.createClass({
 
   setPlayer: function(e) {
     this.player = e.target;
-    this.player.loadVideoById(this.data[this.state.selectedVideoIndex].youtube_id);
+    this.player.loadVideoById(this.data[this.state.selectedVideoIndex+1].youtube_id);
+    this.player.pauseVideo();
+  },
+
+  loadSongs: function(filterString, sortColumn, sortAscending, page, pageSize, callback) {
+    var _this = this;
+    $.ajax({
+      url: "http://0.0.0.0:5000/",
+      type: "POST",
+      headers: {
+        "X-Bop-Operation": "GetTopSongsInRegion",
+        "X-Bop-Version": "v1",
+        "Content-Type": "application/json"
+      },
+      data: JSON.stringify({ "RegionId": "Seattle"}),
+      success: function(resp) {
+        var data = JSON.parse(resp);
+        var songs = data['Songs'];
+        songs = songs.concat(_this.optimisticAdds);
+        _this.data = songs.map(function(elem, i) {
+          elem.clickPlayHandler = _this.clickPlayHandler;
+          elem.selected = i == _this.state.selectedVideoIndex;
+          elem.playing = _this.state.playing;
+          elem.threeDigitUpvotes = elem.upvotes.toString().length >= 3;
+          return elem
+        });
+        console.log(_this.data);
+        callback({
+          results: _this.data,
+          currentPage: page
+        });
+      }
+    });
   },
 
   render: function () {
     var _this = this;
-
-    var fakeData = _this.data.map(function(elem, i) {
-      elem.clickPlayHandler = _this.clickPlayHandler;
-      elem.selected = i == _this.state.selectedVideoIndex;
-      elem.playing = _this.state.playing;
-      elem.threeDigitUpvotes = elem.upvotes.toString().length >= 3;
-      return elem
-    });
-
     return (
       <div className="row">
           <div className="row">
@@ -91,10 +129,10 @@ var Landing = React.createClass({
               <button type="button" className="btn btn-default">Hot</button>
               <button type="button" className="btn btn-default">New</button>
             </div>
-            <div className="col-xs-3 col-xs-offset-1"> <h1 className="pull-right" id="post_song"> Post song </h1> </div>
-            <div className="col-xs-1"> <i className="fa fa-3x fa-search-plus"></i> </div>
+            <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={this.handleSearchSelection}/> </div>
           </div>
-          <Griddle results={fakeData} gridClassName={'row'} useCustomRowComponent={true} customRowComponent={SongRow} enableToggleCustom={true} />
+          <GriddleWithCallback gridClassName={'row'} useCustomRowComponent={true} customRowComponent={SongRow} enableToggleCustom={true}
+            getExternalResults={this.loadSongs} enableInfiniteScroll={true} resultsPerPage={5} />
       </div>
     );
   }

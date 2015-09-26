@@ -2,7 +2,9 @@ var express = require('express');
 var app = express();
 
 var appRoute = function(req,res) {
-    res.sendFile(__dirname + '/index.html');
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+  res.sendFile(__dirname + '/index.html');
 }
 
 app.use(express.static('static'));
