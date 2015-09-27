@@ -152,9 +152,9 @@ var Landing = React.createClass({
             <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.playNextSong} onReady={this.setPlayer} onPause={this.pauseVideo} onPlay={this.playVideo}/>
           </div>
           <div className={'row'} id={'gradient_bar'}>
-            <div className="btn-group col-xs-2 col-xs-offset-5" role="group">
-              <button type="button" className="btn btn-default">Hot</button>
-              <button type="button" className="btn btn-default">New</button>
+            <div className="btn-group col-xs-3 col-xs-offset-4" role="group">
+              <div className="filter-btn active">Hot</div>
+              <div className="filter-btn">New</div>
             </div>
             <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={this.handleSearchSelection}/> </div>
           </div>

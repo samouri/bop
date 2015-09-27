@@ -155,6 +155,21 @@ body {
     line-height: 25px;
 }
 
+.filter-btn {
+  font-family: Roboto;
+  font-weight: 300;
+  font-size: 20px;
+  border: 2px solid purple;
+  color: white;
+  float: left;
+  width: 84px;
+  height: 35px;
+  text-align: center;
+}
+
+.filter-btn.active {
+  background-color: purple;
+}
 /*
  * Thank you: http://getbootstrap.com.vn/examples/equal-height-columns/
  * Row with equal height columns
