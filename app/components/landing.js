@@ -1,9 +1,7 @@
 var React = require('react');
 var Youtube = require('react-youtube');
-var Griddle = require('griddle-react');
-var GriddleWithCallback = require('griddle-callback');
-var SongRow = require('./song-row.js');
 var SearchBar = require('./searchbar.js');
+var SongList = require('./song-list.js');
 
 var YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const opts = {
@@ -18,12 +16,23 @@ const opts = {
 
 var Landing = React.createClass({
   getInitialState: function() {
-    this.data = [];
     this.optimisticAdds = [];
     return {
       selectedVideoIndex: 0,
-      playing: true
+      playing: true,
+      data: [],
+      pageToken: 0
     };
+  },
+
+  componentDidMount: function() {
+    var _this = this;
+    _this.loadSongs();
+    $(window).scroll(function() {
+      if($(window).scrollTop() + $(window).height() == $(document).height()) {
+        _this.loadSongs();
+      }
+    });
   },
 
   clickPlayHandler: function(videoId, type) {
@@ -41,15 +50,30 @@ var Landing = React.createClass({
   },
 
   handleSearchSelection: function(song_info) {
-    this.setState({selectedVideoIndex: -1});
-    this.optimisticAdd(song_info);
-    this.playVideo(song_info.youtube_id);
+    var _this = this;
+    //this.setState({selectedVideoIndex: -1});
+    //this.optimisticAdd(song_info);
+    //this.playVideo(song_info.youtube_id);
+    $.ajax({
+      url: "http://0.0.0.0:5000/",
+      type: "POST",
+      headers: {
+        "X-Bop-Operation": "AddSongToRegion",
+        "X-Bop-Version": "v1",
+        "Content-Type": "application/json"
+      },
+      data: JSON.stringify({ "RegionId": "Seattle", "SongInfo": song_info}),
+      success: function(resp) {
+        _this.loadSongs();
+      },
+      error: function(resp) {
+        console.error(resp)
+      }
+    });
   },
 
   optimisticAdd: function(song_info) {
     song_info.clickPlayHandler = this.clickPlayHandler;
-    song_info.selected = false;
-    song_info.playing = this.state.playing;
     song_info.threeDigitUpvotes = song_info.upvotes.toString().length >= 3;
     this.optimisticAdds.unshift(song_info);
   },
@@ -57,12 +81,12 @@ var Landing = React.createClass({
   playVideo: function(videoId) {
     if (typeof videoId === 'string' || videoId instanceof String) {
      var index = 0;
-     while (this.data[index].youtube_id !== videoId) {
+     while (this.state.data[index].youtube_id !== videoId) {
        index++;
      }
      // only reload video if its new
      if (this.state.selectedVideoIndex != index) {
-       this.player.loadVideoById(this.data[index].youtube_id);
+       this.player.loadVideoById(this.state.data[index].youtube_id);
        this.setState({selectedVideoIndex: index});
      }
     }
@@ -76,17 +100,17 @@ var Landing = React.createClass({
   },
 
   playNextSong: function() {
-    this.player.loadVideoById(this.data[this.state.selectedVideoIndex+1].youtube_id);
+    this.player.loadVideoById(this.state.data[this.state.selectedVideoIndex+1].youtube_id);
     this.setState({selectedVideoIndex: this.state.selectedVideoIndex + 1});
   },
 
   setPlayer: function(e) {
     this.player = e.target;
-    this.player.loadVideoById(this.data[this.state.selectedVideoIndex+1].youtube_id);
+    this.player.loadVideoById(this.state.data[this.state.selectedVideoIndex].youtube_id);
     this.player.pauseVideo();
   },
 
-  loadSongs: function(filterString, sortColumn, sortAscending, page, pageSize, callback) {
+  loadSongs: function() {
     var _this = this;
     $.ajax({
       url: "http://0.0.0.0:5000/",
@@ -96,23 +120,26 @@ var Landing = React.createClass({
         "X-Bop-Version": "v1",
         "Content-Type": "application/json"
       },
-      data: JSON.stringify({ "RegionId": "Seattle"}),
+      data: JSON.stringify({ "RegionId": "Seattle", "InputToken": this.state.pageToken}),
       success: function(resp) {
         var data = JSON.parse(resp);
+        var pageToken = data['OutputToken'];
+        if (pageToken) {
+          pageToken = pageToken;
+        } else {
+          pageToken = parseInt(_this.state.pageToken) + data['Songs'].length;
+        }
+
         var songs = data['Songs'];
+        console.log(songs);
         songs = songs.concat(_this.optimisticAdds);
-        _this.data = songs.map(function(elem, i) {
+        songs = songs.map(function(elem, i) {
           elem.clickPlayHandler = _this.clickPlayHandler;
-          elem.selected = i == _this.state.selectedVideoIndex;
-          elem.playing = _this.state.playing;
           elem.threeDigitUpvotes = elem.upvotes.toString().length >= 3;
           return elem
         });
-        console.log(_this.data);
-        callback({
-          results: _this.data,
-          currentPage: page
-        });
+        songs = _this.state.data.concat(songs);
+        _this.setState({data: songs, pageToken: pageToken});
       }
     });
   },
@@ -131,8 +158,9 @@ var Landing = React.createClass({
             </div>
             <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={this.handleSearchSelection}/> </div>
           </div>
-          <GriddleWithCallback gridClassName={'row'} useCustomRowComponent={true} customRowComponent={SongRow} enableToggleCustom={true}
-            getExternalResults={this.loadSongs} enableInfiniteScroll={true} resultsPerPage={5} />
+          <div className="row">
+              <SongList songs={_this.state.data} selectedVideoIndex={_this.state.selectedVideoIndex} playing={_this.state.playing}/>
+          </div>
       </div>
     );
   }

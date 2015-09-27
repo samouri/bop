@@ -110,7 +110,6 @@ body {
   display: -ms-flexbox;
   display:         flex;
   height: 100px;
-  border-bottom: 1px solid #DDD;
 }
 
 .padded-upvotes {
