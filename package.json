@@ -21,9 +21,11 @@
     "webpack-dev-server": "^1.10.1"
   },
   "scripts": {
-    "start": "npm run serve | npm run dev",
+    "start": "npm run dev | npm run serve",
+    "start-prod": "npm run prod | npm run serve",
     "serve": "node server.js",
-    "dev": "webpack-dev-server --progress --colors --hot --devtool eval --port 8090 --content-base ./app"
+    "dev": "webpack-dev-server --progress --colors --hot --devtool eval --port 8090",
+    "prod":"NODE_ENV=production webpack -p --config webpack.prod.config.js --port 8090"
   },
   "author": "jake fried",
   "license": "ISC"

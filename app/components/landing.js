@@ -1,4 +1,5 @@
 var React = require('react');
+var Header = require('./header.js');
 var Youtube = require('react-youtube');
 var SearchBar = require('./searchbar.js');
 var SongList = require('./song-list.js');
@@ -51,6 +52,7 @@ var Landing = React.createClass({
 
   handleSearchSelection: function(song_info) {
     var _this = this;
+    var region = _this.props.params.region || "Seattle";
     //this.setState({selectedVideoIndex: -1});
     //this.optimisticAdd(song_info);
     //this.playVideo(song_info.youtube_id);
@@ -62,7 +64,7 @@ var Landing = React.createClass({
         "X-Bop-Version": "v1",
         "Content-Type": "application/json"
       },
-      data: JSON.stringify({ "RegionId": "Seattle", "SongInfo": song_info}),
+      data: JSON.stringify({ "RegionId": region, "SongInfo": song_info}),
       success: function(resp) {
         _this.loadSongs();
       },
@@ -112,6 +114,7 @@ var Landing = React.createClass({
 
   loadSongs: function() {
     var _this = this;
+    var region = _this.props.params.region || "Seattle";
     $.ajax({
       url: "/",
       type: "POST",
@@ -120,7 +123,7 @@ var Landing = React.createClass({
         "X-Bop-Version": "v1",
         "Content-Type": "application/json"
       },
-      data: JSON.stringify({ "RegionId": "Seattle", "InputToken": this.state.pageToken}),
+      data: JSON.stringify({ "RegionId": region, "InputToken": this.state.pageToken}),
       success: function(resp) {
         var data = JSON.parse(resp);
         var pageToken = data['OutputToken'];
@@ -146,23 +149,25 @@ var Landing = React.createClass({
 
   render: function () {
     var _this = this;
+    var region = _this.props.params.region || "Seattle";
     return (
       <div className="row">
-          <div className="row">
-            <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.playNextSong} onReady={this.setPlayer} onPause={this.pauseVideo} onPlay={this.playVideo}/>
+        <Header region={region} />
+        <div className="row">
+          <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.playNextSong} onReady={this.setPlayer} onPause={this.pauseVideo} onPlay={this.playVideo}/>
+        </div>
+        <div className={'row'} id={'gradient_bar'}>
+          <div className="btn-group col-xs-3 col-xs-offset-4" role="group">
+            <div className="filter-btn active">Hot</div>
+            <div className="filter-btn">New</div>
           </div>
-          <div className={'row'} id={'gradient_bar'}>
-            <div className="btn-group col-xs-3 col-xs-offset-4" role="group">
-              <div className="filter-btn active">Hot</div>
-              <div className="filter-btn">New</div>
-            </div>
-            <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={this.handleSearchSelection}/> </div>
-          </div>
-          <div className="row">
-              <SongList songs={_this.state.data} selectedVideoIndex={_this.state.selectedVideoIndex} playing={_this.state.playing}/>
-          </div>
-      </div>
-    );
+          <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={this.handleSearchSelection}/> </div>
+        </div>
+        <div className="row">
+            <SongList songs={_this.state.data} selectedVideoIndex={_this.state.selectedVideoIndex} playing={_this.state.playing}/>
+        </div>
+    </div>
+  );
   }
 });
 

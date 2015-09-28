@@ -7,26 +7,14 @@ const Link = ReactRouter.Link;
 var RouteHandler = ReactRouter.RouteHandler;
 var DefaultRoute = ReactRouter.DefaultRoute;
 var Navigation = ReactRouter.Navigation;
-var Header = require('./components/header.js');
 var Landing = require('./components/landing.js');
 var About = require('./components/about.js');
 
-var App = React.createClass({
-  mixins: [Navigation],
-
-  render: function() {
-    return (
-      <div>
-        <Header className={'row'}/>
-        <RouteHandler/>
-      </div>
-    );
-  }
-});
 
 var routes = (
-    <Route path="/" handler={App}>
+    <Route path="/">
       <DefaultRoute handler={Landing}/>
+      <Route path=":region" />
     </Route>
 );
 

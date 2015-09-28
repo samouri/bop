@@ -1,4 +1,5 @@
 var path = require('path');
+var node_modules_dir = path.resolve(__dirname, 'node_modules');
 
 module.exports = {
     entry: [
@@ -16,14 +17,10 @@ module.exports = {
             {
                 //tell webpack to use jsx-loader for all *.jsx files
                 test: /\.js$/,
-                loaders: ['react-hot', 'jsx-loader?insertPragma=React.DOM&harmony']
+                loaders: ['react-hot', 'jsx-loader?insertPragma=React.DOM&harmony'],
+                exclude: [node_modules_dir]
             },
             { test: /\.css$/, loader: 'style-loader!css-loader' }
         ]
-    },
-    externals: {
-        //don't bundle the 'react' npm package with our bundle.js
-        //but get it from a global 'React' variable
-        'react': 'React'
     }
 }
