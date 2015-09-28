@@ -14,11 +14,10 @@ var About = require('./components/about.js');
 var routes = (
     <Route path="/">
       <DefaultRoute handler={Landing}/>
-      <Route path=":region" />
+      <Route path=":region" handler={Landing}/>
     </Route>
 );
 
 ReactRouter.run(routes, ReactRouter.HistoryLocation, function (Handler) {
     React.render(<Handler />, document.body);
 });
-

@@ -108,7 +108,9 @@ var Landing = React.createClass({
 
   setPlayer: function(e) {
     this.player = e.target;
-    this.player.loadVideoById(this.state.data[this.state.selectedVideoIndex].youtube_id);
+    if(this.state.data.length > 0) {
+      this.player.loadVideoById(this.state.data[this.state.selectedVideoIndex].youtube_id);
+    }
     this.player.pauseVideo();
   },
 
