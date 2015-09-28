@@ -55,7 +55,7 @@ var Landing = React.createClass({
     //this.optimisticAdd(song_info);
     //this.playVideo(song_info.youtube_id);
     $.ajax({
-      url: "http://0.0.0.0:5000/",
+      url: "/",
       type: "POST",
       headers: {
         "X-Bop-Operation": "AddSongToRegion",
@@ -113,7 +113,7 @@ var Landing = React.createClass({
   loadSongs: function() {
     var _this = this;
     $.ajax({
-      url: "http://0.0.0.0:5000/",
+      url: "/",
       type: "POST",
       headers: {
         "X-Bop-Operation": "GetTopSongsInRegion",
