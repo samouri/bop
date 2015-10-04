@@ -56,26 +56,42 @@ var Landing = React.createClass({
     //this.setState({selectedVideoIndex: -1});
     //this.optimisticAdd(song_info);
     //this.playVideo(song_info.youtube_id);
+    var postData =  {
+      "RegionId": region,
+      "SongId": song_info["youtube_id"],
+      "SongTitle": song_info["youtube_title"],
+      "ThumbnailUrl": song_info["thumbnail_url"]
+    }
+    this.serverPost("AddSongToRegion", postData, {
+      success: function(resp) { _this.loadSongs()}
+    });
+  },
+
+  handleUpvote: function(song_info) {
+    var _this = this;
+    var region = _this.props.params.region || "Seattle";
+    var postData =  {
+      "RegionId": region,
+      "SongId": song_info["youtube_id"]
+    }
+    this.serverPost("UpvoteSong", postData);
+  },
+
+  serverPost: function(operation, data, handlers) {
+    if( handlers == null || handlers === undefined) {
+      handlers = {}
+    }
+
     $.ajax({
       url: "/",
       type: "POST",
-      headers: {
-        "X-Bop-Operation": "AddSongToRegion",
+      headers: { "X-Bop-Operation": operation,
         "X-Bop-Version": "v1",
         "Content-Type": "application/json"
       },
-      data: JSON.stringify({
-        "RegionId": region,
-        "SongId": song_info["youtube_id"],
-        "SongTitle": song_info["youtube_title"],
-        "ThumbnailUrl": song_info["thumbnail_url"]
-      }),
-      success: function(resp) {
-        _this.loadSongs();
-      },
-      error: function(resp) {
-        console.error(resp)
-      }
+      data: JSON.stringify(data),
+      success: handlers["success"],
+      error: handlers["error"]
     });
   },
 
@@ -122,15 +138,8 @@ var Landing = React.createClass({
   loadSongs: function() {
     var _this = this;
     var region = _this.props.params.region || "Seattle";
-    $.ajax({
-      url: "/",
-      type: "POST",
-      headers: {
-        "X-Bop-Operation": "GetTopSongsInRegion",
-        "X-Bop-Version": "v1",
-        "Content-Type": "application/json"
-      },
-      data: JSON.stringify({ "RegionId": region, "InputToken": this.state.pageToken}),
+    var postData = { "RegionId": region, "InputToken": this.state.pageToken};
+    _this.serverPost("GetTopSongsInRegion", postData, {
       success: function(resp) {
         var data = JSON.parse(resp);
         var pageToken = data['OutputToken'];
@@ -145,6 +154,7 @@ var Landing = React.createClass({
         songs = songs.concat(_this.optimisticAdds);
         songs = songs.map(function(elem, i) {
           elem.clickPlayHandler = _this.clickPlayHandler;
+          elem.upvoteHandler = _this.handleUpvote;
           elem.threeDigitUpvotes = elem.upvotes.toString().length >= 3;
           return elem
         });

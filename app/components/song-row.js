@@ -6,6 +6,10 @@ var SongRow = React.createClass({
     return { "data": {} };
   },
 
+  getInitialState: function() {
+    return { "upvoted": false };
+  },
+
   durationToString: function(duration) {
     var duration = this.props.data.metadata.duration;
     var duration_minutes = Math.floor(duration / 60);
@@ -19,6 +23,13 @@ var SongRow = React.createClass({
     return age_minutes + " minutes"
   },
 
+  handleUpvote: function(song_info) {
+    if (! this.state.upvoted) {
+      this.props.data.upvoteHandler(this.props.data);
+    }
+    this.setState({upvoted: true});
+  },
+
   render: function () {
     var playOrPauseClasses = cx('fa', 'fa-3x', {
       'fa-pause': this.props.data.playing && this.props.data.selected,
@@ -28,6 +39,14 @@ var SongRow = React.createClass({
     var upvotesClasses = cx('vote-count', {
       'padded-upvotes': ! this.props.data.threeDigitUpvotes
     });
+    var upChevronClasses = cx('fa fa-chevron-up fa-2x', {
+      'up-chevron-selected': this.state.upvoted
+    });
+
+    var upvotes = this.props.data.upvotes;
+    if (this.state.upvoted) {
+      upvotes += 1;
+    }
 
     return (
         <div className="song-div row-eq-height">
@@ -44,8 +63,8 @@ var SongRow = React.createClass({
               <span className="duration">{this.durationToString(this.props.data.metadata.duration)}</span>
             </div>
             <div className="vote-info pull-right col-xs-1">
-                <i className="fa fa-chevron-up fa-2x"></i>
-                <span className={upvotesClasses}>{this.props.data.upvotes}</span>
+                <i className={upChevronClasses} onClick={this.handleUpvote}></i>
+                <span className={upvotesClasses}>{upvotes}</span>
                 <i className="fa fa-chevron-down fa-2x"></i>
             </div>
         </div>
