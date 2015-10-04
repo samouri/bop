@@ -38,14 +38,9 @@ var SearchBar = React.createClass({
     $(React.findDOMNode(_this.refs.typeahead)).on('typeahead:selected', function(evt, selected) {
       var item = _this.data[selected];
       _this.props.handleSelection({
-          youtube_id: item.id.videoId,
-          age: 10,
-          upvotes: 1,
-          metadata: {
-            track: item.snippet.title.substring(0,10),
-            thumbnail_url: item.snippet.thumbnails.default.url,
-            duration: 7200
-          }
+        youtube_id: item.id.videoId,
+        youtube_title: item.snippet.title,
+        thumbnail_url: item.snippet.thumbnails.default.url
       });
     });
   },

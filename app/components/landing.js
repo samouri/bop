@@ -64,7 +64,12 @@ var Landing = React.createClass({
         "X-Bop-Version": "v1",
         "Content-Type": "application/json"
       },
-      data: JSON.stringify({ "RegionId": region, "SongInfo": song_info}),
+      data: JSON.stringify({
+        "RegionId": region,
+        "SongId": song_info["youtube_id"],
+        "SongTitle": song_info["youtube_title"],
+        "ThumbnailUrl": song_info["thumbnail_url"]
+      }),
       success: function(resp) {
         _this.loadSongs();
       },
