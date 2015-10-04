@@ -1,7 +1,6 @@
 var React = require('react');
 var cx = require('classnames');
 
-// A Griddle Custom Row Component
 var SongRow = React.createClass({
   getDefaultProps: function(){
     return { "data": {} };

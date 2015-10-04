@@ -34,11 +34,18 @@
 }
 
 #gradient_bar {
+    background-image: -webkit-linear-gradient(90deg, #4E4E4E 0%, #000000 100%);
     background-image: linear-gradient(0deg, #4E4E4E 0%, #000000 100%);
     height: 68px;
     margin-top: -6px;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
-    align-items: center;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+        -ms-flex-align: center;
+            align-items: center;
 }
 
 #gradient_bar i {
@@ -120,7 +127,9 @@ body {
     height: 80px;
 }
 #img-div {
-    align-self: center;
+    -webkit-align-self: center;
+        -ms-flex-item-align: center;
+            align-self: center;
 }
 
 .song-div i {
@@ -132,9 +141,19 @@ body {
 }
 
 .song-info, .play-info, .vote-info {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -webkit-flex-direction: column;
+        -ms-flex-direction: column;
+            flex-direction: column;
+    -webkit-box-pack: center;
+    -webkit-justify-content: center;
+        -ms-flex-pack: center;
+            justify-content: center;
 }
 .song-info {
     padding-top: 12px;
@@ -234,3 +253,4 @@ body {
 .tt-suggestion p {
     margin: 0;
 }
+

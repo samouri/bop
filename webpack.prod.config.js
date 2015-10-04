@@ -10,9 +10,10 @@ module.exports = {
         loaders: [
             {
                 test: /\.js$/,
-                loaders: ['jsx-loader?insertPragma=React.DOM&harmony'],
+                loaders: ['jsx-loader?insertPragma=React.DOM&harmony', "babel-loader"],
                 exclude: [node_modules_dir]
             },
+            { test: /\.scss$/, loaders: ["style", "css", "sass"] },
             { test: /\.css$/, loader: 'style-loader!css-loader' }
         ]
     }
