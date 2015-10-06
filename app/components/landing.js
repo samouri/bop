@@ -141,7 +141,7 @@ var Landing = React.createClass({
     var postData = { "RegionId": region, "InputToken": this.state.pageToken};
     _this.serverPost("GetTopSongsInRegion", postData, {
       success: function(resp) {
-        var data = JSON.parse(resp);
+        var data = resp;
         var pageToken = data['OutputToken'];
         if (pageToken) {
           pageToken = pageToken;
