@@ -3,18 +3,66 @@ var express = require('express');
 var proxy = require('proxy-middleware');
 var app = express();
 var bodyParser = require('body-parser');
+var flash = require('connect-flash');
+
 var request = require("request");
 var async = require('async');
+var session = require('express-session');
+var passwordless = require('passwordless');
+var MongoStore = require('passwordless-mongostore');
+var email = require("emailjs");
 
+var mongoose = require('mongoose');
+
+
+var smtpServer  = email.server.connect({
+  user: "boptoken@gmail.com",
+  password: "boptest123",
+  host: "smtp.gmail.com",
+  ssl: true,
+  port: 465
+});
+
+var pathToMongoDb = 'mongodb://localhost/test';
+passwordless.init(new MongoStore(pathToMongoDb));
+mongoose.connect(pathToMongoDb);
+
+passwordless.addDelivery(
+  function(tokenToSend, uidToSend, recipient, callback) {
+    var host = 'nothingtoseehere.xyz';
+    smtpServer.send({
+      text:    'Hello!\nAccess your account here: http://'
+      + host + '?token=' + tokenToSend + '&uid='
+      + encodeURIComponent(uidToSend),
+      from:    "boptoken@gmail.com",
+      to:      recipient,
+      subject: 'Token for ' + host
+    }, function(err, message) {
+      if(err) {
+        console.log(err);
+      }
+      callback(err);
+    });
+  }
+);
 
 var appRoute = function(req,res) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
+  res.locals.user = req.user;
   res.sendFile(__dirname + '/index.html');
 }
 
-app.use(express.static('static'));
 app.use(bodyParser.json());
+app.use(flash());
+app.use(session({ secret: 'keyboard cat' }));
+app.use(passwordless.sessionSupport());
+app.use(passwordless.acceptToken({
+  successFlash: 'You are logged in. Welcome to Passwordless!',
+  failureFlash: 'The supplied token is not valid (anymore). Please request another one.',
+  successRedirect: '/'
+}));
+app.use(express.static('static'));
 
 //proxy the request for static assets
 app.use('/assets', proxy(url.parse('http://localhost:8090/assets')));
@@ -34,7 +82,7 @@ var fs = require('fs');
 var seattle = JSON.parse(fs.readFileSync('seattle.json', 'utf8'));
 var db = {"Seattle": seattle}
 
-app.post('/', function(req, res) {
+app.post('/', function(req, res, next) {
   var operation = req.headers["x-bop-operation"];
   var regionId = req.body["RegionId"];
   var start = req.body["InputToken"];
@@ -53,7 +101,29 @@ app.post('/', function(req, res) {
     upvoteSong(regionId, youtubeId);
     res.send("A-OK");
   }
+  else if (operation === "SendToken") {
+    var userEmail = req.body["UserEmail"];
+    sendToken(req, res, next);
+  }
+  else if (operation === "Logout") {
+    passwordless.logout()(req, res, next);
+  }
+  else if (operation === "GetUserInfo") {
+    res.send(req.user);
+  }
+  else {
+    res.send("errawr");
+  }
 });
+
+function sendToken(req, res, next) {
+  passwordless.requestToken(
+    function(user, delivery, callback, reqq) {
+      console.log(user);
+      callback(null, user);
+    }, {"userField": "UserEmail"}
+  )(req,res,next);
+}
 
 function upvoteSong(regionId, youtubeId) {
   db[regionId] = db[regionId] || [];

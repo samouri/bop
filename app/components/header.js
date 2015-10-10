@@ -1,16 +1,76 @@
 var React = require('react');
+var cx = require('classnames');
 
 var Header = React.createClass({
+  getInitialState: function() {
+    return {
+      showEmailForm: false,
+      loginText: null
+    };
+  },
+
+  componentWillReceiveProps: function(props) {
+    var loginText = "Login"
+    if (props.userInfo) {
+      loginText = props.userInfo.substring(0, props.userInfo.indexOf("@"));
+    }
+    this.setState({ loginText: loginText});
+  },
+
+  _loginOnMouseOver: function() {
+    if (this.props.userInfo) {
+      this.setState({ loginText: "Logout"});
+    }
+  },
+
+  _loginOnMouseOut: function() {
+    var loginText = "Login";
+    if (this.props.userInfo) {
+      var userInfo = this.props.userInfo;
+      loginText = userInfo.substring(0, userInfo.indexOf("@"));
+    }
+    this.setState({ loginText: loginText});
+  },
+
+  loginClickHandler: function() {
+    if (this.state.loginText === "Logout") {
+      this.props.logoutHandler();
+      this.setState({loginText: "Login"});
+    } else {
+      this.setState({showEmailForm: !this.state.showEmailForm});
+    }
+  },
+
+  sendTokenClickHandler: function(e) {
+    var emailForm = React.findDOMNode(this.refs.emailForm);
+    this.setState({showEmailForm: false});
+    this.props.sendTokenHandler(emailForm.value);
+  },
+
   render: function () {
+    var loginInfoClasses = cx('row', {
+      hidden: ! this.state.showEmailForm
+    });
+
     return (
-      <div id="header" className="row">
-        <div className="pull-left">
-          <h1 id="bop_header" className="pull-left"> Bop </h1>
-          <h2 id ="seattle_header" className="pull-left"> {this.props.region} </h2>
+      <div>
+        <div id="header" className="row">
+          <div className="col-xs-4"> <h1 id="bop_header" className="pull-left"> Bop </h1>
+            <h2 id ="seattle_header" className="pull-left"> {this.props.region} </h2>
+          </div>
+          <div className="col-xs-3 col-xs-offset-5">
+            <img className="pull-right" id="gear" src="images/gear.png"/>
+            <h3 className="pull-right" onClick={this.loginClickHandler} onMouseOver={this._loginOnMouseOver} onMouseOut={this._loginOnMouseOut}> {this.state.loginText} </h3>
+          </div>
         </div>
-        <div className="pull-right">
-          <img className="pull-right" id="gear" src="images/gear.png"/>
-          <h1 className="pull-right" id="about"> About</h1>
+        <div id="login-info" className={loginInfoClasses}>
+          <form role="form" data-toggle="validator" className="col-xs-12">
+            <button type="button" onClick={this.sendTokenClickHandler} className="btn btn-primary pull-right">Send token</button>
+            <div className="form-group pull-right">
+              <input type="email" id="inputEmail" placeholder="example@email.com" ref="emailForm"></input>
+              <div className="help-block with-errors"></div>
+            </div>
+          </form>
         </div>
       </div>
     );

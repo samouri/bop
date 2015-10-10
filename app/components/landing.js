@@ -17,17 +17,22 @@ const opts = {
 
 var Landing = React.createClass({
   getInitialState: function() {
-    this.optimisticAdds = [];
     return {
       selectedVideoIndex: 0,
       playing: true,
       data: [],
-      pageToken: 0
+      pageToken: 0,
+      userInfo: null
     };
   },
 
   componentDidMount: function() {
     var _this = this;
+
+    this.serverPost("GetUserInfo", {}, {
+      success: function(resp) { _this.setState({userInfo: resp}); console.log(resp) }
+    });
+
     _this.loadSongs();
     $(window).scroll(function() {
       if($(window).scrollTop() + $(window).height() == $(document).height()) {
@@ -50,12 +55,14 @@ var Landing = React.createClass({
     }
   },
 
+  logoutHandler: function() {
+    this.serverPost("Logout");
+    this.setState({userInfo: null});
+  },
+
   handleSearchSelection: function(song_info) {
     var _this = this;
     var region = _this.props.params.region || "Seattle";
-    //this.setState({selectedVideoIndex: -1});
-    //this.optimisticAdd(song_info);
-    //this.playVideo(song_info.youtube_id);
     var postData =  {
       "RegionId": region,
       "SongId": song_info["youtube_id"],
@@ -65,6 +72,14 @@ var Landing = React.createClass({
     this.serverPost("AddSongToRegion", postData, {
       success: function(resp) { _this.loadSongs()}
     });
+  },
+
+  sendTokenHandler: function(userEmail) {
+    var _this = this;
+    var region = _this.props.params.region || "Seattle";
+    var postData = { "UserEmail": userEmail };
+    console.log(postData);
+    this.serverPost("SendToken", postData, {});
   },
 
   handleUpvote: function(song_info) {
@@ -81,6 +96,9 @@ var Landing = React.createClass({
     if( handlers == null || handlers === undefined) {
       handlers = {}
     }
+    if (data == null || data === undefined) {
+      data = {}
+    }
 
     $.ajax({
       url: "/",
@@ -93,12 +111,6 @@ var Landing = React.createClass({
       success: handlers["success"],
       error: handlers["error"]
     });
-  },
-
-  optimisticAdd: function(song_info) {
-    song_info.clickPlayHandler = this.clickPlayHandler;
-    song_info.threeDigitUpvotes = song_info.upvotes.toString().length >= 3;
-    this.optimisticAdds.unshift(song_info);
   },
 
   playVideo: function(videoId) {
@@ -150,11 +162,10 @@ var Landing = React.createClass({
         }
 
         var songs = data['Songs'];
-        console.log(songs);
-        songs = songs.concat(_this.optimisticAdds);
         songs = songs.map(function(elem, i) {
           elem.clickPlayHandler = _this.clickPlayHandler;
           elem.upvoteHandler = _this.handleUpvote;
+          elem.downcoteHandler = _this.handleDownvote;
           elem.threeDigitUpvotes = elem.upvotes.toString().length >= 3;
           return elem
         });
@@ -169,7 +180,9 @@ var Landing = React.createClass({
     var region = _this.props.params.region || "Seattle";
     return (
       <div className="row">
-        <Header region={region} />
+        <div className="row">
+          <Header region={region} sendTokenHandler={this.sendTokenHandler} userInfo={this.state.userInfo} logoutHandler={this.logoutHandler}/>
+        </div>
         <div className="row">
           <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.playNextSong} onReady={this.setPlayer} onPause={this.pauseVideo} onPlay={this.playVideo}/>
         </div>
