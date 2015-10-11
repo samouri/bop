@@ -55,11 +55,11 @@ var Header = React.createClass({
       <div>
         <div id="header" className="row">
           <div className="col-xs-4"> <h1 id="bop_header" className="pull-left"> Bop </h1>
-            <h2 id ="seattle_header" className="pull-left"> {this.props.region} </h2>
+            <h2 id ="seattle_header" className="pull-left"> {this.props.region.substring(0,10)} </h2>
           </div>
           <div className="col-xs-3 col-xs-offset-5">
             <img className="pull-right" id="gear" src="images/gear.png"/>
-            <h3 className="pull-right" onClick={this.loginClickHandler} onMouseOver={this._loginOnMouseOver} onMouseOut={this._loginOnMouseOut}> {this.state.loginText} </h3>
+            <h3 className="pull-right pointer" onClick={this.loginClickHandler} onMouseOver={this._loginOnMouseOver} onMouseOut={this._loginOnMouseOut}> {this.state.loginText} </h3>
           </div>
         </div>
         <div id="login-info" className={loginInfoClasses}>

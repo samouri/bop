@@ -15,12 +15,17 @@
     "react-router": "^0.13.3",
     "react-youtube": "~4.1.2",
     "request": "^2.64.0",
-    "underscore": "^1.8.3",
+    "underscore": "~1.8.3",
     "express-session": "~1.11.3",
     "emailjs": "~1.0.0",
     "connect-flash": "~0.1.1",
     "bootstrap-validator": "~0.9.0",
-    "mongoose": "~4.1.10"
+    "mongoose": "~4.1.10",
+    "react-waypoint": "~1.0.3",
+    "install": "~0.1.8",
+    "npm": "~3.3.6",
+    "bcrypt": "~0.8.5",
+    "sha1": "~1.1.1"
   },
   "devDependencies": {
     "jsx-loader": "^0.13.2",
@@ -33,8 +38,8 @@
   },
   "scripts": {
     "start": "npm run serve | npm run dev",
-    "start-prod": "npm run prod | npm run serve",
     "serve": "nodejs server/server.js",
+    "serveProd": "NODE_ENV=production nodejs server/server.js",
     "dev": "webpack-dev-server --progress --colors --hot --inline --devtool eval --port 8090",
     "prod": "NODE_ENV=production webpack -p --config webpack.prod.config.js --port 8090"
   },

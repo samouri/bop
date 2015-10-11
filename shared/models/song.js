@@ -52,7 +52,15 @@ songSchema.statics.findTopSongsInRegion = function(regionId, start, pageSize, ca
 }
 
 songSchema.statics.findNewSongsInRegion = function(regionId, start, pageSize, callback) {
-  var query = this.find({region_id: regionId}).sort({date_added: 1}).skip(start).limit(pageSize);
+  var query = this.find({region_id: regionId}).sort({date_added: -1}).skip(start).limit(pageSize);
+  query.exec('find', function(err, items) {
+      if (err) { console.log(err) }
+      callback(items);
+  });
+}
+
+songSchema.statics.findStarredSongsForUser = function(userEmail, start, pageSize, callback) {
+  var query = this.find({region_id: regionId}).sort({date_added: -1}).skip(start).limit(pageSize);
   query.exec('find', function(err, items) {
       if (err) { console.log(err) }
       callback(items);
@@ -66,12 +74,18 @@ songSchema.statics.countSongsInRegion = function(regionId, callback) {
 }
 
 songSchema.statics.addSongToRegion = function(regionId, songInfo, callback) {
-  var song = Song(songInfo);
-  song.save(function(err, song) {
-    if (err) {
-      console.log(err);
+  this.findSong(regionId, songInfo.youtube_id, function(s) {
+    if (s) {
+      return;
+      console.log("cant have the same song twice");
     }
-  });
+    var song = Song(songInfo);
+    song.save(function(err, song) {
+      if (err) {
+        console.log(err);
+      }
+    });
+  })
 }
 
 // Export Model

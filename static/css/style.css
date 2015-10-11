@@ -189,6 +189,10 @@ body {
 .filter-btn.active {
   background-color: purple;
 }
+
+.pointer {
+  cursor: pointer;
+}
 /*
  * Thank you: http://getbootstrap.com.vn/examples/equal-height-columns/
  * Row with equal height columns

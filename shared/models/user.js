@@ -5,12 +5,12 @@ var Schema = mongoose.Schema;
 
 var userSchema = new Schema({
   email:     { type: String, required: true, index: { unique: true }},
-  songLikes: { type: Array, default: []}
+  starredSongs: { type: Array, default: []}
 });
 
 
 // Methods
-userSchema.methods.likeSong = function(song) {
+userSchema.methods.starSong = function(song) {
   this.songLikes.push(song);
   this.save(function(err, user) {
     if (err) {

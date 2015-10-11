@@ -24,6 +24,12 @@ var smtpServer  = email.server.connect({
   port: 465
 });
 
+// http://stackoverflow.com/questions/2855865/jquery-regex-validation-of-e-mail-address
+function isValidEmailAddress(emailAddress) {
+  var pattern = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+  return pattern.test(emailAddress);
+};
+
 var pathToMongoDb = 'mongodb://localhost/test';
 passwordless.init(new MongoStore(pathToMongoDb));
 mongoose.connect(pathToMongoDb);
@@ -47,11 +53,13 @@ passwordless.addDelivery(
   }
 );
 
+var index = process.env.NODE_ENV === "production" ? "index.prod.html" : "index.html";
+
 var appRoute = function(req,res) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
   res.locals.user = req.user;
-  res.sendFile(path.resolve('index.html'));
+  res.sendFile(path.resolve(index));
 }
 
 app.use(bodyParser.json());
@@ -82,8 +90,12 @@ app.post('/', function(req, res, next) {
   var youtubeId = req.body["SongId"];
   var youtubeTitle = req.body["SongTitle"];
   var type = req.body["Type"];
+  var star = req.body["Star"];
 
   if (operation === "GetSongsInRegion") {
+    if (star) {
+      regionId = regionId.hashCode();
+    }
     getSongsInRegion(res, regionId, type, start);
   }
   else if (operation === "AddSongToRegion") {
@@ -94,7 +106,9 @@ app.post('/', function(req, res, next) {
   }
   else if (operation === "SendToken") {
     var userEmail = req.body["UserEmail"];
-    sendToken(req, res, next);
+    if (isValidEmailAddress(userEmail)) {
+      sendToken(req, res, next);
+    }
   }
   else if (operation === "Logout") {
     passwordless.logout()(req, res, next);
@@ -155,8 +169,7 @@ function addSongToRegion(res, regionId, youtubeId, youtubeTitle, thumbnailUrl) {
 }
 
 function getSongsInRegion(res, regionId, type, start, pageSize) {
-  console.log(regionId);
-  pageSize = pageSize || 5;
+  pageSize = pageSize || 50;
   start = start || 0;
   Song.countSongsInRegion(regionId, function(count) {
     if (start >= count) {
@@ -181,4 +194,17 @@ function getSongsInRegion(res, regionId, type, start, pageSize) {
     });
   });
 }
+
+
+// http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length == 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
 

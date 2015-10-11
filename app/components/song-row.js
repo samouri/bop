@@ -22,7 +22,12 @@ var SongRow = React.createClass({
     var dateAdded = new Date(dateAddedString);
     var age = (Date.now() - dateAdded.getTime()) / 1000;
     var age_minutes = Math.floor(age / 60);
-    return age_minutes + " minutes"
+    var age_hours = Math.floor(age_minutes / 60);
+
+    if (age_hours < 1) {
+      return age_minutes + "m";
+    }
+    return age_hours + "h";
   },
 
   handleUpvote: function(song_info) {
@@ -33,13 +38,13 @@ var SongRow = React.createClass({
   },
 
   render: function () {
-    var playOrPauseClasses = cx('fa', 'fa-3x', {
+    var playOrPauseClasses = cx('fa', 'fa-3x', 'pointer', {
       'fa-pause': this.props.data.playing && this.props.data.selected,
       'fa-play': !(this.props.data.playing && this.props.data.selected),
       'selected-purple': this.props.data.selected
     });
 
-    var upChevronClasses = cx('fa fa-chevron-up fa-2x', {
+    var upChevronClasses = cx('fa fa-chevron-up fa-2x pointer', {
       'up-chevron-selected': this.state.upvoted
     });
 

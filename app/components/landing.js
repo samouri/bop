@@ -1,9 +1,28 @@
-var React = require('react');
-var Header = require('./header.js');
-var Youtube = require('react-youtube');
-var SearchBar = require('./searchbar.js');
-var SongList = require('./song-list.js');
-var cx = require('classnames');
+var _ = require('underscore');
+const React = require('react');
+var Navigation = require('react-router').Navigation;
+const Header = require('./header.js');
+var sha1 = require('sha1');
+const Waypoint = require('react-waypoint');
+
+const Youtube = require('react-youtube');
+const SearchBar = require('./searchbar.js');
+const SongList = require('./song-list.js');
+const cx = require('classnames');
+
+
+// http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
+String.prototype.hashCode = function() {
+  var hash = 0, i, chr, len;
+  if (this.length == 0) return hash;
+  for (i = 0, len = this.length; i < len; i++) {
+    chr   = this.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+};
+
 
 var YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const opts = {
@@ -17,13 +36,16 @@ const opts = {
 }
 
 var Landing = React.createClass({
+  mixins: [Navigation],
+
   getInitialState: function() {
     return {
-      selectedVideoIndex: 0,
+      selectedVideoId: null,
       playing: true,
       data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}},
       sort: "top",
-      userInfo: null
+      star: false,
+      userInfo: {}
     };
   },
 
@@ -34,13 +56,14 @@ var Landing = React.createClass({
       success: function(resp) { _this.setState({userInfo: resp}) }
     });
 
-    _this.loadSongs("top");
+   // _this.loadSongs("top");
     _this.loadSongs("new");
-    $(window).scroll(function() {
-      if($(window).scrollTop() + $(window).height() == $(document).height()) {
-        _this.loadSongs(_this.state.sort);
-      }
-    });
+  },
+  componentWillReceiveProps: function(newProps) {
+    console.log("HIII");
+    this.setState({data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}}}),
+    this.loadSongs("top", undefined, newProps.params.region);
+    this.loadSongs("new", undefined, newProps.params.region);
   },
 
   clickPlayHandler: function(videoId, type) {
@@ -59,7 +82,7 @@ var Landing = React.createClass({
 
   logoutHandler: function() {
     this.serverPost("Logout");
-    this.setState({userInfo: null});
+    this.setState({userInfo: {}});
   },
 
   handleSearchSelection: function(song_info) {
@@ -114,17 +137,16 @@ var Landing = React.createClass({
       error: handlers["error"]
     });
   },
-
+  currentlyPlayingVideoIndex: function() {
+    var songYoutubeIds = _.pluck(this.state.data[this.state.sort].songs, "youtube_id");
+    return songYoutubeIds.indexOf(this.state.selectedVideoId);
+  },
   playVideo: function(videoId) {
     if (typeof videoId === 'string' || videoId instanceof String) {
-     var index = 0;
-     while (this.state.data[this.state.sort].songs[index].youtube_id !== videoId) {
-       index++;
-     }
      // only reload video if its new
-     if (this.state.selectedVideoIndex != index) {
-       this.player.loadVideoById(this.state.data[this.state.sort].songs[index].youtube_id);
-       this.setState({selectedVideoIndex: index});
+     if (this.state.selectedVideoIndex != this.currentlyPlayingVideoIndex()) {
+       this.player.loadVideoById(videoId);
+       this.setState({selectedVideoId: videoId});
      }
     }
     this.setState({playing: true});
@@ -137,21 +159,24 @@ var Landing = React.createClass({
   },
 
   playNextSong: function() {
-    this.player.loadVideoById(this.state.data[this.state.sort].songs[this.state.selectedVideoIndex+1].youtube_id);
-    this.setState({selectedVideoIndex: this.state.selectedVideoIndex + 1});
+    var currIndex = this.currentlyPlayingVideoIndex();
+    this.playVideo(this.state.data[this.state.sort].songs[currIndex+1]);
   },
 
   setPlayer: function(e) {
     this.player = e.target;
     if(this.state.data[this.state.sort].songs.length > 0) {
-      this.player.loadVideoById(this.state.data[this.state.sort].songs[this.state.selectedVideoIndex].youtube_id);
+      this.player.loadVideoById(this.state.data[this.state.sort].songs[0].youtube_id);
+      this.setState({selectedVideoId: this.state.data[this.state.sort].songs[0].youtube_id});
     }
-    this.player.pauseVideo();
+    //  this.player.pauseVideo();
   },
 
-  loadSongs: function(type) {
+  loadSongs: function(type, star, regionId) {
+    type = type || this.state.sort;
     var _this = this;
-    var region = _this.props.params.region || "Seattle";
+    var region = regionId || _this.props.params.region || "Seattle";
+    var star = star || false;
     var operation;
     var postData = { "RegionId": region, "InputToken": this.state.data[type].pageToken, "Type": type};
     _this.serverPost("GetSongsInRegion", postData, {
@@ -163,7 +188,7 @@ var Landing = React.createClass({
           elem.upvoteHandler = _this.handleUpvote;
           return elem
         });
-        songs = _this.state.data[type].songs.concat(songs);
+        songs = _.union(_this.state.data[type].songs, songs);
         var data = _this.state.data;
         data[type] = {songs: songs, pageToken: pageToken};
         _this.setState({data: data});
@@ -177,11 +202,16 @@ var Landing = React.createClass({
       _this.setState({sort: sort});
     }
   },
-
+  goToMine: function() {
+    var userStars = this.state.userInfo.email? sha1(this.state.userInfo.email) : "";
+    //var userStars = this.state.userInfo.email? this.state.userInfo.email.hashCode() : "";
+    this.transitionTo("/"  + userStars);
+  },
   render: function () {
     var region = this.props.params.region || "Seattle";
-    var hotBtnClasses = cx("filter-btn", {active: this.state.sort === "top"});
-    var newBtnClasses = cx("filter-btn", {active: this.state.sort === "new"});
+    var hotBtnClasses = cx("filter-btn", "pointer", {active: this.state.sort === "top"});
+    var newBtnClasses = cx("filter-btn", "pointer", {active: this.state.sort === "new"});
+    var starredBtnClasses = cx("filter-btn", "pointer", "col-xs-1", {active: this.state.sort === "star"});
 
     return (
       <div className="row">
@@ -192,19 +222,20 @@ var Landing = React.createClass({
           <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.playNextSong} onReady={this.setPlayer} onPause={this.pauseVideo} onPlay={this.playVideo}/>
         </div>
         <div className={'row'} id={'gradient_bar'}>
-          <div className="btn-group col-xs-3 col-xs-offset-4" role="group">
+          <i className="fa fa-star fa-2x pointer col-xs-1" onClick={this.goToMine}></i>
+          <div className="btn-group col-xs-3 col-xs-offset-3" role="group">
             <div className={hotBtnClasses} onClick={this.setSort("top")}>Hot</div>
             <div className={newBtnClasses} onClick={this.setSort("new")}>New</div>
           </div>
           <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={this.handleSearchSelection}/> </div>
         </div>
         <div className="row">
-            <SongList songs={this.state.data[this.state.sort].songs} selectedVideoIndex={this.state.selectedVideoIndex} playing={this.state.playing}/>
+          <SongList songs={this.state.data[this.state.sort].songs} selectedVideoIndex={this.currentlyPlayingVideoIndex()} playing={this.state.playing}/>
         </div>
-    </div>
-  );
+        <Waypoint onEnter={_.throttle(this.loadSongs.bind(this, this.state.sort), 50)} threshold={0} height="50px"/>
+      </div>
+    );
   }
 });
-
 module.exports = Landing;
 
