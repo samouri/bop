@@ -34,7 +34,7 @@
   "scripts": {
     "start": "npm run serve | npm run dev",
     "start-prod": "npm run prod | npm run serve",
-    "serve": "nodejs server.js",
+    "serve": "nodejs server/server.js",
     "dev": "webpack-dev-server --progress --colors --hot --inline --devtool eval --port 8090",
     "prod": "NODE_ENV=production webpack -p --config webpack.prod.config.js --port 8090"
   },

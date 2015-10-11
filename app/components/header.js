@@ -11,23 +11,22 @@ var Header = React.createClass({
 
   componentWillReceiveProps: function(props) {
     var loginText = "Login"
-    if (props.userInfo) {
-      loginText = props.userInfo.substring(0, props.userInfo.indexOf("@"));
+    if (! $.isEmptyObject(props.userInfo)) {
+      loginText = props.userInfo.username;
     }
     this.setState({ loginText: loginText});
   },
 
   _loginOnMouseOver: function() {
-    if (this.props.userInfo) {
+    if (! $.isEmptyObject(this.props.userInfo)) {
       this.setState({ loginText: "Logout"});
     }
   },
 
   _loginOnMouseOut: function() {
     var loginText = "Login";
-    if (this.props.userInfo) {
-      var userInfo = this.props.userInfo;
-      loginText = userInfo.substring(0, userInfo.indexOf("@"));
+    if (! $.isEmptyObject(this.props.userInfo)) {
+      loginText = this.props.userInfo.username
     }
     this.setState({ loginText: loginText});
   },

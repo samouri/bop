@@ -3,6 +3,7 @@ var Header = require('./header.js');
 var Youtube = require('react-youtube');
 var SearchBar = require('./searchbar.js');
 var SongList = require('./song-list.js');
+var cx = require('classnames');
 
 var YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const opts = {
@@ -20,8 +21,8 @@ var Landing = React.createClass({
     return {
       selectedVideoIndex: 0,
       playing: true,
-      data: [],
-      pageToken: 0,
+      data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}},
+      sort: "top",
       userInfo: null
     };
   },
@@ -30,13 +31,14 @@ var Landing = React.createClass({
     var _this = this;
 
     this.serverPost("GetUserInfo", {}, {
-      success: function(resp) { _this.setState({userInfo: resp}); console.log(resp) }
+      success: function(resp) { _this.setState({userInfo: resp}) }
     });
 
-    _this.loadSongs();
+    _this.loadSongs("top");
+    _this.loadSongs("new");
     $(window).scroll(function() {
       if($(window).scrollTop() + $(window).height() == $(document).height()) {
-        _this.loadSongs();
+        _this.loadSongs(_this.state.sort);
       }
     });
   },
@@ -70,7 +72,7 @@ var Landing = React.createClass({
       "ThumbnailUrl": song_info["thumbnail_url"]
     }
     this.serverPost("AddSongToRegion", postData, {
-      success: function(resp) { _this.loadSongs()}
+      success: function(resp) { _this.loadSongs(this.state.sort)}
     });
   },
 
@@ -116,12 +118,12 @@ var Landing = React.createClass({
   playVideo: function(videoId) {
     if (typeof videoId === 'string' || videoId instanceof String) {
      var index = 0;
-     while (this.state.data[index].youtube_id !== videoId) {
+     while (this.state.data[this.state.sort].songs[index].youtube_id !== videoId) {
        index++;
      }
      // only reload video if its new
      if (this.state.selectedVideoIndex != index) {
-       this.player.loadVideoById(this.state.data[index].youtube_id);
+       this.player.loadVideoById(this.state.data[this.state.sort].songs[index].youtube_id);
        this.setState({selectedVideoIndex: index});
      }
     }
@@ -135,49 +137,52 @@ var Landing = React.createClass({
   },
 
   playNextSong: function() {
-    this.player.loadVideoById(this.state.data[this.state.selectedVideoIndex+1].youtube_id);
+    this.player.loadVideoById(this.state.data[this.state.sort].songs[this.state.selectedVideoIndex+1].youtube_id);
     this.setState({selectedVideoIndex: this.state.selectedVideoIndex + 1});
   },
 
   setPlayer: function(e) {
     this.player = e.target;
-    if(this.state.data.length > 0) {
-      this.player.loadVideoById(this.state.data[this.state.selectedVideoIndex].youtube_id);
+    if(this.state.data[this.state.sort].songs.length > 0) {
+      this.player.loadVideoById(this.state.data[this.state.sort].songs[this.state.selectedVideoIndex].youtube_id);
     }
     this.player.pauseVideo();
   },
 
-  loadSongs: function() {
+  loadSongs: function(type) {
     var _this = this;
     var region = _this.props.params.region || "Seattle";
-    var postData = { "RegionId": region, "InputToken": this.state.pageToken};
-    _this.serverPost("GetTopSongsInRegion", postData, {
+    var operation;
+    var postData = { "RegionId": region, "InputToken": this.state.data[type].pageToken, "Type": type};
+    _this.serverPost("GetSongsInRegion", postData, {
       success: function(resp) {
-        var data = resp;
-        var pageToken = data['OutputToken'];
-        if (pageToken) {
-          pageToken = pageToken;
-        } else {
-          pageToken = parseInt(_this.state.pageToken) + data['Songs'].length;
-        }
-
-        var songs = data['Songs'];
+        var pageToken = resp['OutputToken'];
+        var songs = resp['Songs'];
         songs = songs.map(function(elem, i) {
           elem.clickPlayHandler = _this.clickPlayHandler;
           elem.upvoteHandler = _this.handleUpvote;
-          elem.downcoteHandler = _this.handleDownvote;
-          elem.threeDigitUpvotes = elem.upvotes.toString().length >= 3;
           return elem
         });
-        songs = _this.state.data.concat(songs);
-        _this.setState({data: songs, pageToken: pageToken});
+        songs = _this.state.data[type].songs.concat(songs);
+        var data = _this.state.data;
+        data[type] = {songs: songs, pageToken: pageToken};
+        _this.setState({data: data});
       }
     });
   },
 
-  render: function () {
+  setSort: function(sort) {
     var _this = this;
-    var region = _this.props.params.region || "Seattle";
+    return function() {
+      _this.setState({sort: sort});
+    }
+  },
+
+  render: function () {
+    var region = this.props.params.region || "Seattle";
+    var hotBtnClasses = cx("filter-btn", {active: this.state.sort === "top"});
+    var newBtnClasses = cx("filter-btn", {active: this.state.sort === "new"});
+
     return (
       <div className="row">
         <div className="row">
@@ -188,13 +193,13 @@ var Landing = React.createClass({
         </div>
         <div className={'row'} id={'gradient_bar'}>
           <div className="btn-group col-xs-3 col-xs-offset-4" role="group">
-            <div className="filter-btn active">Hot</div>
-            <div className="filter-btn">New</div>
+            <div className={hotBtnClasses} onClick={this.setSort("top")}>Hot</div>
+            <div className={newBtnClasses} onClick={this.setSort("new")}>New</div>
           </div>
           <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={this.handleSearchSelection}/> </div>
         </div>
         <div className="row">
-            <SongList songs={_this.state.data} selectedVideoIndex={_this.state.selectedVideoIndex} playing={_this.state.playing}/>
+            <SongList songs={this.state.data[this.state.sort].songs} selectedVideoIndex={this.state.selectedVideoIndex} playing={this.state.playing}/>
         </div>
     </div>
   );

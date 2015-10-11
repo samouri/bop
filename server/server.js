@@ -1,9 +1,9 @@
 var url = require('url');
+var path = require('path');
 var express = require('express');
 var proxy = require('proxy-middleware');
 var app = express();
 var bodyParser = require('body-parser');
-var flash = require('connect-flash');
 
 var request = require("request");
 var async = require('async');
@@ -11,8 +11,9 @@ var session = require('express-session');
 var passwordless = require('passwordless');
 var MongoStore = require('passwordless-mongostore');
 var email = require("emailjs");
-
 var mongoose = require('mongoose');
+var Song = require("../shared/models/song.js");
+var User = require("../shared/models/user.js");
 
 
 var smtpServer  = email.server.connect({
@@ -50,18 +51,13 @@ var appRoute = function(req,res) {
   res.header("Access-Control-Allow-Origin", "*");
   res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, OPTIONS');
   res.locals.user = req.user;
-  res.sendFile(__dirname + '/index.html');
+  res.sendFile(path.resolve('index.html'));
 }
 
 app.use(bodyParser.json());
-app.use(flash());
 app.use(session({ secret: 'keyboard cat' }));
 app.use(passwordless.sessionSupport());
-app.use(passwordless.acceptToken({
-  successFlash: 'You are logged in. Welcome to Passwordless!',
-  failureFlash: 'The supplied token is not valid (anymore). Please request another one.',
-  successRedirect: '/'
-}));
+app.use(passwordless.acceptToken({successRedirect: '/' }));
 app.use(express.static('static'));
 
 //proxy the request for static assets
@@ -78,10 +74,6 @@ var server = app.listen(3000, function () {
   console.log('Example app listening at http://%s:%s', host, port);
 });
 
-var fs = require('fs');
-var seattle = JSON.parse(fs.readFileSync('seattle.json', 'utf8'));
-var db = {"Seattle": seattle}
-
 app.post('/', function(req, res, next) {
   var operation = req.headers["x-bop-operation"];
   var regionId = req.body["RegionId"];
@@ -89,17 +81,16 @@ app.post('/', function(req, res, next) {
   var thumbnailUrl = req.body["ThumbnailUrl"];
   var youtubeId = req.body["SongId"];
   var youtubeTitle = req.body["SongTitle"];
+  var type = req.body["Type"];
 
-  if (operation === "GetTopSongsInRegion") {
-    res.send(getTopSongsInRegion(regionId, start));
+  if (operation === "GetSongsInRegion") {
+    getSongsInRegion(res, regionId, type, start);
   }
   else if (operation === "AddSongToRegion") {
-    addSongToRegion(regionId, youtubeId, youtubeTitle, thumbnailUrl);
-    res.send("A-OK");
+    addSongToRegion(res, regionId, youtubeId, youtubeTitle, thumbnailUrl);
   }
   else if (operation === "UpvoteSong") {
-    upvoteSong(regionId, youtubeId);
-    res.send("A-OK");
+    upvoteSong(res, regionId, youtubeId, req.user);
   }
   else if (operation === "SendToken") {
     var userEmail = req.body["UserEmail"];
@@ -109,7 +100,14 @@ app.post('/', function(req, res, next) {
     passwordless.logout()(req, res, next);
   }
   else if (operation === "GetUserInfo") {
-    res.send(req.user);
+    var userInfo = {};
+    if (req.user) {
+      userInfo = {
+        username: req.user.substring(0, req.user.indexOf("@")),
+        email: req.user
+      }
+    }
+    res.send(userInfo);
   }
   else {
     res.send("errawr");
@@ -118,63 +116,69 @@ app.post('/', function(req, res, next) {
 
 function sendToken(req, res, next) {
   passwordless.requestToken(
-    function(user, delivery, callback, reqq) {
-      console.log(user);
+    function(user, delivery, callback) {
       callback(null, user);
     }, {"userField": "UserEmail"}
   )(req,res,next);
 }
 
-function upvoteSong(regionId, youtubeId) {
-  db[regionId] = db[regionId] || [];
-  var song = db[regionId].find(function(elem){ return elem["youtube_id"] === youtubeId});
-  song.upvotes += 1;
+function upvoteSong(res, regionId, youtubeId, user) {
+  if (! user) {
+    console.log("Error: user must be signed in");
+    //res.send("Error: Must be signed in");
+    //return;
+  }
+  Song.findSong(regionId, youtubeId, function(song) {
+    song.upvote(user);
+  });
+  res.send("A-OK");
 }
 
-function addSongToRegion(regionId, youtubeId, youtubeTitle, thumbnailUrl) {
+function addSongToRegion(res, regionId, youtubeId, youtubeTitle, thumbnailUrl) {
   echosearchUrl = "http://developer.echonest.com/api/v4/song/search?api_key=LBRJASRIEOPXQGYXE&format=json&song_type=live:false&bucket=audio_summary&rank_type=relevance&results=1&combined="
   request.get(echosearchUrl + encodeURIComponent(youtubeTitle), function(error, response, body) {
     body = JSON.parse(body);
     resp_song_info = body["response"]["songs"][0];
     add_song_info = {
       "youtube_id": youtubeId,
-      "upvotes": 0,
-      "user_upvote": 0,
       "region_id": regionId,
-      "age": 0,
-      "metadata": {
-        "artist": resp_song_info["artist_name"],
-        "track": resp_song_info["title"],
-        "duration": resp_song_info["audio_summary"]["duration"],
-        "thumbnail_url": thumbnailUrl,
-        "echoId": resp_song_info["id"]
-      }
+      "artist": resp_song_info["artist_name"],
+      "track": resp_song_info["title"],
+      "thumbnail_url": thumbnailUrl,
+      "echo_id": resp_song_info["id"],
+      "duration": resp_song_info["audio_summary"]["duration"]
     }
-    db[regionId] = db[regionId] || [];
-    db[regionId].push(add_song_info);
+
+    Song.addSongToRegion(regionId, add_song_info);
+    res.send("A-OK");
   });
 }
 
-function getTopSongsInRegion(regionId, start, pageSize) {
-  if (db[regionId] === undefined || db[regionId].length <= start) {
-    return {
-      Songs: [], OutputToken: start
-    };
-  }
+function getSongsInRegion(res, regionId, type, start, pageSize) {
+  console.log(regionId);
   pageSize = pageSize || 5;
   start = start || 0;
+  Song.countSongsInRegion(regionId, function(count) {
+    if (start >= count) {
+      res.send({ Songs: [], OutputToken: start});
+      return;
+    }
 
-  var end;
-  if (start + pageSize <= db[regionId].length) {
-    end = start + pageSize;
-  } else {
-    end = db[regionId].length;
-  }
-
-  var response = {
-    Songs: db[regionId],
-    OutputToken: db[regionId].length
-  };
-
-  return response;
+    var getSongsFn;
+    if (type === "top") {
+      getSongsFn = Song.findTopSongsInRegion.bind(Song);
+    }
+    else if (type === "new") {
+      getSongsFn = Song.findNewSongsInRegion.bind(Song);
+    }
+    var outputToken = (start+pageSize > count) ? count : start+pageSize;
+    getSongsFn(regionId, start, pageSize, function(songs) {
+      var response = {
+        Songs: songs,
+        OutputToken: outputToken
+      };
+      res.send(response);
+    });
+  });
 }
+

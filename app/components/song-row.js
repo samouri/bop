@@ -11,14 +11,16 @@ var SongRow = React.createClass({
   },
 
   durationToString: function(duration) {
-    var duration = this.props.data.metadata.duration;
+    var duration = this.props.data.duration;
     var duration_minutes = Math.floor(duration / 60);
-    var duration_seconds = duration - duration_minutes * 60;
+    var duration_seconds = Math.floor(duration - duration_minutes * 60);
     return duration_minutes + ":" + duration_seconds;
   },
 
-  ageToString: function(age) {
-    var age = this.props.data.age;
+  getAge: function() {
+    var dateAddedString = this.props.data.date_added;
+    var dateAdded = new Date(dateAddedString);
+    var age = (Date.now() - dateAdded.getTime()) / 1000;
     var age_minutes = Math.floor(age / 60);
     return age_minutes + " minutes"
   },
@@ -36,36 +38,34 @@ var SongRow = React.createClass({
       'fa-play': !(this.props.data.playing && this.props.data.selected),
       'selected-purple': this.props.data.selected
     });
-    var upvotesClasses = cx('vote-count', {
-      'padded-upvotes': ! this.props.data.threeDigitUpvotes
-    });
+
     var upChevronClasses = cx('fa fa-chevron-up fa-2x', {
       'up-chevron-selected': this.state.upvoted
     });
 
-    var upvotes = this.props.data.upvotes;
+    var votes = this.props.data.votes;
     if (this.state.upvoted) {
-      upvotes += 1;
+      votes += 1;
     }
 
     return (
         <div className="song-div row-eq-height">
             <div className="pull-left col-xs-offset-1 col-xs-2" id="img-div" >
-              <img className="img-circle" src={this.props.data.metadata.thumbnail_url}></img>
+              <img className="img-circle" src={this.props.data.thumbnail_url}></img>
             </div>
             <div className="song-info pull-left col-xs-4">
-                <span className="song-title"> {this.props.data.metadata.track} </span>
-                <span className="song-artist"> {this.props.data.metadata.artist} </span>
-                <span className="time-since"> {this.ageToString(this.props.data.age)} </span>
+                <span className="song-title"> {this.props.data.track.substring(0,16)} </span>
+                <span className="song-artist"> {this.props.data.artist} </span>
+                <span className="time-since"> {this.getAge()} </span>
             </div>
             <div className="play-info pull-right col-xs-1 col-xs-offset-2">
               <i className={playOrPauseClasses} onClick={this.props.data.clickPlayHandler(this.props.data.youtube_id, playOrPauseClasses)}></i>
-              <span className="duration">{this.durationToString(this.props.data.metadata.duration)}</span>
+              <span className="duration">{this.durationToString(this.props.data.duration)}</span>
             </div>
             <div className="vote-info pull-right col-xs-1">
                 <i className={upChevronClasses} onClick={this.handleUpvote}></i>
-                <span className={upvotesClasses}>{upvotes}</span>
-                <i className="fa fa-chevron-down fa-2x"></i>
+                <span className="vote-count">{votes}</span>
+                <i className="fa fa-star fa-2x"></i>
             </div>
         </div>
     );
