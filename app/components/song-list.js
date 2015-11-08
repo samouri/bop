@@ -7,7 +7,7 @@ var SongList = React.createClass({
     var songRows = _this.props.songs.map(function(song_info, index) {
       song_info.selected = _this.props.selectedVideoIndex == index;
       song_info.playing  = _this.props.playing;
-      return <li className="list-group-item"> <SongRow data={song_info}/> </li>
+      return <li className="list-group-item"> <SongRow {...song_info}/> </li>
     });
     return (
       <div>

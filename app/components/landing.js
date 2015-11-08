@@ -8,6 +8,7 @@ const Waypoint = require('react-waypoint');
 const Youtube = require('react-youtube');
 const SearchBar = require('./searchbar.js');
 const SongList = require('./song-list.js');
+var config = require('../../server/config');
 const cx = require('classnames');
 
 
@@ -42,9 +43,8 @@ var Landing = React.createClass({
     return {
       selectedVideoId: null,
       playing: true,
-      data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}},
+      data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}, "star": {songs: [], pageToken: 0}},
       sort: "top",
-      star: false,
       userInfo: {}
     };
   },
@@ -59,11 +59,12 @@ var Landing = React.createClass({
    // _this.loadSongs("top");
     _this.loadSongs("new");
   },
+
   componentWillReceiveProps: function(newProps) {
-    console.log("HIII");
-    this.setState({data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}}}),
-    this.loadSongs("top", undefined, newProps.params.region);
-    this.loadSongs("new", undefined, newProps.params.region);
+    this.setState({data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}, "star": { songs: [], pageToken: 0}}}),
+    this.loadSongs("top",  newProps.params.region);
+    this.loadSongs("new", newProps.params.region);
+    this.loadSongs("star");
   },
 
   clickPlayHandler: function(videoId, type) {
@@ -88,14 +89,15 @@ var Landing = React.createClass({
   handleSearchSelection: function(song_info) {
     var _this = this;
     var region = _this.props.params.region || "Seattle";
+    var operation = (_this.state.sort === "star")? "AddSongToUser" : "AddSongToRegion";
     var postData =  {
       "RegionId": region,
       "SongId": song_info["youtube_id"],
       "SongTitle": song_info["youtube_title"],
       "ThumbnailUrl": song_info["thumbnail_url"]
     }
-    this.serverPost("AddSongToRegion", postData, {
-      success: function(resp) { _this.loadSongs(this.state.sort)}
+    this.serverPost(operation, postData, {
+      success: function(resp) { _this.loadSongs(_this.state.sort)}
     });
   },
 
@@ -103,7 +105,6 @@ var Landing = React.createClass({
     var _this = this;
     var region = _this.props.params.region || "Seattle";
     var postData = { "UserEmail": userEmail };
-    console.log(postData);
     this.serverPost("SendToken", postData, {});
   },
 
@@ -169,17 +170,16 @@ var Landing = React.createClass({
       this.player.loadVideoById(this.state.data[this.state.sort].songs[0].youtube_id);
       this.setState({selectedVideoId: this.state.data[this.state.sort].songs[0].youtube_id});
     }
-    //  this.player.pauseVideo();
+    this.pauseVideo();
   },
 
-  loadSongs: function(type, star, regionId) {
+  loadSongs: function(type, regionId) {
     type = type || this.state.sort;
     var _this = this;
     var region = regionId || _this.props.params.region || "Seattle";
-    var star = star || false;
-    var operation;
+    var operation = (type === "star")? "GetSongsForUser" : "GetSongsInRegion";
     var postData = { "RegionId": region, "InputToken": this.state.data[type].pageToken, "Type": type};
-    _this.serverPost("GetSongsInRegion", postData, {
+    _this.serverPost(operation, postData, {
       success: function(resp) {
         var pageToken = resp['OutputToken'];
         var songs = resp['Songs'];
@@ -202,16 +202,12 @@ var Landing = React.createClass({
       _this.setState({sort: sort});
     }
   },
-  goToMine: function() {
-    var userStars = this.state.userInfo.email? sha1(this.state.userInfo.email) : "";
-    //var userStars = this.state.userInfo.email? this.state.userInfo.email.hashCode() : "";
-    this.transitionTo("/"  + userStars);
-  },
+
   render: function () {
     var region = this.props.params.region || "Seattle";
     var hotBtnClasses = cx("filter-btn", "pointer", {active: this.state.sort === "top"});
     var newBtnClasses = cx("filter-btn", "pointer", {active: this.state.sort === "new"});
-    var starredBtnClasses = cx("filter-btn", "pointer", "col-xs-1", {active: this.state.sort === "star"});
+    var starBtnClasses = cx("fa fa-star fa-2x", "pointer", "col-xs-1", {active: this.state.sort === "star"});
 
     return (
       <div className="row">
@@ -222,7 +218,7 @@ var Landing = React.createClass({
           <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.playNextSong} onReady={this.setPlayer} onPause={this.pauseVideo} onPlay={this.playVideo}/>
         </div>
         <div className={'row'} id={'gradient_bar'}>
-          <i className="fa fa-star fa-2x pointer col-xs-1" onClick={this.goToMine}></i>
+          <i className={starBtnClasses} onClick={this.setSort("star")}></i>
           <div className="btn-group col-xs-3 col-xs-offset-3" role="group">
             <div className={hotBtnClasses} onClick={this.setSort("top")}>Hot</div>
             <div className={newBtnClasses} onClick={this.setSort("new")}>New</div>
