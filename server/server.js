@@ -3,13 +3,11 @@ var url = require('url');
 var path = require('path');
 var proxy = require('proxy-middleware');
 var bodyParser = require('body-parser');
-var cookieParser = require("cookie-parser");
 var session = require('express-session');
 var MongoStore = require('connect-mongostore')(session);
 var passwordless = require('./passwordless');
 var mongoose = require('mongoose');
 var flash = require('connect-flash');
-var validator = require('validator');
 var app = express();
 
 
@@ -19,7 +17,6 @@ var api = require('./api.js');
 var pathToMongoDb = 'mongodb://localhost/test';
 mongoose.connect(pathToMongoDb);
 
-app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(session({

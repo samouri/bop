@@ -19,14 +19,13 @@ if (process.env.NODE_ENV === "production") {
   config.indexPath = "index.prod.html";
   config.host = "nothingtoseehere.xyz";
   config.port = "3000";
-  config.assetsPort = "8091"
   config.prod = true;
   config.dev = false;
 }
 else {
   config.indexPath = "index.html";
-  config.host = "192.168.0.2:3001";
-  config.port = "3001";
+  config.host = "192.168.0.2:3000";
+  config.port = "3000";
   config.assetsPort = "8090";
   config.prod = false;
   config.dev = true;

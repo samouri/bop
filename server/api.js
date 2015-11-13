@@ -1,4 +1,5 @@
 var request = require("request");
+var validator = require('validator');
 
 var Song = require("../shared/models/song.js");
 var passwordless = require('./passwordless');

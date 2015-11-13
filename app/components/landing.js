@@ -56,7 +56,6 @@ var Landing = React.createClass({
       success: function(resp) { _this.setState({userInfo: resp}) }
     });
 
-   // _this.loadSongs("top");
     _this.loadSongs("new");
   },
 
@@ -228,7 +227,7 @@ var Landing = React.createClass({
         <div className="row">
           <SongList songs={this.state.data[this.state.sort].songs} selectedVideoIndex={this.currentlyPlayingVideoIndex()} playing={this.state.playing}/>
         </div>
-        <Waypoint onEnter={_.throttle(this.loadSongs.bind(this, this.state.sort), 50)} threshold={0} height="50px"/>
+        <Waypoint onEnter={_.throttle(this.loadSongs.bind(this, this.state.sort, undefined), 50)} threshold={0} height="50px"/>
       </div>
     );
   }

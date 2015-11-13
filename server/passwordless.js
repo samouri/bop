@@ -29,7 +29,7 @@ var passwordlessWrapper = {
           + encodeURIComponent(uidToSend),
           from:    "boptoken@gmail.com",
           to:      recipient,
-          subject: 'Token for ' + host
+          subject: 'Token for ' + config.host
         }, function(err, message) {
           if(err) {
             console.log(err);

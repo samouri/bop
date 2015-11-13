@@ -47,8 +47,8 @@
     "start": "npm run serve | npm run dev",
     "serve": "nodejs --harmony server/server.js",
     "serveProd": "NODE_ENV=production nodejs --harmony server/server.js",
-    "dev": "webpack-dev-server --progress --colors --hot --inline --devtool eval --port 8091",
-    "prod": "NODE_ENV=production webpack -p --config webpack.prod.config.js --port 8090"
+    "prod": "NODE_ENV=production webpack -p --config webpack.prod.config.js --port 8090",
+    "dev": "webpack-dev-server --progress --colors --hot --inline --devtool eval --port 8090"
   },
   "author": "jake fried",
   "license": "ISC"
