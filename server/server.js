@@ -23,9 +23,10 @@ app.use(session({
   secret: 'keyboard-cat',
   resave: false,
   saveUninitialized: true,
-  cookie: { maxAge: 60*60*24*365*10, secure: false},
+  cookie: { maxAge: 60*60*24*365*10, secure: true, domain: "*.nothingtoseehere.xyz"},
   store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
+
 app.use(flash());
 app.use(express.static('static'));
 passwordless.setup(app);

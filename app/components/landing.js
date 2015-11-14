@@ -137,10 +137,12 @@ var Landing = React.createClass({
       error: handlers["error"]
     });
   },
+
   currentlyPlayingVideoIndex: function() {
     var songYoutubeIds = _.pluck(this.state.data[this.state.sort].songs, "youtube_id");
     return songYoutubeIds.indexOf(this.state.selectedVideoId);
   },
+
   playVideo: function(videoId) {
     if (typeof videoId === 'string' || videoId instanceof String) {
      // only reload video if its new
@@ -160,7 +162,7 @@ var Landing = React.createClass({
 
   playNextSong: function() {
     var currIndex = this.currentlyPlayingVideoIndex();
-    this.playVideo(this.state.data[this.state.sort].songs[currIndex+1]);
+    this.playVideo(this.state.data[this.state.sort].songs[currIndex+1].youtube_id);
   },
 
   setPlayer: function(e) {
