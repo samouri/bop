@@ -24,22 +24,28 @@ var songSchema = new Schema({
 
 // Methods
 songSchema.methods.upvote = function(user) {
-  var userSha = sha1(user);
-  if (! this.users_that_upvoted[userSha]) {
+
+  if (this.users_that_upvoted[userSha]) {
+    this.votes -= 1;
+    this.users_that_upvoted[userSha] = false;
+  }
+  else {
     this.votes += 1;
     this.users_that_upvoted[userSha] = true;
-    this.markModified('users_that_upvoted');
-    this.save(function(err, song) {
-      if (err) {
-        console.log(err);
-      }
-    });
   }
+
+  this.markModified('users_that_upvoted');
+  this.save(function(err, song) {
+    if (err) {
+      console.log(err);
+    }
+  });
 }
 
 function prepUsersThatUpvoted(user, song) {
   var clone = song.toObject();
   clone.upvoted = false;
+
   if (user && song.users_that_upvoted[sha1(user)]) {
     clone.upvoted = true;
   }

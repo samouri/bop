@@ -31,9 +31,7 @@ var SongRow = React.createClass({
   },
 
   handleUpvote: function(song_info) {
-    if (! this.state.upvoted) {
-      this.props.upvoteHandler(this.props);
-    }
+    this.props.upvoteHandler(this.props);
     this.setState({upvoted: !this.state.upvoted});
   },
 
@@ -49,8 +47,11 @@ var SongRow = React.createClass({
     });
 
     var votes = this.props.votes;
-    if (this.state.upvoted) {
+    if (this.state.upvoted && !this.props.upvoted) {
       votes += 1;
+    }
+    else if (! this.state.upvoted && this.props.upvoted) {
+      votes  -= 1;
     }
 
     return (

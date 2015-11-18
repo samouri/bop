@@ -51,6 +51,7 @@ var passwordlessWrapper = {
       if (req.user) {
         res.locals.user = req.user;
       }
+      console.log(req.user);
       next();
     });
   },
