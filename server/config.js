@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === "production") {
 }
 else {
   config.indexPath = "index.html";
-  config.host = "192.168.0.2:80";
+  config.host = "192.168.0.2:3000";
   config.port = "3001";
   config.assetsPort = "8090";
   config.prod = false;
