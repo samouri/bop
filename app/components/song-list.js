@@ -1,5 +1,6 @@
 var React = require('react');
 var SongRow = require('./song-row.js');
+var _ = require('underscore');
 
 var SongList = React.createClass({
   render: function() {
@@ -9,6 +10,9 @@ var SongList = React.createClass({
       song_info.playing  = _this.props.playing;
       return <li className="list-group-item"> <SongRow {...song_info}/> </li>
     });
+    if (_.isEmpty(this.props.songs)) {
+      songRows = <p> Theres a first for everything </p>
+    }
     return (
       <div>
         <ul className="list-group">

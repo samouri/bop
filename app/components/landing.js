@@ -12,19 +12,6 @@ var config = require('../../server/config');
 const cx = require('classnames');
 
 
-// http://stackoverflow.com/questions/7616461/generate-a-hash-from-string-in-javascript-jquery
-String.prototype.hashCode = function() {
-  var hash = 0, i, chr, len;
-  if (this.length == 0) return hash;
-  for (i = 0, len = this.length; i < len; i++) {
-    chr   = this.charCodeAt(i);
-    hash  = ((hash << 5) - hash) + chr;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash;
-};
-
-
 var YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const opts = {
   playerVars: { // https://developers.google.com/youtube/player_parameters
@@ -96,7 +83,9 @@ var Landing = React.createClass({
       "ThumbnailUrl": song_info["thumbnail_url"]
     }
     this.serverPost(operation, postData, {
-      success: function(resp) { _this.loadSongs(_this.state.sort)}
+      success: function(resp) {
+        _this.loadSongsAndReset(_this.state.sort)
+      }
     });
   },
 
@@ -116,6 +105,20 @@ var Landing = React.createClass({
     }
     this.serverPost("UpvoteSong", postData);
   },
+
+  handleStar: function(song_info) {
+    var _this = this;
+
+    var postData =  {
+      "SongId": song_info["youtube_id"],
+      "SongTitle": song_info.track,
+      "SongArtist": song_info.artist,
+      "ThumbnailUrl": song_info["thumbnail_url"]
+    };
+
+    this.serverPost("AddSongToUser", postData);
+  },
+
 
   serverPost: function(operation, data, handlers) {
     if( handlers == null || handlers === undefined) {
@@ -174,6 +177,29 @@ var Landing = React.createClass({
     this.pauseVideo();
   },
 
+  loadSongsAndReset: function(type, regionId) {
+    type = type || this.state.sort;
+    var _this = this;
+    var region = regionId || _this.props.params.region || "Seattle";
+    var operation = (type === "star")? "GetSongsForUser" : "GetSongsInRegion";
+    var postData = { "RegionId": region, "InputToken": 0, "Type": type};
+    _this.serverPost(operation, postData, {
+      success: function(resp) {
+        var pageToken = resp['OutputToken'];
+        var songs = resp['Songs'];
+        songs = songs.map(function(elem, i) {
+          elem.clickPlayHandler = _this.clickPlayHandler;
+          elem.upvoteHandler = _this.handleUpvote;
+          elem.starHandler = _this.handleStar;
+          return elem
+        });
+        var data = _this.state.data;
+        data[type] = {songs: songs, pageToken: pageToken};
+        _this.setState({data: data});
+      }
+    });
+  },
+
   loadSongs: function(type, regionId) {
     type = type || this.state.sort;
     var _this = this;
@@ -187,6 +213,7 @@ var Landing = React.createClass({
         songs = songs.map(function(elem, i) {
           elem.clickPlayHandler = _this.clickPlayHandler;
           elem.upvoteHandler = _this.handleUpvote;
+          elem.starHandler = _this.handleStar;
           return elem
         });
         songs = _.union(_this.state.data[type].songs, songs);

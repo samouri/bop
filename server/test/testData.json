@@ -1,0 +1,88 @@
+[{
+  "youtube_id" : "iP6XpLQM2Cs",
+  "upvotes" : 12,
+  "user_upvote" : 0,
+  "region_id" : "98102",
+  "age": 7200,
+  "artist" : "Ke$ha",
+  "track" : "Tik Tok",
+  "duration": 276,
+  "thumbnail_url":"https://33.media.tumblr.com/avatar_868f2b44b588_128.png"
+},
+{
+  "youtube_id" : "yFTvbcNhEgc",
+  "upvotes" : 100,
+  "user_upvote" : 0,
+  "region_id" : "98102",
+  "age": 7200,
+  "artist" : "Angus and Julia Stone",
+  "track" : "Big Jet Plane",
+  "duration": 276,
+  "thumbnail_url":"http://33.media.tumblr.com/avatar_9361c5a980d9_128.png"
+},
+{
+  "youtube_id" : "ugGN_Z1jPoM",
+  "upvotes" : 20,
+  "user_upvote" : 0,
+  "region_id" : "98102",
+  "age": 7200,
+  "artist" : "Benjamin Clementine",
+  "track" : "Nemesis",
+  "duration": 276,
+  "thumbnail_url":"http://s3.evcdn.com/images/block/I0-001/020/753/082-2.jpeg_/benjamin-clementine-82.jpeg"
+},
+{
+  "youtube_id" : "Bk12a5aklPg",
+  "upvotes" : 20,
+  "user_upvote" : 0,
+  "region_id" : "98102",
+  "age": 7200,
+  "artist" : "Handsome Ghost",
+  "track" : "Blood Stutter",
+  "duration": 276,
+  "thumbnail_url":"http://38.media.tumblr.com/avatar_7ec096677bbc_128.png"
+},
+{
+  "youtube_id" : "hHUbLv4ThOo",
+  "upvotes" : 100,
+  "user_upvote" : 0,
+  "region_id" : "98102",
+  "age": 7200,
+  "artist" : "Pitbull (ft. Ke$ha)",
+  "track" : "Timber",
+  "duration": 276,
+  "thumbnail_url":"http://vignette1.wikia.nocookie.net/keha/images/4/44/Kesha-glitter.jpg/revision/latest?cb=20131219053033"
+},
+{
+  "youtube_id" : "dQw4w9WgXcQ",
+  "upvotes" : -120,
+  "user_upvote" : 0,
+  "region_id" : "98102",
+  "age": 7200,
+  "artist" : "Rick Astley",
+  "track" : "Fuck Kyle",
+  "duration": 276,
+  "thumbnail_url": "https://offthepole.files.wordpress.com/2008/12/rick-astley.jpg"
+},
+{
+  "youtube_id" : "hHUbLv4ThOo",
+  "upvotes" : 100,
+  "user_upvote" : 0,
+  "user_id" : "test@test.com",
+  "age": 7200,
+  "artist" : "Pitbull (ft. Ke$ha)",
+  "track" : "Timber",
+  "duration": 276,
+  "thumbnail_url":"http://vignette1.wikia.nocookie.net/keha/images/4/44/Kesha-glitter.jpg/revision/latest?cb=20131219053033"
+},
+{
+  "youtube_id" : "dQw4w9WgXcQ",
+  "upvotes" : -120,
+  "user_upvote" : 0,
+  "user_id" : "test@test.com",
+  "age": 7200,
+  "artist" : "Rick Astley",
+  "track" : "Fuck Kyle",
+  "duration": 276,
+  "thumbnail_url": "https://offthepole.files.wordpress.com/2008/12/rick-astley.jpg"
+}]

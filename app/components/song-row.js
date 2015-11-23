@@ -7,7 +7,10 @@ var SongRow = React.createClass({
   },
 
   getInitialState: function() {
-    return { "upvoted": this.props.upvoted };
+    return {
+      "upvoted": this.props.upvoted,
+      "starred": this.props.starred
+    };
   },
 
   durationToString: function(duration) {
@@ -30,9 +33,22 @@ var SongRow = React.createClass({
     return age_hours + "h";
   },
 
+  getTitle: function() {
+    var parensIndex = this.props.track.indexOf("(");
+    if (parensIndex === -1) {
+      return this.props.track.substring(0,23);
+    }
+    return this.props.track.substring(0, parensIndex).substring(0,23);
+  },
+
   handleUpvote: function(song_info) {
     this.props.upvoteHandler(this.props);
     this.setState({upvoted: !this.state.upvoted});
+  },
+
+  handleStar: function(song_info) {
+    this.props.starHandler(this.props);
+    this.setState({starred: !this.state.starred});
   },
 
   render: function () {
@@ -40,6 +56,12 @@ var SongRow = React.createClass({
       'fa-pause': this.props.playing && this.props.selected,
       'fa-play': !(this.props.playing && this.props.selected),
       'selected-purple': this.props.selected
+    });
+
+    var starred = this.state.starred || this.props.starred || false;
+    console.log(starred);
+    var starIconClasses = cx('fa fa-star fa-2x pointer', {
+      'star-selected': starred
     });
 
     var upChevronClasses = cx('fa fa-chevron-up fa-2x pointer', {
@@ -54,24 +76,25 @@ var SongRow = React.createClass({
       votes  -= 1;
     }
 
+
     return (
         <div className="song-div row-eq-height">
             <div className="pull-left col-xs-offset-1 col-xs-2" id="img-div" >
               <img className="img-circle" src={this.props.thumbnail_url}></img>
             </div>
-            <div className="song-info pull-left col-xs-4">
-                <span className="song-title"> {this.props.track} </span>
+            <div className="song-info pull-left col-xs-6">
+                <span className="song-title"> {this.getTitle()} </span>
                 <span className="song-artist"> {this.props.artist} </span>
                 <span className="time-since"> {this.getAge()} </span>
             </div>
-            <div className="play-info pull-right col-xs-1 col-xs-offset-2">
+            <div className="play-info pull-right col-xs-1">
               <i className={playOrPauseClasses} onClick={this.props.clickPlayHandler(this.props.youtube_id, playOrPauseClasses)}></i>
               <span className="duration">{this.durationToString(this.props.duration)}</span>
             </div>
             <div className="vote-info pull-right col-xs-1">
                 <i className={upChevronClasses} onClick={this.handleUpvote}></i>
                 <span className="vote-count">{votes}</span>
-                <i className="fa fa-star fa-2x"></i>
+                <i className={starIconClasses} onClick={this.handleStar}></i>
             </div>
         </div>
     );

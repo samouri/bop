@@ -14,7 +14,7 @@ var app = express();
 var config = require('./config.js');
 var api = require('./api.js');
 
-var pathToMongoDb = 'mongodb://localhost/test';
+var pathToMongoDb = config.pathToMongoDb;
 mongoose.connect(pathToMongoDb);
 
 app.use(bodyParser.json());

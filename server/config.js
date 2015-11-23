@@ -6,7 +6,8 @@ config.http.cookie_secret = process.env.HTTP_COOKIE_SECRET || 'YeukhPqijei86QWt3
 config.http.enforce_ssl = process.env.HTTP_ENFORCE_SSL;
 config.http.host_url = process.env.HTTP_HOST_URL || 'http://localhost';
 
-config.pathToMongoDb = 'mongodb://localhost/test';
+config.pathToTestMongoDb = 'mongodb://localhost/test';
+config.pathToMongoDb = 'mongodb://localhost/prod';
 config.mongodb.host = process.env.MONGODB_HOST || '127.0.0.1';
 config.mongodb.port = process.env.MONGODB_PORT || 27017;
 config.mongodb.user = process.env.MONGODB_USERNAME || '';

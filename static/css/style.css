@@ -190,6 +190,14 @@ body {
   background-color: purple;
 }
 
+.fa-star.active {
+  color: purple;
+}
+
+.star-selected {
+  color: purple;
+}
+
 .pointer {
   cursor: pointer;
 }

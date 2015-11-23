@@ -31,7 +31,9 @@
     "connect-mongo": "~0.8.2",
     "connect-mongostore": "~0.1.4",
     "cookie-parser": "~1.4.0",
-    "validator": "~4.2.1"
+    "validator": "~4.2.1",
+    "espresso": "~1.4.3",
+    "bluebird": "~3.0.5"
   },
   "devDependencies": {
     "jsx-loader": "^0.13.2",
