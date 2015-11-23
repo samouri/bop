@@ -11,6 +11,9 @@ var sha1 = require('sha1');
 
 // Methods
 songSchema.methods.upvote = function(user) {
+  if (_.isUndefined(user)) {
+    return false;
+  }
   var userSha = sha1(user);
 
   if (this.users_that_upvoted[userSha]) {
@@ -23,11 +26,7 @@ songSchema.methods.upvote = function(user) {
   }
 
   this.markModified('users_that_upvoted');
-  this.save(function(err, song) {
-    if (err) {
-      console.log(err);
-    }
-  });
+  return this.save();
 }
 
 function prepUsersThatUpvoted(user, song) {
@@ -64,7 +63,7 @@ songSchema.statics.findSongsForUser = function(params) {
 songSchema.statics.findSongs = function(params) {
   var start = params.start || 0;
   var pageSize = params.pageSize || 5;
-  var find = params.find;
+  var find = params.find || {region_id: params.regionId, user_id: params.user, youtube_id: params.youtubeId};
   var sort = params.sort || {date_added: -1};
   var query = this.find(find).sort(sort).skip(start).limit(pageSize);
   return query.exec();

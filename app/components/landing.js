@@ -4,13 +4,13 @@ var Navigation = require('react-router').Navigation;
 const Header = require('./header.js');
 var sha1 = require('sha1');
 const Waypoint = require('react-waypoint');
+var client = require('../../shared/apiModel.js').getClient()
 
 const Youtube = require('react-youtube');
 const SearchBar = require('./searchbar.js');
 const SongList = require('./song-list.js');
 var config = require('../../server/config');
 const cx = require('classnames');
-
 
 var YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const opts = {
@@ -121,24 +121,7 @@ var Landing = React.createClass({
 
 
   serverPost: function(operation, data, handlers) {
-    if( handlers == null || handlers === undefined) {
-      handlers = {}
-    }
-    if (data == null || data === undefined) {
-      data = {}
-    }
-
-    $.ajax({
-      url: "/",
-      type: "POST",
-      headers: { "X-Bop-Operation": operation,
-        "X-Bop-Version": "v1",
-        "Content-Type": "application/json"
-      },
-      data: JSON.stringify(data),
-      success: handlers["success"],
-      error: handlers["error"]
-    });
+    $.ajax(client[operation](data, handlers));
   },
 
   currentlyPlayingVideoIndex: function() {

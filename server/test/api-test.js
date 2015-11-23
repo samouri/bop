@@ -131,7 +131,7 @@ describe('api', function() {
       params = {
         operation: model.ADD_SONG_TO_USER,
         user: user,
-        songData: songToAddSearchInfo
+        youtubeId: songToAddSearchInfo.youtubeId
       };
 
       var promise = api[params.operation](params);
@@ -145,6 +145,61 @@ describe('api', function() {
       });
       return promise;
     });
+  });
 
+  describe('#' + model.ADD_SONG_TO_REGION, function () {
+    it('Should add a song to a region s.t. when you lookup songs in that region it will be there', function () {
+      var regionId = "Seattle";
+      params = {
+        operation: model.ADD_SONG_TO_REGION,
+        regionId: regionId,
+        songData: songToAddSearchInfo
+      };
+
+      var promise = api[params.operation](params);
+      promise.then(function(saved) {
+        songsPromise = api[model.GET_SONGS_IN_REGION](params).then(function(songs) {
+          assert(songs.length > 0);
+          assert(songs[0].track === songToAdd.track);
+          assert(songs[0].youtubeId === songToAdd.youtubeId);
+          assert(songs[0].duration === songToAdd.duration);
+        });
+      });
+      return promise;
+    });
+  });
+
+  describe('#' + model.UPVOTE_SONG, function () {
+    it('Should increment votes on a song if user hasnt voted on a song yet', function () {
+      var regionId = "Seattle";
+      params = {
+        operation: model.UPVOTE_SONG,
+        regionId: regionId,
+        youtubeId: songToAddSearchInfo.youtubeId,
+        user: "test"
+      };
+
+      var promise = api[params.operation](params);
+      promise.then(function(song) {
+        assert.equal(song.votes, 1);
+      });
+      return promise;
+    });
+
+    it('Should decrement votes on a song if user has already upvoted a song', function () {
+      var regionId = "Seattle";
+      params = {
+        operation: model.UPVOTE_SONG,
+        regionId: regionId,
+        youtubeId: songToAddSearchInfo.youtubeId,
+        user: "test"
+      };
+
+      var promise = api[params.operation](params);
+      promise.then(function(song) {
+        assert.equal(song.votes, 0);
+      });
+      return promise;
+    });
   });
 });
