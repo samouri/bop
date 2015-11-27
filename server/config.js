@@ -7,7 +7,6 @@ config.http.enforce_ssl = process.env.HTTP_ENFORCE_SSL;
 config.http.host_url = process.env.HTTP_HOST_URL || 'http://localhost';
 
 config.pathToTestMongoDb = 'mongodb://localhost/test';
-config.pathToMongoDb = 'mongodb://localhost/prod';
 config.mongodb.host = process.env.MONGODB_HOST || '127.0.0.1';
 config.mongodb.port = process.env.MONGODB_PORT || 27017;
 config.mongodb.user = process.env.MONGODB_USERNAME || '';
@@ -17,6 +16,7 @@ config.mongodb.database = process.env.MONGODB_DATABASE || 'test';
 
 // Prod vs. Dev config
 if (process.env.NODE_ENV === "production") {
+  config.pathToMongoDb = 'mongodb://localhost/prod';
   config.indexPath = "index.prod.html";
   config.host = "nothingtoseehere.xyz";
   config.port = "3000";
@@ -24,6 +24,7 @@ if (process.env.NODE_ENV === "production") {
   config.dev = false;
 }
 else {
+  config.pathToMongoDb = 'mongodb://localhost/test';
   config.indexPath = "index.html";
   config.host = "192.168.0.2:3000";
   config.port = "3001";

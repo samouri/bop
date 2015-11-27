@@ -80,11 +80,11 @@ songSchema.statics.countSongsForUser = function(user) {
 songSchema.statics.addSong = function(params) {
   var song = params.song_data;
 
-  params.find = {
+  params.find = _.pick({
     user_id: song.user_id,
-    region_id: song.region_id,
+    region_id: params.regionId,
     youtube_id: song.youtube_id
-  }
+  }, _.identity)
 
   var songsPromise = this.findSongs(params);
   return songsPromise.then(function(songs) {
@@ -92,8 +92,7 @@ songSchema.statics.addSong = function(params) {
       console.log("cant have the same song twice");
       return false;
     }
-    var Song = mongoose.model("Song", songSchema);
-    var s = Song(song);
+    var s = module.exports(song);
     return s.save();
   })
 }

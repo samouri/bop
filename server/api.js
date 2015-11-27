@@ -44,18 +44,16 @@ var apiFactory = {
     }
     else if (operation === model.ADD_SONG_TO_REGION || operation === model.ADD_SONG_TO_USER) {
       var promise = api[operation](params);
-      addSong(params).then(function(s) {
+      promise.then(function(s) {
         console.log(s);
         res.send({"Status": s});
       });
     }
     else if (operation === model.GET_USER_INFO) {
-      getUserInfo(req, res);
-      console.log(req.user);
+      getUserInfo(req, res, next);
     }
     else if (operation === model.UPVOTE_SONG) {
       upvoteSong(params).then(function(s) {
-       console.log(s);
        res.send({"Status": s});
       });;
     }
@@ -78,7 +76,7 @@ function sendToken(req, res, next) {
   }
 }
 
-function getUserInfo(req, res) {
+function getUserInfo(req, res, next) {
   var userInfo = {};
   if (req.user) {
     userInfo = {
@@ -98,11 +96,9 @@ function upvoteSong(params) {
 }
 
 function addSong(params) {
-  var model = apiFactory.model;
-
   return new Promise(function(resolve) {
     getSongMetadata(params, function(song_data) {
-      if (params.operation === model.ADD_SONG_TO_REGION) {
+      if (params.operation === ApiModel.operations.ADD_SONG_TO_REGION) {
         song_data.region_id = params.regionId
       } else {
         song_data.user_id = params.user

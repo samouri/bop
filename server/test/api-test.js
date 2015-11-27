@@ -11,11 +11,11 @@ var config = require('../config.js');
 var apiFactory = require('../api.js');
 var api = apiFactory.getAPI();
 var songSchema = require("../../shared/models/songSchema.js");
+var apiModel = require('../../shared/apiModel.js');
 var Song = require("../../shared/models/songModel.js");
 var request = {};
 
-var pathToMongoDb = config.pathToTestMongoDb;
-mongoose.connect(pathToMongoDb);
+mongoose.connect(config.pathToMongoDb);
 
 var songToAdd = {
   youtube_id : 'yFTvbcNhEgc',
@@ -37,7 +37,7 @@ var songToAddSearchInfo = {
 };
 
 describe('api', function() {
-  var model = apiFactory.model;
+  var model = apiModel.operations;
 
   // reset data in db
   before(function() {
@@ -130,9 +130,9 @@ describe('api', function() {
       var user = 'testAddSong';
       params = {
         operation: model.ADD_SONG_TO_USER,
-        user: user,
-        youtubeId: songToAddSearchInfo.youtubeId
+        user: user
       };
+      params = _.extend(params, songToAddSearchInfo)
 
       var promise = api[params.operation](params);
       promise.then(function(saved) {
@@ -153,8 +153,8 @@ describe('api', function() {
       params = {
         operation: model.ADD_SONG_TO_REGION,
         regionId: regionId,
-        songData: songToAddSearchInfo
       };
+      params = _.extend(params, songToAddSearchInfo)
 
       var promise = api[params.operation](params);
       promise.then(function(saved) {

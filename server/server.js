@@ -23,7 +23,7 @@ app.use(session({
   secret: 'keyboard-cat',
   resave: false,
   saveUninitialized: true,
-  cookie: { maxAge: 60*60*24*365*10, secure: true, domain: "*.nothingtoseehere.xyz"},
+  cookie: { maxAge: 60*60*24*365*10},
   store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 

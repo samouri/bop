@@ -13,7 +13,8 @@
 #about {
     font-family: 'Roboto', sans-serif;
     font-size: 26px;
-    font-weight: 300;
+    font-weight: 100;
+    padding-right: 15px;
 }
 #header * {
     display: block;
@@ -126,6 +127,7 @@ body {
 .song-div img {
     height: 80px;
 }
+
 #img-div {
     -webkit-align-self: center;
         -ms-flex-item-align: center;
@@ -200,6 +202,39 @@ body {
 
 .pointer {
   cursor: pointer;
+}
+#ftue-hero {
+  background-image: url("/images/listening.png");
+  height: 365px;
+  background-position-y: -90px;
+}
+#ftue-hero-text {
+  font-family: Roboto;
+  font-weight: 100;
+  display: block;
+  font-size: 50px;
+  color: #000000;
+  line-height: 68px;
+  padding-top: 20px;
+  margin-left: 20px;
+}
+#ftue-play-button {
+  background: #464444;
+  border: 1px solid #979797;
+  border-radius: 8px;
+  width: 256px;
+  height: 78px;
+  margin-left: 85px;
+  margin-top: 20px;
+}
+#ftue-play-button-text {
+  font-family: Roboto;
+  font-weight: 100;
+  font-size: 50px;
+  color: #FFFFFF;
+  line-height: 68px;
+  display: block;
+  text-align: center;
 }
 /*
  * Thank you: http://getbootstrap.com.vn/examples/equal-height-columns/

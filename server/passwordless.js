@@ -16,10 +16,7 @@ var smtpServer  = email.server.connect({
 var passwordlessWrapper = {
 
   setup: function(app) {
-    passwordless.init(new PasswordlessMongoStore(config.pathToMongoDb, {
-      server:     { auto_reconnect: true     },
-      mongostore: { collection:     'tokens' }
-    }));
+    passwordless.init(new PasswordlessMongoStore(config.pathToMongoDb));
 
     passwordless.addDelivery(
       function(tokenToSend, uidToSend, recipient, callback) {

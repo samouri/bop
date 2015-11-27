@@ -21,7 +21,7 @@ var apiModel = {
   },
 
   getClient: function() {
-    var model = this.operations;
+    var model = _.clone(this.operations);
     var client = {};
     _.each(_.keys(model), function(method) { client[model[method]] = generatePost.bind(this, model[method]) });
 

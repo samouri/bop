@@ -8,6 +8,7 @@ var client = require('../../shared/apiModel.js').getClient()
 
 const Youtube = require('react-youtube');
 const SearchBar = require('./searchbar.js');
+const FTUEHero = require('./ftueBanner.js');
 const SongList = require('./song-list.js');
 var config = require('../../server/config');
 const cx = require('classnames');
@@ -29,6 +30,7 @@ var Landing = React.createClass({
   getInitialState: function() {
     return {
       selectedVideoId: null,
+      showFTUEHero: true,
       playing: true,
       data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}, "star": {songs: [], pageToken: 0}},
       sort: "top",
@@ -56,7 +58,7 @@ var Landing = React.createClass({
   clickPlayHandler: function(videoId, type) {
     var _this = this;
     // fa-play
-    if (type.indexOf('pause') == -1) {
+    if (! _.isString(type) || type.indexOf('pause') == -1) {
       return function(e) {
         _this.playVideo(videoId);
       }
@@ -137,7 +139,7 @@ var Landing = React.createClass({
        this.setState({selectedVideoId: videoId});
      }
     }
-    this.setState({playing: true});
+    this.setState({playing: true, showFTUEHero: false});
     this.player.playVideo();
   },
 
@@ -225,7 +227,10 @@ var Landing = React.createClass({
         <div className="row">
           <Header region={region} sendTokenHandler={this.sendTokenHandler} userInfo={this.state.userInfo} logoutHandler={this.logoutHandler}/>
         </div>
-        <div className="row">
+        <div className={!this.state.showFTUEHero? "hidden" : 'row'}>
+          <FTUEHero  playClickHandler={this.clickPlayHandler()}/>
+        </div>
+        <div className={this.state.showFTUEHero? "hidden" : 'row'}>
           <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.playNextSong} onReady={this.setPlayer} onPause={this.pauseVideo} onPlay={this.playVideo}/>
         </div>
         <div className={'row'} id={'gradient_bar'}>
@@ -234,7 +239,7 @@ var Landing = React.createClass({
             <div className={hotBtnClasses} onClick={this.setSort("top")}>Hot</div>
             <div className={newBtnClasses} onClick={this.setSort("new")}>New</div>
           </div>
-          <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={this.handleSearchSelection}/> </div>
+          <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={_.throttle(this.handleSearchSelection, 100)}/> </div>
         </div>
         <div className="row">
           <SongList songs={this.state.data[this.state.sort].songs} selectedVideoIndex={this.currentlyPlayingVideoIndex()} playing={this.state.playing}/>

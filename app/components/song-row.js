@@ -35,10 +35,15 @@ var SongRow = React.createClass({
 
   getTitle: function() {
     var parensIndex = this.props.track.indexOf("(");
-    if (parensIndex === -1) {
-      return this.props.track.substring(0,23);
+    var squareBracketIndex = this.props.track.indexOf("[");
+    var cutoffIndex = 23;
+    if (parensIndex !== -1 && parensIndex < cutoffIndex) {
+      cutoffIndex = parensIndex;
     }
-    return this.props.track.substring(0, parensIndex).substring(0,23);
+    if (squareBracketIndex !== -1 && squareBracketIndex < cutoffIndex) {
+      cutoffIndex = squareBracketIndex;
+    }
+    return this.props.track.substring(0, cutoffIndex);
   },
 
   handleUpvote: function(song_info) {
