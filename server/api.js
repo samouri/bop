@@ -7,6 +7,7 @@ var songSchema = require("../shared/models/songSchema.js");
 var Song = require("../shared/models/songModel.js");
 var ApiModel = require("../shared/apiModel.js");
 var passwordless = require('./passwordless');
+var sha1 = require('sha1');
 
 var apiFactory = {
   model: _.extend(ApiModel.operations, ApiModel.headers),
@@ -143,6 +144,8 @@ function getSongsForUser(params) {
 
       songsPromise = Song.findSongsForUser(params);
       songsPromise.then(function(songs) {
+        songs = songs.map(function(song) { return song.toObject() });
+        _.each(songs, function(song) { song.starred = true; delete song.users_that_upvoted });
         songs.outputToken = (params.start+params.pageSize >= count) ? count : params.start+params.pageSize;
         resolve(songs);
       });
@@ -161,7 +164,19 @@ function getSongsInRegion(params) {
         resolve([]);
       }
       var songsPromise = Song.findSongsInRegion(params);
+      userSongs = []
+      if (params.user) {
+        Song.findSongsForUser(params).then(function(songs) {
+         userSongs = _.pluck(songs, 'youtube_id');
+        });;
+      }
       songsPromise.then(function(songs) {
+        songs = songs.map(function(song) { return song.toObject() });
+        _.each(songs, function(song) {
+          song.upvoted = (!params.user) ? false : song.users_that_upvoted[sha1(params.user)];
+          song.starred = _.contains(userSongs, song.youtube_id);
+          delete song.users_that_upvoted;
+        });
         songs.outputToken = (params.start+params.pageSize >= count) ? count : params.start+params.pageSize;
         resolve(songs);
       });;

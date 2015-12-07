@@ -73,7 +73,7 @@ describe('api', function() {
       promise.then(function(songs) {
         assert(songs.length > 0);
         _.each(songs, function(song) {
-          assert(song instanceof Song);
+          assert(song instanceof Object); // I call toObject so this test is sort of a waste
         });
       });
       return promise;
@@ -90,7 +90,7 @@ describe('api', function() {
       promise.then(function(songs) {
         assert(songs.length  === 5);
         _.each(songs, function(song) {
-          assert(song instanceof Song);
+          assert(song instanceof Object);
         });
       });
       return promise;
@@ -200,6 +200,26 @@ describe('api', function() {
         assert.equal(song.votes, 0);
       });
       return promise;
+    });
+
+    it('Should make songs returned have upvoted=true when you call getSongsInRegion', function () {
+      var regionId = "Seattle";
+      params = {
+        operation: model.UPVOTE_SONG,
+        regionId: regionId,
+        youtubeId: songToAddSearchInfo.youtubeId,
+        user: "test"
+      };
+
+      var upvotePromise = api[params.operation](params);
+      upvotePromise.then(function(song) {
+        var getSongsPromise = api[model.GET_SONGS_IN_REGION](params)
+        return getSongsPromise.then(function(songs) {
+          assert.equal(song.votes, 1);
+          assert(songs[0].upvoted);
+        });
+      });
+      return upvotePromise;
     });
   });
 });

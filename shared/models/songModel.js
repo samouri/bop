@@ -39,12 +39,6 @@ function prepUsersThatUpvoted(user, song) {
   return _.omit(clone, "users_that_upvoted");
 }
 
-function prepSongsForStars(user, songList, callback) {
-  songSchema.findSongsForUser(0, songList.length, user, function(starredSongs) {
-
-  });
-}
-
 // Statics
 songSchema.statics.findSongsInRegion = function(params) {
   params.find = {region_id: params.regionId}
