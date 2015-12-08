@@ -58,7 +58,6 @@ var Header = React.createClass({
             <h2 id ="seattle_header" className="pull-left"> {this.props.region.substring(0,10)} </h2>
           </div>
           <div className="col-xs-3 col-xs-offset-5">
-            <img className="pull-right" id="gear" src="images/gear.png"/>
             <h3 className="pull-right pointer" onClick={this.loginClickHandler} onMouseOver={this._loginOnMouseOver} onMouseOut={this._loginOnMouseOut}> {this.state.loginText} </h3>
           </div>
         </div>

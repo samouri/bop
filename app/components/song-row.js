@@ -8,8 +8,7 @@ var SongRow = React.createClass({
 
   getInitialState: function() {
     return {
-      "upvoted": this.props.upvoted,
-      "starred": this.props.starred
+      "upvoted": this.props.upvoted
     };
   },
 
@@ -51,22 +50,11 @@ var SongRow = React.createClass({
     this.setState({upvoted: !this.state.upvoted});
   },
 
-  handleStar: function(song_info) {
-    this.props.starHandler(this.props);
-    this.setState({starred: !this.state.starred});
-  },
-
   render: function () {
     var playOrPauseClasses = cx('fa', 'fa-3x', 'pointer', {
       'fa-pause': this.props.playing && this.props.selected,
       'fa-play': !(this.props.playing && this.props.selected),
       'selected-purple': this.props.selected
-    });
-
-    var starred = this.state.starred || this.props.starred || false;
-    console.log(starred);
-    var starIconClasses = cx('fa fa-star fa-2x pointer', {
-      'star-selected': starred
     });
 
     var upChevronClasses = cx('fa fa-chevron-up fa-2x pointer', {
@@ -99,7 +87,6 @@ var SongRow = React.createClass({
             <div className="vote-info pull-right col-xs-1">
                 <i className={upChevronClasses} onClick={this.handleUpvote}></i>
                 <span className="vote-count">{votes}</span>
-                <i className={starIconClasses} onClick={this.handleStar}></i>
             </div>
         </div>
     );

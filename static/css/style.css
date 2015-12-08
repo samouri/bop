@@ -102,6 +102,7 @@ body {
     color: #464444;
     line-height: 33px;
     text-align: center;
+    padding-bottom: 35px;
 }
 
 .duration {
@@ -190,14 +191,6 @@ body {
 
 .filter-btn.active {
   background-color: purple;
-}
-
-.fa-star.active {
-  color: purple;
-}
-
-.star-selected {
-  color: purple;
 }
 
 .pointer {

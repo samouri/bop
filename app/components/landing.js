@@ -32,7 +32,7 @@ var Landing = React.createClass({
       selectedVideoId: null,
       showFTUEHero: true,
       playing: true,
-      data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}, "star": {songs: [], pageToken: 0}},
+      data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}},
       sort: "top",
       userInfo: {}
     };
@@ -49,10 +49,9 @@ var Landing = React.createClass({
   },
 
   componentWillReceiveProps: function(newProps) {
-    this.setState({data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}, "star": { songs: [], pageToken: 0}}}),
+    this.setState({data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}}}),
     this.loadSongs("top",  newProps.params.region);
     this.loadSongs("new", newProps.params.region);
-    this.loadSongs("star");
   },
 
   clickPlayHandler: function(videoId, type) {
@@ -77,7 +76,7 @@ var Landing = React.createClass({
   handleSearchSelection: function(song_info) {
     var _this = this;
     var region = _this.props.params.region || "Seattle";
-    var operation = (_this.state.sort === "star")? "AddSongToUser" : "AddSongToRegion";
+    var operation = "AddSongToRegion";
     var postData =  {
       "RegionId": region,
       "SongId": song_info["youtube_id"],
@@ -107,20 +106,6 @@ var Landing = React.createClass({
     }
     this.serverPost("UpvoteSong", postData);
   },
-
-  handleStar: function(song_info) {
-    var _this = this;
-
-    var postData =  {
-      "SongId": song_info["youtube_id"],
-      "SongTitle": song_info.track,
-      "SongArtist": song_info.artist,
-      "ThumbnailUrl": song_info["thumbnail_url"]
-    };
-
-    this.serverPost("AddSongToUser", postData);
-  },
-
 
   serverPost: function(operation, data, handlers) {
     $.ajax(client[operation](data, handlers));
@@ -166,7 +151,7 @@ var Landing = React.createClass({
     type = type || this.state.sort;
     var _this = this;
     var region = regionId || _this.props.params.region || "Seattle";
-    var operation = (type === "star")? "GetSongsForUser" : "GetSongsInRegion";
+    var operation = "GetSongsInRegion";
     var postData = { "RegionId": region, "InputToken": 0, "Type": type};
     _this.serverPost(operation, postData, {
       success: function(resp) {
@@ -175,7 +160,6 @@ var Landing = React.createClass({
         songs = songs.map(function(elem, i) {
           elem.clickPlayHandler = _this.clickPlayHandler;
           elem.upvoteHandler = _this.handleUpvote;
-          elem.starHandler = _this.handleStar;
           return elem
         });
         var data = _this.state.data;
@@ -189,7 +173,7 @@ var Landing = React.createClass({
     type = type || this.state.sort;
     var _this = this;
     var region = regionId || _this.props.params.region || "Seattle";
-    var operation = (type === "star")? "GetSongsForUser" : "GetSongsInRegion";
+    var operation = "GetSongsInRegion";
     var postData = { "RegionId": region, "InputToken": this.state.data[type].pageToken, "Type": type};
     _this.serverPost(operation, postData, {
       success: function(resp) {
@@ -198,7 +182,6 @@ var Landing = React.createClass({
         songs = songs.map(function(elem, i) {
           elem.clickPlayHandler = _this.clickPlayHandler;
           elem.upvoteHandler = _this.handleUpvote;
-          elem.starHandler = _this.handleStar;
           return elem
         });
         songs = _.union(_this.state.data[type].songs, songs);
@@ -220,7 +203,6 @@ var Landing = React.createClass({
     var region = this.props.params.region || "Seattle";
     var hotBtnClasses = cx("filter-btn", "pointer", {active: this.state.sort === "top"});
     var newBtnClasses = cx("filter-btn", "pointer", {active: this.state.sort === "new"});
-    var starBtnClasses = cx("fa fa-star fa-2x", "pointer", "col-xs-1", {active: this.state.sort === "star"});
 
     return (
       <div className="row">
@@ -234,8 +216,7 @@ var Landing = React.createClass({
           <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.playNextSong} onReady={this.setPlayer} onPause={this.pauseVideo} onPlay={this.playVideo}/>
         </div>
         <div className={'row'} id={'gradient_bar'}>
-          <i className={starBtnClasses} onClick={this.setSort("star")}></i>
-          <div className="btn-group col-xs-3 col-xs-offset-3" role="group">
+          <div className="btn-group col-xs-3 col-xs-offset-4" role="group">
             <div className={hotBtnClasses} onClick={this.setSort("top")}>Hot</div>
             <div className={newBtnClasses} onClick={this.setSort("new")}>New</div>
           </div>

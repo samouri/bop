@@ -97,56 +97,6 @@ describe('api', function() {
     });
   });
 
-  describe('#' + model.GET_SONGS_FOR_USER , function () {
-    it('Should return a list of songs if a user has starred songs', function () {
-      params = {
-        operation: model.GET_SONGS_FOR_USER,
-        user: "test@test.com"
-      };
-
-      var promise = api[params.operation](params);
-      promise.then(function(songs) {
-        assert(songs.length > 0);
-      });
-      return promise;
-    });
-
-    it('Should return empty list if user does not exist or has no songs', function () {
-      params = {
-        operation: model.GET_SONGS_FOR_USER,
-        user: "testEmpty@test.com"
-      };
-
-      var promise = api[params.operation](params);
-      promise.then(function(songs) {
-        assert.equal(songs.length, 0);
-      });
-      return promise;
-    });
-  });
-
-  describe('#' + model.ADD_SONG_TO_USER, function () {
-    it('Should add a song to a user s.t. when you lookup songs for that user it will be there', function () {
-      var user = 'testAddSong';
-      params = {
-        operation: model.ADD_SONG_TO_USER,
-        user: user
-      };
-      params = _.extend(params, songToAddSearchInfo)
-
-      var promise = api[params.operation](params);
-      promise.then(function(saved) {
-        songsPromise = api[model.GET_SONGS_FOR_USER]({user: user}).then(function(songs) {
-          assert(songs.length > 0);
-          assert(songs[0].track === songToAdd.track);
-          assert(songs[0].youtubeId === songToAdd.youtubeId);
-          assert(songs[0].duration === songToAdd.duration);
-        });
-      });
-      return promise;
-    });
-  });
-
   describe('#' + model.ADD_SONG_TO_REGION, function () {
     it('Should add a song to a region s.t. when you lookup songs in that region it will be there', function () {
       var regionId = "Seattle";

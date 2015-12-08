@@ -183,7 +183,6 @@ function getParamsFromReq(req) {
     youtubeTitle: body["SongTitle"],
     artist: body["SongArtist"],
     type: body["Type"],
-    star: body["Star"]
   };
 
   params = _.pick(params, _.identity); // act like compactObject. remove all falsy values
