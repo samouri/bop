@@ -26,7 +26,7 @@ var songToAdd = {
   age: 0,
   artist : 'Angus and Julia Stone',
   track : 'Big Jet Plane',
-  duration: 239.62667,
+  duration: 221.64,
   thumbnail_url: 'http://33.media.tumblr.com/avatar_9361c5a980d9_128.png'
 };
 
@@ -57,10 +57,9 @@ describe('api', function() {
       };
 
       var promise = api[params.operation](params);
-      promise.then(function(songs) {
+      return promise.then(function(songs) {
         assert.equal(songs.length, 0);
       });
-      return promise;
     });
 
     it('Should return a list of Song objects for a region with songs', function () {
@@ -70,13 +69,12 @@ describe('api', function() {
       };
 
       var promise = api[params.operation](params);
-      promise.then(function(songs) {
+      return promise.then(function(songs) {
         assert(songs.length > 0);
         _.each(songs, function(song) {
           assert(song instanceof Song);
         });
       });
-      return promise;
     });
 
     it('If there are more than pageSize number of songs in the region only return pageSize songs', function () {
@@ -87,13 +85,12 @@ describe('api', function() {
       };
 
       var promise = api[params.operation](params);
-      promise.then(function(songs) {
+      return promise.then(function(songs) {
         assert(songs.length  === 5);
         _.each(songs, function(song) {
           assert(song instanceof Song);
         });
       });
-      return promise;
     });
   });
 
@@ -107,15 +104,15 @@ describe('api', function() {
       params = _.extend(params, songToAddSearchInfo)
 
       var promise = api[params.operation](params);
-      promise.then(function(saved) {
+      return promise.then(function(saved) {
         songsPromise = api[model.GET_SONGS_IN_REGION](params).then(function(songs) {
           assert(songs.length > 0);
           assert(songs[0].track === songToAdd.track);
           assert(songs[0].youtubeId === songToAdd.youtubeId);
           assert(songs[0].duration === songToAdd.duration);
         });
+        return songsPromise;
       });
-      return promise;
     });
   });
 
@@ -130,10 +127,9 @@ describe('api', function() {
       };
 
       var promise = api[params.operation](params);
-      promise.then(function(song) {
+      return promise.then(function(song) {
         assert.equal(song.votes, 1);
       });
-      return promise;
     });
 
     it('Should decrement votes on a song if user has already upvoted a song', function () {
@@ -146,10 +142,9 @@ describe('api', function() {
       };
 
       var promise = api[params.operation](params);
-      promise.then(function(song) {
+      return promise.then(function(song) {
         assert.equal(song.votes, 0);
       });
-      return promise;
     });
   });
 });

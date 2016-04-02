@@ -24,7 +24,7 @@ if (process.env.NODE_ENV === "production") {
   config.dev = false;
 }
 else {
-  config.pathToMongoDb = 'mongodb://localhost/test';
+  config.pathToMongoDb = 'mongodb://ssh.nothingtoseehere.xyz/test';
   config.indexPath = "index.html";
   config.host = "192.168.0.2:3000";
   config.port = "3001";

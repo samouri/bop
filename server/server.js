@@ -14,6 +14,7 @@ var app = express();
 var config = require('./config.js');
 var api = require('./api.js');
 
+console.log(config.pathToMongoDb)
 var pathToMongoDb = config.pathToMongoDb;
 mongoose.connect(pathToMongoDb);
 
