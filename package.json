@@ -46,10 +46,10 @@
   },
   "scripts": {
     "start": "npm run serve | npm run dev",
-    "serve": "node --harmony server/server.js",
-    "serveProd": "NODE_ENV=production node --harmony server/server.js",
-    "prod": "NODE_ENV=production webpack -p --config webpack.prod.config.js --port 8090",
-    "dev": "webpack-dev-server --progress --colors --hot --inline --devtool eval --port 8090"
+    "serve": "node --harmony server.js",
+    "serveProd": "NODE_ENV=production node --harmony server.js",
+    "prod": "NODE_ENV=production webpack -p --config config/webpack.prod.config.js --port 8090",
+    "dev": "webpack-dev-server --progress --colors --hot --config config/webpack.config.js --inline --devtool eval --port 8090"
   },
   "author": "jake fried",
   "license": "ISC"
