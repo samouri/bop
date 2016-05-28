@@ -1,18 +1,12 @@
 # Bop Music #
+Rediscover and share music with Bop!
+
+This is the code for bopmusic website.  It is is serviced by the HTTP compliant BopServer.
+
+Technologies:
+1. Babel for es6 support
+2. Webpack for building
+3. Swagger for client generation
+4.
 
 ## Directory Structure ##
-
-### BopUI/server ###
-All things related to the nodejs server.  Main responsibilities include:
-* Serving index.html for react
-* Acting as a server for api calls from react
-* Auth
-* MongooseDB Saving
-
-### BopUI/shared ###
-Code that may be shared between server/client
-
-MongoDB Models
-
-### BopUI/app ### 
-    Reactjs Webapp
