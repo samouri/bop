@@ -1,5 +1,4 @@
 var path = require('path');
-var node_modules_dir = path.resolve(__dirname, 'node_modules');
 
 module.exports = {
   entry: [
@@ -16,7 +15,7 @@ module.exports = {
       {
         test: /\.js$/,
         loader: 'eslint',
-        include: [node_modules_dir]
+        include: /node_modules/
       }
     ],
     loaders: [
@@ -24,7 +23,7 @@ module.exports = {
         //tell webpack to use jsx-loader for all *.jsx files
         test: /\.js$/,
         loaders: ['react-hot', 'jsx-loader?insertPragma=React.DOM&harmony', "babel-loader"],
-        exclude: [node_modules_dir]
+        exclude: /node_modules/
       },
       { test: /\.scss$/, loaders: ["style", "css", "sass"] },
       { test: /\.css$/, loader: 'style-loader!css-loader'  }

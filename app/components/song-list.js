@@ -1,6 +1,6 @@
 var React = require('react');
 var SongRow = require('./song-row.js');
-var _ = require('underscore');
+var _ = require('lodash');
 
 var SongList = React.createClass({
   render: function() {
