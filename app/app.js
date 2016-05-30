@@ -1,19 +1,16 @@
-const React = require('react');
-const ReactRouter = require('react-router');
-const Router = ReactRouter.Router;
-const Route = ReactRouter.Route;
-const DefaultRoute = ReactRouter.DefaultRoute;
-
+import React from 'react'
+import { render } from 'react-dom'
+import { Router, Route, browserHistory } from 'react-router'
 
 var Landing = require('./components/landing.js');
 var About = require('./components/about.js');
 
 
 var router = (
-    <Router path="/">
-      <DefaultRoute handler={Landing}/>
+    <Router history={browserHistory}>
+      <Route path="/" component={Landing}/>
       <Route path=":region" handler={Landing}/>
     </Router>
 );
 
-render(router, document.body);
+render(router, document.getElementById("app"));

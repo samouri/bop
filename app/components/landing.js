@@ -105,11 +105,11 @@ var Landing = React.createClass({
   },
 
   serverPost: function(operation, data, handlers) {
-    $.ajax(client[operation](data, handlers));
+    return "well this wont work will it";
   },
 
   currentlyPlayingVideoIndex: function() {
-    var songYoutubeIds = _.pluck(this.state.data[this.state.sort].songs, "youtube_id");
+    var songYoutubeIds = _.map(this.state.data[this.state.sort].songs, "youtube_id");
     return songYoutubeIds.indexOf(this.state.selectedVideoId);
   },
 

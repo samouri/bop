@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 var SearchBar = React.createClass({
   getInitialState: function() {
@@ -27,7 +28,7 @@ var SearchBar = React.createClass({
           return resp.items.map(function(elem) {return elem.snippet.title});
         }
     }});
-    $(React.findDOMNode(_this.refs.typeahead)).typeahead(null, {
+    $(ReactDOM.findDOMNode(_this.refs.typeahead)).typeahead(null, {
       source: _this.youtubeVideos,
       templates: {
         suggestion: function(val) {
@@ -35,7 +36,7 @@ var SearchBar = React.createClass({
         }
       }
     });
-    $(React.findDOMNode(_this.refs.typeahead)).on('typeahead:selected', function(evt, selected) {
+    $(ReactDOM.findDOMNode(_this.refs.typeahead)).on('typeahead:selected', function(evt, selected) {
       var item = _this.data[selected];
       _this.props.handleSelection({
         youtube_id: item.id.videoId,

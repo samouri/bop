@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 var cx = require('classnames');
 
 var Header = React.createClass({
@@ -41,7 +42,7 @@ var Header = React.createClass({
   },
 
   sendTokenClickHandler: function(e) {
-    var emailForm = React.findDOMNode(this.refs.emailForm);
+    var emailForm = ReactDOM.findDOMNode(this.refs.emailForm);
     this.setState({showEmailForm: false});
     this.props.sendTokenHandler(emailForm.value);
   },
