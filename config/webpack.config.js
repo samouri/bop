@@ -11,18 +11,10 @@ module.exports = {
     publicPath: 'http://localhost:8091/assets/'
   },
   module: {
-    preLoaders: [
-      {
-        test: /\.js$/,
-        loader: 'eslint',
-        include: /node_modules/
-      }
-    ],
     loaders: [
       {
-        //tell webpack to use jsx-loader for all *.jsx files
         test: /\.js$/,
-        loaders: ['react-hot', 'jsx-loader?insertPragma=React.DOM&harmony', "babel-loader"],
+        loaders: ['react-hot', "babel-loader"],
         exclude: /node_modules/
       },
       { test: /\.scss$/, loaders: ["style", "css", "sass"] },

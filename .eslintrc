@@ -1,12 +1,15 @@
 {
-  "parser": "babel-eslint",
   "env": {
     "browser": true,
-    "node": true
   },
-  "plugins": [
-    "react"
-  ],
+
+  "parserOptions": {
+     "ecmaVersion": 6,
+     "sourceType": module,
+     "ecmaFeatures": {
+         "jsx": true
+     }
+   },
 
   "rules": {
       no-unused-vars: 1
