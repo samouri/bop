@@ -1,9 +1,9 @@
 import React from 'react';
-
-const SettingsMenu = React.createClass({
-  render: function () {
-    return <span><h2>Settings</h2></span>;
-  }
-});
+/*
+ * Settings menu
+ * TODO: use icon instead of 'settings' text
+ */
+const SettingsMenu = (props) =>
+    <span style={{color:'grey'}}>About | Settings</span>;
 
 module.exports = SettingsMenu;

@@ -1,9 +1,11 @@
 import React from 'react';
-
-const LocalTitle = React.createClass({
-  render: function () {
-    return <span><h1>Bop</h1><h2>Seattle</h2></span>;
-  }
-});
+/*
+ * Title contains both the App Title (Bop) and the location / playlist name
+ */
+const LocalTitle = (props) =>
+    <span>
+      <span style={{color:'purple'}}>Bop</span>
+      <span style={{color:'grey'}}>&nbsp;|&nbsp;{props.location}</span>
+    </span>;
 
 module.exports = LocalTitle;
