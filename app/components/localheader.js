@@ -9,12 +9,15 @@ import SettingsMenu from './settingsmenu.js';
 const LocalHeaderJSX = (props) =>
   <header style={props.style}>
     <LocalTitle location={props.location}/>
-    <SettingsMenu style={{float:'right'}}/>
+    <SettingsMenu style={{float:'right',color:'grey'}}/>
   </header>;
 
 class LocalHeader extends React.Component {
+  constructor(props) {
+    super(props);
+  }
   render() {
-    return <LocalHeaderJSX location='seattle'/>;
+    return <LocalHeaderJSX location="Seattle"/>;
   }
 };
 
