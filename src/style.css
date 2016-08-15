@@ -1,7 +1,7 @@
-@media (min-width: 768px) {
-    .container {
-        max-width: 768px;
-    }
+#root {
+	max-width: 768px;
+	min-width: 768px;
+  margin: 0 auto;
 }
 
 #header {
@@ -197,7 +197,7 @@ body {
   cursor: pointer;
 }
 #ftue-hero {
-  background-image: url("/images/listening.png");
+  background-image: url("./images/listening.png");
   height: 365px;
   background-position-y: -90px;
 }

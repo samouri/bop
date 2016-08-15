@@ -12,10 +12,10 @@ var SongRow = React.createClass({
     };
   },
 
-  durationToString: function(duration) {
+  durationToString: function() {
     var duration = this.props.duration;
     var duration_minutes = Math.floor(duration / 60);
-    var duration_seconds = Math.floor(duration - duration_minutes * 60);
+    var duration_seconds = Math.floor(duration - (duration_minutes * 60));
     return duration_minutes + ":" + duration_seconds;
   },
 

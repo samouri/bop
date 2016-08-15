@@ -1,6 +1,5 @@
-var _ = require('lodash');
+const _ = require('lodash');
 const React = require('react');
-var Navigation = require('react-router').Navigation;
 const Header = require('./header.js');
 const Waypoint = require('react-waypoint');
 
@@ -9,6 +8,21 @@ const SearchBar = require('./searchbar.js');
 const FTUEHero = require('./ftueBanner.js');
 const SongList = require('./song-list.js');
 const cx = require('classnames');
+const config = require('../config.js');
+
+
+const Swagger = require('swagger-client');
+let swaggerClientPromise = new Swagger({ url: config.swaggerUrl, usePromise: true });
+let sdkConstructor = require('../sdk');
+let sdk;
+
+swaggerClientPromise
+	.then( (client) => {
+		console.log(client);
+		sdk = new sdkConstructor(client);
+	}).catch( (err) => {
+		console.log(err);
+	});
 
 var YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const opts = {
@@ -22,7 +36,6 @@ const opts = {
 }
 
 var Landing = React.createClass({
-  mixins: [Navigation],
 
   getInitialState: function() {
     return {
@@ -150,43 +163,46 @@ var Landing = React.createClass({
     var region = regionId || _this.props.params.region || "Seattle";
     var operation = "GetSongsInRegion";
     var postData = { "RegionId": region, "InputToken": 0, "Type": type};
-    _this.serverPost(operation, postData, {
-      success: function(resp) {
-        var pageToken = resp['OutputToken'];
-        var songs = resp['Songs'];
-        songs = songs.map(function(elem, i) {
-          elem.clickPlayHandler = _this.clickPlayHandler;
-          elem.upvoteHandler = _this.handleUpvote;
-          return elem
-        });
-        var data = _this.state.data;
-        data[type] = {songs: songs, pageToken: pageToken};
-        _this.setState({data: data});
-      }
-    });
+    sdk.getSongsForPlaylist( region ).then( (resp) => {
+			var pageToken = resp['OutputToken'];
+			var songs = resp['Songs'];
+			songs = songs.map(function(elem, i) {
+				elem.clickPlayHandler = _this.clickPlayHandler;
+				elem.upvoteHandler = _this.handleUpvote;
+				return elem
+			});
+			var data = _this.state.data;
+			data[type] = {songs: songs, pageToken: pageToken};
+			_this.setState({data: data});
+		});
   },
 
   loadSongs: function(type, regionId) {
     type = type || this.state.sort;
     var _this = this;
     var region = regionId || _this.props.params.region || "Seattle";
-    var operation = "GetSongsInRegion";
-    var postData = { "RegionId": region, "InputToken": this.state.data[type].pageToken, "Type": type};
-    _this.serverPost(operation, postData, {
-      success: function(resp) {
-        var pageToken = resp['OutputToken'];
-        var songs = resp['Songs'];
-        songs = songs.map(function(elem, i) {
-          elem.clickPlayHandler = _this.clickPlayHandler;
-          elem.upvoteHandler = _this.handleUpvote;
-          return elem
-        });
-        songs = _.union(_this.state.data[type].songs, songs);
-        var data = _this.state.data;
-        data[type] = {songs: songs, pageToken: pageToken};
-        _this.setState({data: data});
-      }
-    });
+		if (_.isUndefined(sdk)) {
+      clearInterval(_this.interval);
+			_this.interval = setInterval(() => {
+        console.log('yay check');
+				_this.loadSongs(type, regionId)
+			}, 100);
+		} else {
+      clearInterval(_this.interval);
+			sdk.getSongsForPlaylist( region ).then( (resp) => {
+				var pageToken = resp['OutputToken'];
+				var songs = resp['Songs'];
+				songs = songs.map(function(elem, i) {
+					elem.clickPlayHandler = _this.clickPlayHandler;
+					elem.upvoteHandler = _this.handleUpvote;
+					return elem
+				});
+				songs = _.union(_this.state.data[type].songs, songs);
+				var data = _this.state.data;
+				data[type] = {songs: songs, pageToken: pageToken};
+				_this.setState({data: data});
+			});
+		}
   },
 
   setSort: function(sort) {
@@ -207,7 +223,7 @@ var Landing = React.createClass({
           <Header region={region} sendTokenHandler={this.sendTokenHandler} userInfo={this.state.userInfo} logoutHandler={this.logoutHandler}/>
         </div>
         <div className={!this.state.showFTUEHero? "hidden" : 'row'}>
-          <FTUEHero  playClickHandler={this.clickPlayHandler()}/>
+          <FTUEHero handlePlayClick={this.clickPlayHandler()}/>
         </div>
         <div className={this.state.showFTUEHero? "hidden" : 'row'}>
           <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.playNextSong} onReady={this.setPlayer} onPause={this.pauseVideo} onPlay={this.playVideo}/>
