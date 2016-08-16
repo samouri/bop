@@ -1,30 +1,24 @@
-const _ = require('lodash');
-const React = require('react');
-const Header = require('./header.js');
-const Waypoint = require('react-waypoint');
+import _ from 'lodash'
+import React from 'react';
+import Swagger from 'swagger-client';
+import Youtube from 'react-youtube';
+import cx from 'classnames';
 
-const Youtube = require('react-youtube');
-const SearchBar = require('./searchbar.js');
-const FTUEHero = require('./ftueBanner.js');
-const SongList = require('./song-list.js');
-const cx = require('classnames');
-const config = require('../config.js');
+import Header from './header';
+import SongList from './song-list';
+import SearchBar from './searchbar';
+import FTUEHero from './ftueBanner';
+import config from '../config';
 
-
-const Swagger = require('swagger-client');
 let swaggerClientPromise = new Swagger({ url: config.swaggerUrl, usePromise: true });
-let sdkConstructor = require('../sdk');
+let BopSdk = require('../sdk');
 let sdk;
 
-swaggerClientPromise
-	.then( (client) => {
-		console.log(client);
-		sdk = new sdkConstructor(client);
-	}).catch( (err) => {
-		console.log(err);
-	});
+const YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
+const TOP = 'top';
+const NEW = 'new';
+const PAGE_SIZE = 100
 
-var YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const opts = {
   playerVars: { // https://developers.google.com/youtube/player_parameters
     autoplay: 0,
@@ -35,213 +29,206 @@ const opts = {
   }
 }
 
-var Landing = React.createClass({
+export default class Landing extends React.Component {
 
-  getInitialState: function() {
-    return {
+  constructor(props) {
+    super(props);
+
+    this.state = {
       selectedVideoId: null,
       showFTUEHero: true,
-      playing: true,
-      data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}},
-      sort: "top",
+      playing: false,
+      songs: [],
+      page: 0,
+      sort: TOP,
+      upvotes: {},
       userInfo: {}
-    };
-  },
+    }
+  }
 
-  componentDidMount: function() {
-    var _this = this;
+  componentDidMount() {
+    swaggerClientPromise
+    .then( (client) => {
+      sdk = new BopSdk(client);
 
-    this.serverPost("GetUserInfo", {}, {
-      success: function(resp) { _this.setState({userInfo: resp}) }
-    });
+      this.loadSongs(TOP);
 
-    _this.loadSongs("new");
-  },
-
-  componentWillReceiveProps: function(newProps) {
-    this.setState({data: {"top": {songs: [], pageToken: 0}, "new": {songs: [], pageToken: 0}}}),
-    this.loadSongs("top",  newProps.params.region);
-    this.loadSongs("new", newProps.params.region);
-  },
-
-  clickPlayHandler: function(videoId, type) {
-    var _this = this;
-    // fa-play
-    if (! _.isString(type) || type.indexOf('pause') == -1) {
-      return function(e) {
-        _this.playVideo(videoId);
+      let login = localStorage.getItem('login');
+      if (login) {
+        login = JSON.parse(login);
+        this.handleLogin(login);
       }
-    }
-    // fa-pause
-    return function(e) {
-      _this.pauseVideo();
-    }
-  },
+    })
+    .catch( (err) => {
+      console.log(err);
+    });
+  }
 
-  logoutHandler: function() {
-    this.serverPost("Logout");
+  logoutHandler() {
+    // TODO remove credentials from user storage and refresh data
     this.setState({userInfo: {}});
-  },
+  }
 
-  handleSearchSelection: function(song_info) {
-    var _this = this;
-    var region = _this.props.params.region || "Seattle";
-    var operation = "AddSongToRegion";
-    var postData =  {
-      "RegionId": region,
-      "SongId": song_info["youtube_id"],
-      "SongTitle": song_info["youtube_title"],
-      "ThumbnailUrl": song_info["thumbnail_url"]
+  handleOnPause = (event) => {
+    // pause video
+    this.player.pauseVideo();
+    this.setState({playing: false});
+  }
+
+  handleOnEnd = () => {
+    // play next song
+    let songs = this.sortedSongs();
+    var currIndex = _.findIndex(songs, {youtube_id: this.selectedVideoId});
+    this.playVideo(this.state.songs[currIndex+1].youtube_id);
+  }
+
+  handleOnReady = (e) => {
+    // set player
+    this.player = e.target;
+    let songs = this.sortedSongs();
+
+    if(this.state.songs.length > 0) {
+      let selectedVideoId = songs[0].youtube_id;
+
+      this.player.cueVideoById({videoId: selectedVideoId});
+      this.setState({ selectedVideoId });
     }
-    this.serverPost(operation, postData, {
-      success: function(resp) {
-        _this.loadSongsAndReset(_this.state.sort)
-      }
-    });
-  },
+  }
 
-  sendTokenHandler: function(userEmail) {
-    var _this = this;
-    var region = _this.props.params.region || "Seattle";
-    var postData = { "UserEmail": userEmail };
-    this.serverPost("SendToken", postData, {});
-  },
+  handleSearchSelection = (searchMetadata) => {
+    let { playlist = 'Seattle' } = this.props.params;
 
-  handleUpvote: function(song_info) {
-    var _this = this;
-    var region = _this.props.params.region || "Seattle";
-    var postData =  {
-      "RegionId": region,
-      "SongId": song_info["youtube_id"]
-    }
-    this.serverPost("UpvoteSong", postData);
-  },
+    // get metadata, add the song, then add it locally
+    sdk.getSongMetadata(searchMetadata.youtube_title)
+    .then( (resp) => {
+      let songMetadata = resp.obj;
+      let song = songMetadata;
+      song.thumbnail_url = searchMetadata.thumbnail_url;
+      song.youtube_id = searchMetadata.youtube_id;
 
-  serverPost: function(operation, data, handlers) {
-    return "well this wont work will it";
-  },
+      return sdk.addSongToPlaylist(playlist, song)
+    })
+    .then( (resp) => {
+      let addedSong = resp.obj;
+      let songs = this.state.songs.concat(addedSong);
 
-  currentlyPlayingVideoIndex: function() {
-    var songYoutubeIds = _.map(this.state.data[this.state.sort].songs, "youtube_id");
-    return songYoutubeIds.indexOf(this.state.selectedVideoId);
-  },
+      this.setState({songs});
+    })
+    .catch( (err) => {
+      alert('sorry, video is incompatible');
+      console.log(err);
+    })
+  }
 
-  playVideo: function(videoId) {
+  handleUpvote = (song_info, voteDiff) => {
+    let { playlist = 'Seattle' } = this.props.params;
+    let songId = song_info['youtube_id'];
+
+    // instantly change the vote on screen
+    let songs = this.sortedSongs();
+    var votedSongIndex = _.findIndex(songs, {youtube_id: songId});
+    songs[votedSongIndex].upvotes += voteDiff === 0? -1 : 1;
+
+    let upvotes = _.clone(this.state.upvotes);
+    upvotes[song_info['_id']] = voteDiff > 0;
+
+    this.setState({songs, upvotes});
+
+    // also register vote with server
+    sdk.vote(playlist, songId, voteDiff);
+  }
+
+  handleOnPlay = (videoId) => {
+    this.playVideo(videoId);
+  }
+
+  handleLogin = (login) => {
+    localStorage.setItem('login', JSON.stringify(login));
+
+    sdk.login(login.username, login.password);
+    sdk.getUser()
+      .then( (res) => {
+        this.setState({
+          upvotes: res.obj.upvotedSongs,
+          username: login.username
+        });
+      })
+      .catch( (err) => console.log(err));
+  }
+
+  handleSetSort = (sort) => {
+    return () => this.setState({sort});
+  }
+
+  playVideo(videoId) {
     if (typeof videoId === 'string' || videoId instanceof String) {
      // only reload video if its new
-     if (this.state.selectedVideoIndex != this.currentlyPlayingVideoIndex()) {
+     if (this.state.selectedVideoId !== videoId) {
        this.player.loadVideoById(videoId);
        this.setState({selectedVideoId: videoId});
      }
     }
     this.setState({playing: true, showFTUEHero: false});
     this.player.playVideo();
-  },
+  }
 
-  pauseVideo: function(event) {
-    this.player.pauseVideo();
-    this.setState({playing: false});
-  },
+  loadSongs(start) {
+    let { playlist = 'Seattle' } = this.props.params;
 
-  playNextSong: function() {
-    var currIndex = this.currentlyPlayingVideoIndex();
-    this.playVideo(this.state.data[this.state.sort].songs[currIndex+1].youtube_id);
-  },
+    sdk.getSongsForPlaylist( playlist, start, PAGE_SIZE )
+      .then( (resp) => {
+        let songs = resp.obj.songs;
+        let page = resp.obj.next;
 
-  setPlayer: function(e) {
-    this.player = e.target;
-    if(this.state.data[this.state.sort].songs.length > 0) {
-      this.player.loadVideoById(this.state.data[this.state.sort].songs[0].youtube_id);
-      this.setState({selectedVideoId: this.state.data[this.state.sort].songs[0].youtube_id});
+        songs = _.union(this.state.songs, songs);
+
+        this.setState({ songs, page });
+      })
+      .catch( (err) => console.log(err) );
+  }
+
+  sortedSongs() {
+    let sort = this.state.sort;
+
+    if (sort === TOP) {
+      return _.reverse(_.sortBy(this.state.songs, ['upvotes', 'creation_date']));
+    } else if (sort === NEW) {
+      return _.reverse(_.sortBy(this.state.songs, ['creation_date', 'upvotes']));
     }
-    this.pauseVideo();
-  },
+  }
 
-  loadSongsAndReset: function(type, regionId) {
-    type = type || this.state.sort;
-    var _this = this;
-    var region = regionId || _this.props.params.region || "Seattle";
-    var operation = "GetSongsInRegion";
-    var postData = { "RegionId": region, "InputToken": 0, "Type": type};
-    sdk.getSongsForPlaylist( region ).then( (resp) => {
-			var pageToken = resp['OutputToken'];
-			var songs = resp['Songs'];
-			songs = songs.map(function(elem, i) {
-				elem.clickPlayHandler = _this.clickPlayHandler;
-				elem.upvoteHandler = _this.handleUpvote;
-				return elem
-			});
-			var data = _this.state.data;
-			data[type] = {songs: songs, pageToken: pageToken};
-			_this.setState({data: data});
-		});
-  },
+  render() {
+    let sort = this.state.sort;
+    let { playlist = 'Seattle' } = this.props.params;
+    var hotBtnClasses = cx("filter-btn", "pointer", {active: sort === TOP});
+    var newBtnClasses = cx("filter-btn", "pointer", {active: sort === NEW});
 
-  loadSongs: function(type, regionId) {
-    type = type || this.state.sort;
-    var _this = this;
-    var region = regionId || _this.props.params.region || "Seattle";
-		if (_.isUndefined(sdk)) {
-      clearInterval(_this.interval);
-			_this.interval = setInterval(() => {
-        console.log('yay check');
-				_this.loadSongs(type, regionId)
-			}, 100);
-		} else {
-      clearInterval(_this.interval);
-			sdk.getSongsForPlaylist( region ).then( (resp) => {
-				var pageToken = resp['OutputToken'];
-				var songs = resp['Songs'];
-				songs = songs.map(function(elem, i) {
-					elem.clickPlayHandler = _this.clickPlayHandler;
-					elem.upvoteHandler = _this.handleUpvote;
-					return elem
-				});
-				songs = _.union(_this.state.data[type].songs, songs);
-				var data = _this.state.data;
-				data[type] = {songs: songs, pageToken: pageToken};
-				_this.setState({data: data});
-			});
-		}
-  },
-
-  setSort: function(sort) {
-    var _this = this;
-    return function() {
-      _this.setState({sort: sort});
-    }
-  },
-
-  render: function () {
-    var region = this.props.params.region || "Seattle";
-    var hotBtnClasses = cx("filter-btn", "pointer", {active: this.state.sort === "top"});
-    var newBtnClasses = cx("filter-btn", "pointer", {active: this.state.sort === "new"});
+    let songs = this.sortedSongs();
 
     return (
       <div className="row">
         <div className="row">
-          <Header region={region} sendTokenHandler={this.sendTokenHandler} userInfo={this.state.userInfo} logoutHandler={this.logoutHandler}/>
+          <Header playlist={playlist} onLogin={this.handleLogin} username={this.state.username} />
         </div>
         <div className={!this.state.showFTUEHero? "hidden" : 'row'}>
-          <FTUEHero handlePlayClick={this.clickPlayHandler()}/>
+          <FTUEHero onPlay={this.handleOnPlay}/>
         </div>
         <div className={this.state.showFTUEHero? "hidden" : 'row'}>
-          <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.playNextSong} onReady={this.setPlayer} onPause={this.pauseVideo} onPlay={this.playVideo}/>
+          <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.handleOnEnd} onReady={this.handleOnReady} onPause={this.handleOnPause} onPlay={this.handleOnPlay}/>
         </div>
         <div className={'row'} id={'gradient_bar'}>
           <div className="btn-group col-xs-3 col-xs-offset-4" role="group">
-            <div className={hotBtnClasses} onClick={this.setSort("top")}>Hot</div>
-            <div className={newBtnClasses} onClick={this.setSort("new")}>New</div>
+            <div className={hotBtnClasses} onClick={this.handleSetSort(TOP)}>Hot</div>
+            <div className={newBtnClasses} onClick={this.handleSetSort(NEW)}>New</div>
           </div>
           <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={_.throttle(this.handleSearchSelection, 100)}/> </div>
         </div>
         <div className="row">
-          <SongList songs={this.state.data[this.state.sort].songs} selectedVideoIndex={this.currentlyPlayingVideoIndex()} playing={this.state.playing}/>
+          <SongList songs={songs} upvotes={this.state.upvotes} playing={this.state.playing} selectedVideoId={this.state.selectedVideoId}
+                    onPause={this.handleOnPause} onPlay={this.handleOnPlay} onUpvote={this.handleUpvote}/>
         </div>
-        <Waypoint onEnter={_.throttle(this.loadSongs.bind(this, this.state.sort, undefined), 50)} threshold={0} height="50px"/>
       </div>
     );
   }
-});
-module.exports = Landing;
+}
 

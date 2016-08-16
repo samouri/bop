@@ -1,6 +1,6 @@
 {
   "name": "bop",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "description": "BopWebsiteUI",
   "main": "index.js",
   "dependencies": {
@@ -11,9 +11,8 @@
     "react-dom": "^15.2.1",
     "react-router": "^2.4.1",
     "react-waypoint": "^2.0.2",
-    "react-youtube": "~4.1.2",
-    "swagger-client": "^2.1.18",
-    "validator": "~4.2.1"
+    "react-youtube": "^7.0.0",
+    "swagger-client": "^2.1.18"
   },
   "devDependencies": {
     "react-scripts": "0.1.0"

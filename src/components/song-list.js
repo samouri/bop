@@ -1,18 +1,24 @@
-var React = require('react');
-var SongRow = require('./song-row.js');
-var _ = require('lodash');
+import _ from 'lodash'
+import React from 'react';
+import SongRow from './song-row';
 
-var SongList = React.createClass({
-  render: function() {
-    var _this = this;
-    var songRows = _this.props.songs.map(function(song_info, index) {
-      song_info.selected = _this.props.selectedVideoIndex === index;
-      song_info.playing  = _this.props.playing;
-      return <li className="list-group-item"> <SongRow {...song_info}/> </li>
+export default class SongList extends React.Component {
+  render() {
+    var songRows = this.props.songs.map( (song, index) => {
+      let selected = this.props.selectedVideoId === song.youtube_id;
+      let playing = this.props.playing && selected;
+      let upvoted = this.props.upvotes[ song._id ];
+
+      return <li className="list-group-item" key={song.youtube_id}>
+               <SongRow {...song} playing={playing} selected={selected} upvoted={upvoted}
+                        onPause={this.props.onPause} onPlay={this.props.onPlay} onUpvote={this.props.onUpvote} />
+             </li>
     });
+
     if (_.isEmpty(this.props.songs)) {
       songRows = <p> Theres a first for everything </p>
     }
+
     return (
       <div>
         <ul className="list-group">
@@ -21,7 +27,5 @@ var SongList = React.createClass({
       </div>
     );
   }
-});
-
-module.exports = SongList;
+}
 

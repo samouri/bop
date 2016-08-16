@@ -1,79 +1,69 @@
 var React = require('react');
-var ReactDOM = require('react-dom');
 var cx = require('classnames');
+let _ = require('lodash');
 
-var Header = React.createClass({
-  getInitialState: function() {
-    return {
-      showEmailForm: false,
-      loginText: null
-    };
-  },
+export default class Header extends React.Component{
 
-  componentWillReceiveProps: function(props) {
-    var loginText = "Login"
-    if (! $.isEmptyObject(props.userInfo)) {
-      loginText = props.userInfo.username;
+  constructor(props) {
+    super(props);
+    this.state = {
+      showLoginForm: false,
+      showCreateUser: false,
+      username: '',
+      password: '',
     }
-    this.setState({ loginText: loginText});
-  },
+  }
 
-  _loginOnMouseOver: function() {
-    if (! $.isEmptyObject(this.props.userInfo)) {
-      this.setState({ loginText: "Logout"});
-    }
-  },
+  handleLogin = (e) => {
+    e.preventDefault();
 
-  _loginOnMouseOut: function() {
-    var loginText = "Login";
-    if (! $.isEmptyObject(this.props.userInfo)) {
-      loginText = this.props.userInfo.username
-    }
-    this.setState({ loginText: loginText});
-  },
+    this.setState({showLoginForm: false});
 
-  loginClickHandler: function() {
-    if (this.state.loginText === "Logout") {
-      this.props.logoutHandler();
-      this.setState({loginText: "Login"});
-    } else {
-      this.setState({showEmailForm: !this.state.showEmailForm});
-    }
-  },
+    this.props.onLogin({
+      username: this.state.username,
+      password: this.state.password
+    });
+  }
 
-  sendTokenClickHandler: function(e) {
-    var emailForm = ReactDOM.findDOMNode(this.refs.emailForm);
-    this.setState({showEmailForm: false});
-    this.props.sendTokenHandler(emailForm.value);
-  },
+  handleClick = () => {
+    this.setState({ showLoginForm: true});
+  }
 
-  render: function () {
-    var loginInfoClasses = cx('row', {
-      hidden: ! this.state.showEmailForm
+  handleUsernameChange = (event) => {
+    this.setState({username: event.target.value});
+  }
+
+  handlePasswordChange = (event) => {
+    this.setState({password: event.target.value});
+  }
+
+  render() {
+    var loginInfoClasses = cx({
+      hidden: ! this.state.showLoginForm
     });
 
-    return (
+   let loginText = _.isUndefined(this.props.username)? "Login" : this.props.username;
+   return (
       <div>
         <div id="header" className="row">
           <div className="col-xs-4"> <h1 id="bop_header" className="pull-left"> Bop </h1>
-            <h2 id ="seattle_header" className="pull-left"> {this.props.region.substring(0,10)} </h2>
+            <h2 id="seattle_header" className="pull-left"> {this.props.playlist.substring(0,10)} </h2>
           </div>
           <div className="col-xs-3 col-xs-offset-5">
-            <h3 className="pull-right pointer" onClick={this.loginClickHandler} onMouseOver={this._loginOnMouseOver} onMouseOut={this._loginOnMouseOut}> {this.state.loginText} </h3>
+            <h3 className="pull-right pointer" onClick={this.handleClick}> {loginText} </h3>
           </div>
         </div>
-        <div id="login-info" className={loginInfoClasses}>
-          <form role="form" data-toggle="validator" className="col-xs-12">
-            <button type="button" onClick={this.sendTokenClickHandler} className="btn btn-primary pull-right">Send token</button>
-            <div className="form-group pull-right">
-              <input type="email" id="inputEmail" placeholder="example@email.com" ref="emailForm"></input>
-              <div className="help-block with-errors"></div>
-            </div>
-          </form>
+        <div id="login-info" className={loginInfoClasses} style={{position: 'relative'}}>
+          <div style={{position: 'absolute', right: '0px'}}>
+            <form>
+              <input type="username" placeholder="username" value={this.state.username} onChange={this.handleUsernameChange}></input>
+              <input type="text" placeholder="password" value={this.state.password} onChange={this.handlePasswordChange}></input>
+              <button type='submit' style={{display: "none"}} onClick={this.handleLogin}/>
+            </form>
+          </div>
         </div>
       </div>
     );
   }
-});
+}
 
-module.exports = Header;

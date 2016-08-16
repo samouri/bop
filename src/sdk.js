@@ -3,6 +3,11 @@ var Swagger = require('swagger-client');
 var sdk = function(client) {
   this.client = client;
 
+  this.login = function(username, password) {
+    this.client.clientAuthorizations.add('basicAuth',
+        new Swagger.PasswordAuthorization(username, password));
+	}
+
   this.getSongsForPlaylist = function(playlist, start, size) {
     return this.client.Playlist.playlistNameGET({name: playlist, start: start, size: size});
   }
@@ -28,6 +33,10 @@ var sdk = function(client) {
 
   this.vote = (playlist_id, song_id, direction) => {
     return this.client.Vote.votePOST({name: playlist_id, song_id: song_id, vote: direction });
+  }
+
+  this.getSongMetadata = (searchTerm) => {
+    return this.client.default.get_song_metadata({ q: searchTerm});
   }
 
   return this;

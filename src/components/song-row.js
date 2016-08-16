@@ -1,26 +1,20 @@
-var React = require('react');
-var cx = require('classnames');
+import React from 'react';
+import cx from 'classnames';
 
-var SongRow = React.createClass({
-  getDefaultProps: function(){
-    return {};
-  },
+export default class SongRow extends React.Component {
 
-  getInitialState: function() {
-    return {
-      "upvoted": this.props.upvoted
-    };
-  },
-
-  durationToString: function() {
-    var duration = this.props.duration;
+  durationToString() {
+    var duration = this.props.duration / 1000;
     var duration_minutes = Math.floor(duration / 60);
     var duration_seconds = Math.floor(duration - (duration_minutes * 60));
+    if ( duration_seconds < 10 ) {
+      duration_seconds = '0' + duration_seconds;
+    }
     return duration_minutes + ":" + duration_seconds;
-  },
+  }
 
-  getAge: function() {
-    var dateAddedString = this.props.date_added;
+  getAge() {
+    var dateAddedString = this.props.creation_date;
     var dateAdded = new Date(dateAddedString);
     var age = (Date.now() - dateAdded.getTime()) / 1000;
     var age_minutes = Math.floor(age / 60);
@@ -30,45 +24,29 @@ var SongRow = React.createClass({
       return age_minutes + "m";
     }
     return age_hours + "h";
-  },
+  }
 
-  getTitle: function() {
-    var parensIndex = this.props.track.indexOf("(");
-    var squareBracketIndex = this.props.track.indexOf("[");
-    var cutoffIndex = 23;
-    if (parensIndex !== -1 && parensIndex < cutoffIndex) {
-      cutoffIndex = parensIndex;
-    }
-    if (squareBracketIndex !== -1 && squareBracketIndex < cutoffIndex) {
-      cutoffIndex = squareBracketIndex;
-    }
-    return this.props.track.substring(0, cutoffIndex);
-  },
+  getTitle() {
+    return this.props.name;
+  }
 
-  handleUpvote: function(song_info) {
-    this.props.upvoteHandler(this.props);
-    this.setState({upvoted: !this.state.upvoted});
-  },
+  handleUpvote = (song_info) => {
+    this.props.onUpvote(this.props, this.props.upvoted? 0 : 1);
+  }
 
-  render: function () {
+  render() {
     var playOrPauseClasses = cx('fa', 'fa-3x', 'pointer', {
-      'fa-pause': this.props.playing && this.props.selected,
-      'fa-play': !(this.props.playing && this.props.selected),
+      'fa-pause': this.props.playing,
+      'fa-play': ! this.props.playing,
       'selected-purple': this.props.selected
     });
 
     var upChevronClasses = cx('fa fa-chevron-up fa-2x pointer', {
-      'up-chevron-selected': this.state.upvoted
+      'up-chevron-selected': this.props.upvoted
     });
 
-    var votes = this.props.votes;
-    if (this.state.upvoted && !this.props.upvoted) {
-      votes += 1;
-    }
-    else if (! this.state.upvoted && this.props.upvoted) {
-      votes  -= 1;
-    }
-
+    let votes = this.props.upvotes;
+		let handlePausePlay = (this.props.playing) ? this.props.onPause : this.props.onPlay;
 
     return (
         <div className="song-div row-eq-height">
@@ -81,7 +59,7 @@ var SongRow = React.createClass({
                 <span className="time-since"> {this.getAge()} </span>
             </div>
             <div className="play-info pull-right col-xs-1">
-              <i className={playOrPauseClasses} onClick={this.props.clickPlayHandler(this.props.youtube_id, playOrPauseClasses)}></i>
+              <i className={playOrPauseClasses} onClick={() => handlePausePlay(this.props.youtube_id)}></i>
               <span className="duration">{this.durationToString(this.props.duration)}</span>
             </div>
             <div className="vote-info pull-right col-xs-1">
@@ -91,6 +69,5 @@ var SongRow = React.createClass({
         </div>
     );
   }
-});
+}
 
-module.exports = SongRow;
