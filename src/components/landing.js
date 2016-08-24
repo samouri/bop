@@ -153,7 +153,15 @@ export default class Landing extends React.Component {
           username: login.username
         });
       })
-      .catch( (err) => console.log(err));
+      .catch( (err) => {
+        console.log(err, 'attempting to create user');
+        sdk.putUser(login.username, login.password).then( (resp) => {
+          this.setState({
+            upvotes: {},
+            username: login.username
+          });
+        });
+      });
   }
 
   handleSetSort = (sort) => {
