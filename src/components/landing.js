@@ -78,8 +78,10 @@ export default class Landing extends React.Component {
   handleOnEnd = () => {
     // play next song
     let songs = this.sortedSongs();
-    var currIndex = _.findIndex(songs, {youtube_id: this.selectedVideoId});
-    this.playVideo(this.state.songs[currIndex+1].youtube_id);
+    var currIndex = _.findIndex(songs, {youtube_id: this.state.selectedVideoId});
+    console.log(currIndex);
+    console.log(songs);
+    this.playVideo(songs[currIndex+1].youtube_id);
   }
 
   handleOnReady = (e) => {
