@@ -1,14 +1,15 @@
-var Swagger = require('swagger-client');
+import Swagger from 'swagger-client';
+import config from './config';
 
-var sdk = function(client) {
-  this.client = client;
+export default function BopSdk() {
+  this.loaded = false;
 
-  this.login = function(username, password) {
+  this.login = function( { username, password } ) {
     this.client.clientAuthorizations.add('basicAuth',
         new Swagger.PasswordAuthorization(username, password));
 	}
 
-  this.getSongsForPlaylist = function(playlist, start, size) {
+  this.getSongsForPlaylist = function(playlist, start=0, size=20) {
     return this.client.Playlist.playlistNameGET({name: playlist, start: start, size: size});
   }
 
@@ -22,7 +23,7 @@ var sdk = function(client) {
           clientAuthorizations: {
             basicAuth: new Swagger.PasswordAuthorization(optionalUsername, optionalPassword),
           }
-      });
+      } );
     }
     return this.client.User.userGET();
   }
@@ -39,7 +40,10 @@ var sdk = function(client) {
     return this.client.default.get_song_metadata({ q: searchTerm});
   }
 
-  return this;
+  return new Swagger({ url: config.swaggerUrl, usePromise: true })
+    .then( ( client ) => {
+      this.client = client;
+      return this;
+    } )
+    .catch( ( error ) => console.error('could not load the sdk, what to do, what to do') );
 }
-
-module.exports = sdk;

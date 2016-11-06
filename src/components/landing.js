@@ -1,23 +1,25 @@
 import _ from 'lodash'
 import React from 'react';
-import Swagger from 'swagger-client';
+import { connect } from 'react-redux';
 import Youtube from 'react-youtube';
 import cx from 'classnames';
 
 import Header from './header';
-import SongList from './song-list';
 import SearchBar from './searchbar';
 import FTUEHero from './ftueBanner';
-import config from '../config';
+import SongRow from './song-row';
 
-let swaggerClientPromise = new Swagger({ url: config.swaggerUrl, usePromise: true });
-let BopSdk = require('../sdk');
+import BopSdk from '../sdk';
+import { fetchSongs, loginUser, playSong, pauseSong, setSort } from '../app/actions';
+import { getCurrentSort, getCurrentPlaylist, getUpvotedSongs, getUsername, getCurrentSong, getSongById, getSortedSongs,
+	getNextSong, } from '../app/reducer';
+
 let sdk;
 
 const YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const TOP = 'top';
 const NEW = 'new';
-const PAGE_SIZE = 100
+const PAGE_SIZE = 200;
 
 const opts = {
   playerVars: { // https://developers.google.com/youtube/player_parameters
@@ -29,68 +31,69 @@ const opts = {
   }
 }
 
-export default class Landing extends React.Component {
+function mapStateToProps( state ) {
+	return {
+			songs: getSortedSongs( state ),
+			username: getUsername( state ),
+			upvotedSongs: getUpvotedSongs( state ),
+			currentSong: getCurrentSong( state ),
+			currentPlaylist: getCurrentPlaylist( state ),
+			showFTUEHero: getCurrentSong( state ) === null,
+	 		getSongById: _.partial( getSongById, state),
+	 		sort: getCurrentSort( state ),
+	 		getNextSong: _.partial( getNextSong, state ),
+	}
+}
 
-  constructor(props) {
-    super(props);
+export default connect( mapStateToProps )(class Landing extends React.Component {
 
-    this.state = {
+	state = {
       selectedVideoId: null,
-      showFTUEHero: true,
       playing: false,
       songs: [],
       page: 0,
       sort: TOP,
       upvotes: {},
-      userInfo: {}
-    }
-  }
+      userInfo: {},
+			sdk: null,
+	}
 
   componentDidMount() {
-    swaggerClientPromise
-    .then( (client) => {
-      sdk = new BopSdk(client);
 
-      this.loadSongs(TOP);
-
-      let login = localStorage.getItem('login');
-      if (login) {
-        login = JSON.parse(login);
-        this.handleLogin(login);
-      }
-    })
-    .catch( (err) => {
-      console.log(err);
-    });
-  }
-
-  logoutHandler() {
-    // TODO remove credentials from user storage and refresh data
-    this.setState({userInfo: {}});
+    new BopSdk()
+			.then( ( client ) => {
+				sdk = client;
+				this.setState( { sdk } );
+				return this.props.dispatch( fetchSongs( this.props.currentPlaylist, sdk ) );
+			})
+			.then( () => {
+				let login = localStorage.getItem('login');
+				if (login) {
+					login = JSON.parse(login);
+					this.props.dispatch( loginUser( login, sdk ) );
+				}
+			})
+			.catch( (err) => {
+				console.error(err, err.stack);
+			});
   }
 
   handleOnPause = (event) => {
-    // pause video
-    this.player.pauseVideo();
-    this.setState({playing: false});
+		this.props.dispatch( pauseSong( this.props.currentSong.songId ) );
   }
 
   handleOnEnd = () => {
     // play next song
-    let songs = this.sortedSongs();
-    var currIndex = _.findIndex(songs, {youtube_id: this.state.selectedVideoId});
-    console.log(currIndex);
-    console.log(songs);
-    this.playVideo(songs[currIndex+1].youtube_id);
+		const nextSongId = this.props.getNextSong();
+		this.props.dispatch( playSong( nextSongId ) );
   }
 
   handleOnReady = (e) => {
     // set player
     this.player = e.target;
-    let songs = this.sortedSongs();
 
-    if(this.state.songs.length > 0) {
-      let selectedVideoId = songs[0].youtube_id;
+    if( this.props.songs.length > 0) {
+      let selectedVideoId = this.props.songs[0].youtube_id;
 
       this.player.cueVideoById({videoId: selectedVideoId});
       this.setState({ selectedVideoId });
@@ -118,127 +121,81 @@ export default class Landing extends React.Component {
     })
     .catch( (err) => {
       alert('sorry, video is incompatible');
-      console.log(err);
+      console.error(err);
     })
   }
 
-  handleUpvote = (song_info, voteDiff) => {
-    let { playlist = 'Seattle' } = this.props.params;
-    let songId = song_info['youtube_id'];
-
-    // instantly change the vote on screen
-    let songs = this.sortedSongs();
-    var votedSongIndex = _.findIndex(songs, {youtube_id: songId});
-    songs[votedSongIndex].upvotes += voteDiff === 0? -1 : 1;
-
-    let upvotes = _.clone(this.state.upvotes);
-    upvotes[song_info['_id']] = voteDiff > 0;
-
-    this.setState({songs, upvotes});
-
-    // also register vote with server
-    sdk.vote(playlist, songId, voteDiff);
+  handleOnPlay = ( songId ) => {
+		this.props.dispatch( playSong( this.props.currentSong.songId ) );
   }
 
-  handleOnPlay = (videoId) => {
-    this.playVideo(videoId);
+  handleRegister = ( login ) => {
+		console.log( 'attempting to create user' );
+		this.state.sdk.putUser(login.username, login.password)
+			.then( ( resp ) => {
+				this.props.dispatch( loginUser( login, sdk ) );
+			} );
   }
 
-  handleLogin = (login) => {
-    localStorage.setItem('login', JSON.stringify(login));
-
-    sdk.login(login.username, login.password);
-    sdk.getUser()
-      .then( (res) => {
-        this.setState({
-          upvotes: res.obj.upvotedSongs,
-          username: login.username
-        });
-      })
-      .catch( (err) => {
-        console.log(err, 'attempting to create user');
-        sdk.putUser(login.username, login.password).then( (resp) => {
-          this.setState({
-            upvotes: {},
-            username: login.username
-          });
-        });
-      });
-  }
-
-  handleSetSort = (sort) => {
-    return () => this.setState({sort});
-  }
-
-  playVideo(videoId) {
-    if (typeof videoId === 'string' || videoId instanceof String) {
+  playVideo( songId ) {
+    if ( this.props.currentSong.invalidatedSong ) {
      // only reload video if its new
-     if (this.state.selectedVideoId !== videoId) {
-       this.player.loadVideoById(videoId);
-       this.setState({selectedVideoId: videoId});
-     }
+		 const videoId = this.props.getSongById( songId ).youtube_id;
+		 this.player.loadVideoById( videoId );
     }
-    this.setState({playing: true, showFTUEHero: false});
     this.player.playVideo();
   }
 
-  loadSongs(start) {
-    let { playlist = 'Seattle' } = this.props.params;
-
-    sdk.getSongsForPlaylist( playlist, start, PAGE_SIZE )
-      .then( (resp) => {
-        let songs = resp.obj.songs;
-        let page = resp.obj.next;
-
-        songs = _.union(this.state.songs, songs);
-
-        this.setState({ songs, page });
-      })
-      .catch( (err) => console.log(err) );
-  }
-
-  sortedSongs() {
-    let sort = this.state.sort;
-
-    if (sort === TOP) {
-      return _.reverse(_.sortBy(this.state.songs, ['upvotes', 'creation_date']));
-    } else if (sort === NEW) {
-      return _.reverse(_.sortBy(this.state.songs, ['creation_date', 'upvotes']));
-    }
-  }
+	renderSongsList = () => {
+		if ( _.isEmpty( this.props.songs ) ) {
+			return <p> Theres a first for everything </p>;
+		} else {
+			return _.map( this.props.songs,
+				( song ) => <li className="list-group-item">
+					<SongRow songId={ song._id } sdk={ this.state.sdk } key={ `song-${song._id}` }/>
+				</li>
+			)
+		}
+	}
 
   render() {
-    let sort = this.state.sort;
+    let sort = this.props.sort;
     let { playlist = 'Seattle' } = this.props.params;
     var hotBtnClasses = cx("filter-btn", "pointer", {active: sort === TOP});
     var newBtnClasses = cx("filter-btn", "pointer", {active: sort === NEW});
 
-    let songs = this.sortedSongs();
+    let songs = this.props.songs;
+
+		if ( this.props.currentSong && this.props.currentSong.playing ) {
+			this.playVideo( this.props.currentSong.songId )
+		} else if ( this.props.currentSong && ! this.props.currentSong.playing ) {
+			this.player.pauseVideo();
+		}
 
     return (
       <div className="row">
         <div className="row">
-          <Header playlist={playlist} onLogin={this.handleLogin} username={this.state.username} />
+          <Header onLogin={ ( login ) => this.props.dispatch( loginUser( login, sdk ) ) } onRegister={ this.handleRegister }/>
         </div>
-        <div className={!this.state.showFTUEHero? "hidden" : 'row'}>
-          <FTUEHero onPlay={this.handleOnPlay}/>
-        </div>
-        <div className={this.state.showFTUEHero? "hidden" : 'row'}>
+
+				{ this.props.showFTUEHero && <FTUEHero /> }
+
+        <div className={this.props.showFTUEHero ? "hidden" : 'row'}>
           <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.handleOnEnd} onReady={this.handleOnReady} onPause={this.handleOnPause} onPlay={this.handleOnPlay}/>
         </div>
         <div className={'row'} id={'gradient_bar'}>
           <div className="btn-group col-xs-3 col-xs-offset-4" role="group">
-            <div className={hotBtnClasses} onClick={this.handleSetSort(TOP)}>Hot</div>
-            <div className={newBtnClasses} onClick={this.handleSetSort(NEW)}>New</div>
+            <div className={hotBtnClasses} onClick={ () => this.props.dispatch( setSort( TOP ) ) }>Hot</div>
+            <div className={newBtnClasses} onClick={ () => this.props.dispatch( setSort( NEW ) ) }>New</div>
           </div>
           <div className="col-xs-4 col-xs-offset-1"> <SearchBar handleSelection={_.throttle(this.handleSearchSelection, 100)}/> </div>
         </div>
         <div className="row">
-          <SongList songs={songs} upvotes={this.state.upvotes} playing={this.state.playing} selectedVideoId={this.state.selectedVideoId}
-                    onPause={this.handleOnPause} onPlay={this.handleOnPlay} onUpvote={this.handleUpvote}/>
+					<ul className="list-group">
+						{ this.renderSongsList() }
+					</ul>
         </div>
       </div>
     );
   }
-}
-
+} );
