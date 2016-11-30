@@ -52,13 +52,12 @@ class SongRow extends React.Component {
 		const vote = this.props.isUpvoted ? 1 : -1;
 		const voteModifier = vote * ( Math.abs( this.state.voteModifier ) - 1)
 
-		sdk.vote( playlist_id, youtube_id, vote )
+		sdk.vote( playlist_id, youtube_id, - vote )
 			.then( () => this.setState( { voteModifier } ) )
 			.catch( error => {
 				console.error( error, error.stack );
 			} );
   }
-
 
   render() {
     var playOrPauseClasses = cx('fa', 'fa-3x', 'pointer', {

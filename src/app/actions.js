@@ -22,7 +22,7 @@ function requestSongs( playlistId ) {
 	};
 }
 
-function fetchSongsSuccess( playlistId, songs ) {
+export function fetchSongsSuccess( playlistId, songs ) {
 	return {
 		type: FETCH_SONGS_SUCCESS,
 		playlistId,

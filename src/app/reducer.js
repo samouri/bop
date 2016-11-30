@@ -95,8 +95,12 @@ function playlists( state = {}, action ) {
 	}
 }
 
-function currentPlaylist( state = 'Seattle', action ) {
-	return "Seattle";
+const initialCurrentPlaylist = _.isEmpty( window.location.pathname.substring(1) )
+	? 'Seattle'
+	: window.location.pathname.substring(1);
+
+function currentPlaylist( state = initialCurrentPlaylist, action ) {
+	return state;
 }
 
 function currentSort( state = 'top', action ) {

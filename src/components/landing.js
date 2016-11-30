@@ -10,7 +10,7 @@ import FTUEHero from './ftueBanner';
 import SongRow from './song-row';
 
 import BopSdk from '../sdk';
-import { fetchSongs, loginUser, playSong, pauseSong, setSort } from '../app/actions';
+import { fetchSongsSuccess, fetchSongs, loginUser, playSong, pauseSong, setSort } from '../app/actions';
 import { getCurrentSort, getCurrentPlaylist, getUpvotedSongs, getUsername, getCurrentSong, getSongById, getSortedSongs,
 	getNextSong, } from '../app/reducer';
 
@@ -100,8 +100,9 @@ export default connect( mapStateToProps )(class Landing extends React.Component 
     }
   }
 
-  handleSearchSelection = (searchMetadata) => {
+  handleSearchSelection = ( searchMetadata ) => {
     let { playlist = 'Seattle' } = this.props.params;
+		console.error(playlist)
 
     // get metadata, add the song, then add it locally
     sdk.getSongMetadata(searchMetadata.youtube_title)
@@ -112,17 +113,22 @@ export default connect( mapStateToProps )(class Landing extends React.Component 
       song.youtube_id = searchMetadata.youtube_id;
 
       return sdk.addSongToPlaylist(playlist, song)
-    })
+    } ) //TODO reduxify adding of songs
     .then( (resp) => {
-      let addedSong = resp.obj;
-      let songs = this.state.songs.concat(addedSong);
-
-      this.setState({songs});
-    })
+      let song = resp.obj;
+			this.props.dispatch( fetchSongsSuccess( playlist, [ song ] ) );
+    } )
     .catch( (err) => {
-      alert('sorry, video is incompatible');
-      console.error(err);
-    })
+			let song = { ...searchMetadata, title: searchMetadata.youtube_title };
+      return sdk.addSongToPlaylist( playlist, song )
+				.then( (resp) => {
+					song = resp.obj;
+					this.props.dispatch( fetchSongsSuccess( playlist, [ song ] ) );
+				} );
+    } )
+		.catch( ( err ) => {
+			console.error( 'seems like we couldnt add a song', err, err.stack );
+		} );
   }
 
   handleOnPlay = ( songId ) => {
