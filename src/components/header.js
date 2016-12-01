@@ -1,66 +1,115 @@
 import React from 'react';
 import _ from 'lodash';
+import { connect } from 'react-redux';
 
-import ToggleDisplay from './toggle-display';
+import { logout } from '../app/actions';
+import { getUsername, getCurrentPlaylist } from '../app/reducer';
 
-export default class Header extends React.Component{
+class Header extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      showLoginForm: false,
-      username: '',
-      password: '',
-    }
-  }
+	state = {
+		showLogoutForm: false,
+		showLoginForm: false,
+		username: '',
+		password: '',
+	}
 
-  handleLogin = (e) => {
-    e.preventDefault();
+	handleLogout = () => {
+		this.setState( { showLogoutForm: false } );
+		this.props.handleLogout();
+	}
 
-    this.setState({showLoginForm: false});
+	handleLogin = (e) => {
+		e.preventDefault();
 
-    this.props.onLogin({
-      username: this.state.username,
-      password: this.state.password
-    });
-  }
+		this.setState( { showLoginForm: false } );
 
-  handleClick = () => {
-    this.setState({ showLoginForm: ! this.state.showLoginForm});
-  }
+		this.props.onLogin( {
+			username: this.state.username,
+			password: this.state.password
+		} );
+	}
 
-  handleUsernameChange = (event) => {
-    this.setState({username: event.target.value});
-  }
+	handleRegister = (e) => {
+		e.preventDefault();
 
-  handlePasswordChange = (event) => {
-    this.setState({password: event.target.value});
-  }
+		this.setState( { showLoginForm: false } );
 
-  render() {
-   let loginText =_.isUndefined(this.props.username)? "Login" : this.props.username;
+		this.props.onRegister( {
+			username: this.state.username,
+			password: this.state.password
+		} );
+	}
 
-   return (
-      <div>
-        <div id="header" className="row">
-          <div className="col-xs-4"> <h1 id="bop_header" className="pull-left"> Bop </h1>
-            <h2 id="seattle_header" className="pull-left"> {this.props.playlist.substring(0,10)} </h2>
-          </div>
-          <div className="col-xs-3 col-xs-offset-5">
-            <h3 className="pull-right pointer" onClick={this.handleClick}> {loginText} </h3>
-            <ToggleDisplay show={this.state.showLoginForm}>
-              <div className="dropdown-menu" style={{padding: '17px'}}>
-                <form>
-                  <input type="text" placeholder="username" value={this.state.username} onChange={this.handleUsernameChange} />
-                  <input type="password" placeholder="password" value={this.state.password} onChange={this.handlePasswordChange} />
-                  <input type="submit" style={{display: 'none'}}  onClick={this.handleLogin}/>
-                </form>
-              </div>
-            </ToggleDisplay>
-          </div>
-        </div>
-      </div>
-    );
-  }
+	handleClick = () => {
+		if ( this.props.username ) {
+			this.setState( { showLogoutForm: ! this.state.showLogoutForm } );
+		} else{
+			this.setState( { showLoginForm: ! this.state.showLoginForm} );
+		}
+	}
+
+	handleUsernameChange = ( event ) => {
+		this.setState( { username: event.target.value } );
+	}
+
+	handlePasswordChange = ( event ) => {
+		this.setState( { password: event.target.value } );
+	}
+
+	render() {
+		let loginText = this.props.username || "Login";
+		const logoutButtonStyle = {
+			float: 'right',
+			backgroundColor: ''
+		};
+
+		return (
+			<div id="header" className="row">
+				<div className="col-xs-4"> <h1 id="bop_header" className="pull-left"> Bop </h1>
+				<h2 id="seattle_header" className="pull-left"> { this.props.playlist.substring(0,10) } </h2>
+			</div>
+			<div className="col-xs-3 col-xs-offset-5">
+				<h3 className="pull-right pointer" onClick={ this.handleClick }> { loginText } </h3>
+				{ this.state.showLoginForm && ! this.props.username &&
+					<div className="dropdown-menu" style={ { padding: '17px' } }>
+						<form>
+							<input type="text" placeholder="username" value={ this.state.username } onChange={ this.handleUsernameChange } />
+							<input type="password" placeholder="password" value={ this.state.password } onChange={ this.handlePasswordChange } />
+							<div style={ { display: 'flex', } }>
+								<a onClick={ this.handleRegister } className="header__logintext">
+									new account
+								</a>
+								<a onClick={ this.handleLogin } className="header__logintext">
+									<span className="glyphicon glyphicon-log-in"></span> Log in
+								</a>
+							</div>
+							<input type="submit" style={{display: 'none'}}  onClick={this.handleLogin}/>
+						</form>
+					</div>
+				}
+				{ this.state.showLogoutForm &&
+					<div className="dropdown-menu" style={ { marginLeft: '120px' } }>
+						<a onClick={ this.handleLogout } className="btn btn-info btn-lg">
+							<span className="glyphicon glyphicon-log-out"></span> Log out
+						</a>
+					</div>
+					}
+				</div>
+			</div>
+		);
+	}
 }
 
+function mapStateToProps( state ) {
+	const username = getUsername( state );
+	const playlist = getCurrentPlaylist( state );
+	return { username, playlist };
+}
+
+function mapDispatchToProps( dispatch ) {
+	const handleLogout = () => dispatch( logout() );
+	return { handleLogout };
+}
+
+export default connect( mapStateToProps, mapDispatchToProps )( Header );

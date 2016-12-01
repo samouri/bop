@@ -4,12 +4,10 @@ var ReactDOM = require('react-dom');
 // TODO find a replacement for bloodhound + typeahead seeing as they are basically deprecated projects
 // ideally one that is react-friendly
 export default class SearchBar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      userInput: ''
-    };
-  }
+
+	state = {
+		userInput: ''
+	};
 
   handleChange = (event) => {
     this.setState({userInput: event.target.value});
@@ -65,4 +63,3 @@ export default class SearchBar extends React.Component {
     );
   }
 }
-

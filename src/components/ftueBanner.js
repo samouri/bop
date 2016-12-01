@@ -1,14 +1,28 @@
 import React from 'react';
 
-export default class FTUEHero extends React.Component {
+import { connect } from 'react-redux';
+import { playSong } from '../app/actions';
+import { getSortedSongs } from '../app/reducer'
 
-  render() {
-    return (
-      <div id="ftue-hero">
-        <div> <span id="ftue-hero-text">Discover and share music <br/> with people around you.</span></div>
-        <div id="ftue-play-button" onClick={this.props.onPlay}><span id="ftue-play-button-text">Play</span></div>
-      </div>
-    );
-  }
+function mapStateToProps( state ) {
+	return {
+		firstSong: getSortedSongs( state )[0],
+	};
 }
 
+function mergeProps( { firstSong }, { dispatch } ) {
+	return {
+		handleOnClick: () => dispatch( playSong( firstSong._id )),
+	};
+}
+
+function FTUEHero( props )  {
+	return (
+		<div id="ftue-hero" className="row">
+			<div> <span id="ftue-hero-text">Discover and share music <br/> with people around you.</span></div>
+			<div id="ftue-play-button" onClick={ props.handleOnClick }><span id="ftue-play-button-text">Play</span></div>
+		</div>
+	);
+}
+
+export default connect( mapStateToProps, null, mergeProps )( FTUEHero );
