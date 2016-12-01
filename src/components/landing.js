@@ -41,7 +41,7 @@ function mapStateToProps( state ) {
 			showFTUEHero: getCurrentSong( state ) === null,
 	 		getSongById: _.partial( getSongById, state),
 	 		sort: getCurrentSort( state ),
-	 		getNextSong: _.partial( getNextSong, state ),
+	 		nextSong: getNextSong( state ),
 	}
 }
 
@@ -84,8 +84,7 @@ export default connect( mapStateToProps )(class Landing extends React.Component 
 
   handleOnEnd = () => {
     // play next song
-		const nextSongId = this.props.getNextSong();
-		this.props.dispatch( playSong( nextSongId ) );
+		this.props.dispatch( playSong( this.props.nextSong ) );
   }
 
   handleOnReady = (e) => {

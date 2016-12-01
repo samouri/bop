@@ -139,12 +139,12 @@ function user( state = {}, action ) {
 			// if already upvoted, then remove.  if not upvoted, then keep
 			let upvotedSongs;
 			if ( _.has( state.upvotedSongs, action.songId ) ) {
-				upvotedSongs = _.omit( state.upvotedSongs, action.songId )
+				upvotedSongs = _.omit( state.upvotedSongs, action.songId );
 			} else {
 				upvotedSongs = {
-					[action.songId]: true,
+					[ action.songId ]: true,
 					...state.upvotedSongs,
-				}
+				};
 			}
 
 			return { ...state, upvotedSongs, };
@@ -230,8 +230,12 @@ export function getSortedSongs( state ) {
 
 export function getNextSong( state ) {
 	const currentSong = getCurrentSong( state );
-	const songs = getSortedSongs( state );
-	var currIndex = _.findIndex( songs, currentSong.songIds );
+	const songs = _.map( getSortedSongs( state ), '_id');
 
-	return songs[ currIndex + 1 ]._id;
+	if ( currentSong === null ) {
+		return null;
+	}
+
+	var currIndex = songs.indexOf( currentSong.songId );
+	return songs[ currIndex + 1 ];
 }
