@@ -49,13 +49,15 @@ class SongRow extends React.Component {
 
   handleUpvote = () => {
 		const { sdk, song: { playlist_id, youtube_id } } = this.props;
-		const vote = this.props.isUpvoted ? 1 : -1;
-		const voteModifier = vote * ( Math.abs( this.state.voteModifier ) - 1)
+		const vote = this.props.isUpvoted ? -1 : 1;
+		const voteModifier = this.state.voteModifier !== 0 ? 0 : vote;
+		const prevModifier = this.state.voteModifier;
 
-		sdk.vote( playlist_id, youtube_id, - vote )
-			.then( () => this.setState( { voteModifier } ) )
+		this.setState({ voteModifier });
+		sdk.vote( playlist_id, youtube_id )
 			.catch( error => {
 				console.error( error, error.stack );
+				this.setState({ voteModifier: prevModifier });
 			} );
   }
 

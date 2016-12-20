@@ -32,8 +32,8 @@ export default function BopSdk() {
     return this.client.User.userPUT({username: username, password: { password: password } });
   }
 
-  this.vote = (playlist_id, song_id, direction) => {
-    return this.client.Vote.votePOST({name: playlist_id, song_id: song_id, vote: direction });
+  this.vote = (playlist_id, song_id) => {
+    return this.client.Vote.votePOST({name: playlist_id, song_id: song_id });
   }
 
   this.getSongMetadata = (searchTerm) => {
