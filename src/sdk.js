@@ -41,8 +41,11 @@ export default function BopSdk() {
   }
 
   return new Swagger({ url: config.swaggerUrl, usePromise: true })
-    .then( ( client ) => {
+    .then( client => {
       this.client = client;
+      if ( config.swaggerHost ) {
+        client.setHost( config.swaggerHost );
+      }
       return this;
     } )
     .catch( ( error ) => console.error('could not load the sdk, what to do, what to do') );
