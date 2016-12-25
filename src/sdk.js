@@ -4,41 +4,45 @@ import config from './config';
 export default function BopSdk() {
   this.loaded = false;
 
-  this.login = function( { username, password } ) {
-    this.client.clientAuthorizations.add('basicAuth',
-        new Swagger.PasswordAuthorization(username, password));
-	}
-
-  this.getSongsForPlaylist = function(playlist, start=0, size=20) {
-    return this.client.Playlist.playlistNameGET({name: playlist, start: start, size: size});
+  this.getSongsInPlaylist = function(playlist_id, start=0, size=20) {
+    return this.client.default.getSongsInPlaylist({playlist_id, start, size});
   }
 
-  this.addSongToPlaylist = function(playlist, song) {
-    return this.client.default.playlistNamePOST({name: playlist, song: song});
+  this.addSongToPlaylist = function(playlist_id, song) {
+    return this.client.default.addSongToPlaylist({playlist_id, song});
   }
 
   this.getUser = (optionalUsername, optionalPassword) => {
     if ( optionalUsername && optionalPassword ) {
-      return this.client.User.userGET(null, {
-          clientAuthorizations: {
-            basicAuth: new Swagger.PasswordAuthorization(optionalUsername, optionalPassword),
-          }
-      } );
+      return this.client.default.getUser(null, {
+        clientAuthorizations: {
+          basicAuth: new Swagger.PasswordAuthorization(optionalUsername, optionalPassword),
+        }
+      });
     }
-    return this.client.User.userGET();
+    return this.client.default.getUser();
   }
 
   this.putUser = (username, password) =>  {
-    return this.client.User.userPUT({username: username, password: { password: password } });
+    return this.client.default.createUser({username, password: { password: password } });
   }
 
-  this.vote = (playlist_id, song_id) => {
-    return this.client.Vote.votePOST({name: playlist_id, song_id: song_id });
+  this.vote = (playlist_id, youtube_id) => {
+    return this.client.default.voteOnSong({playlist_id, youtube_id});
   }
 
-  this.getSongMetadata = (searchTerm) => {
-    return this.client.default.get_song_metadata({ q: searchTerm});
+  this.deleteSong = (playlist_id, youtube_id) => {
+    return this.client.default.deleteSong({playlist_id, youtube_id});
   }
+
+  this.login = function( { username, password } ) {
+    this.client.clientAuthorizations.add('basicAuth',
+      new Swagger.PasswordAuthorization(username, password)
+    );
+  }
+
+  this.getSongMetadata = searchTerm =>
+    this.client.default.get_song_metadata({ q: searchTerm});
 
   return new Swagger({ url: config.swaggerUrl, usePromise: true })
     .then( client => {

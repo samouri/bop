@@ -5,13 +5,15 @@ import { connect } from 'react-redux';
 import {
 	getCurrentSong,
 	getSongById,
-	getUpvotedSongs
+	getUpvotedSongs,
+	getUsername,
 } from '../app/reducer';
 
 import {
 	playSong,
 	pauseSong,
 	voteSong,
+	deleteSong
 } from '../app/actions';
 
 class SongRow extends React.Component {
@@ -44,7 +46,7 @@ class SongRow extends React.Component {
   }
 
   getTitle() {
-    return this.props.song.name;
+    return this.props.song.title;
   }
 
   handleUpvote = () => {
@@ -60,6 +62,11 @@ class SongRow extends React.Component {
 				this.setState({ voteModifier: prevModifier });
 			} );
   }
+
+	handleDelete = () => {
+		const { sdk, song } = this.props;
+		this.props.dispatch( deleteSong( song, sdk ) );
+	}
 
   render() {
     var playOrPauseClasses = cx('fa', 'fa-3x', 'pointer', {
@@ -80,7 +87,12 @@ class SongRow extends React.Component {
 
     return (
         <div className="song-div row-eq-height">
-            <div className="pull-left col-xs-offset-1 col-xs-2" id="img-div" >
+						<div className={"col-xs-1"} >
+							{ ( !this.props.song.added_by || this.props.song.added_by === this.props.username ) &&
+								<div onClick={ this.handleDelete } style={{ cursor: 'pointer', paddingTop: '35px', color: 'red'}}> X </div>
+							}
+						</div>
+            <div className="pull-left col-xs-2" id="img-div" >
               <img className="img-circle" src={ this.props.song.thumbnail_url }></img>
             </div>
             <div className="song-info pull-left col-xs-6">
@@ -106,12 +118,14 @@ function mapStateToProps( state, ownProps ) {
 	const currentSong = getCurrentSong( state );
 	const isSelected = currentSong && currentSong.songId === song._id;
 	const isPlaying = isSelected && currentSong.playing;
+	const username = getUsername( state );
 
 	return {
 		song,
 		isSelected,
 		isPlaying,
 		isUpvoted: _.has( getUpvotedSongs( state ), song._id ),
+		username,
 	}
 }
 

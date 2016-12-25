@@ -35,6 +35,7 @@ import {
   VOTE_SONG,
   SET_SORT,
   LOGOUT_USER,
+  DELETE_SONG,
 } from './actions';
 
 const songsInitialState = {
@@ -76,6 +77,12 @@ function songs( state = songsInitialState, action ) {
 	      didInvalidate: false,
 	      songs: _.uniq( [ ..._.map( action.songs, '_id'), ...state.songs ] ),
 	    };
+    case DELETE_SONG:
+      console.error( action.song._id, state.songs, _.without( state.songs, action.song._id ), _.filter( state.songs, id => id !== action.song._id) )
+      return {
+        ...state,
+        songs: _.without( state.songs, action.song._id )
+      };
 		default:
 			return state
 	}
@@ -86,6 +93,7 @@ function playlists( state = {}, action ) {
 		case FETCH_SONGS_REQUEST:
 		case FETCH_SONGS_SUCCESS:
 		case FETCH_SONGS_FAILURE:
+    case DELETE_SONG:
 	    return {
 	      ...state,
 	      [ action.playlistId ]: songs( state[ action.playlistId ], action ),
@@ -170,7 +178,7 @@ export default BopApp;
 
 // Selectors
 
-function getSongsForPlaylist( state, playlistId ) {
+function getSongsInPlaylist( state, playlistId ) {
 	const playlist = state.playlists[ playlistId ];
 	if( playlist ) {
 		const songIds = playlist.songs;
@@ -212,7 +220,7 @@ export function getCurrentSort( state ) {
 }
 
 export function getSongs( state ) {
-	return getSongsForPlaylist( state, getCurrentPlaylist( state) );
+	return getSongsInPlaylist( state, getCurrentPlaylist( state) );
 }
 
 const TOP = 'top';

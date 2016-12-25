@@ -10,7 +10,10 @@ if ( prod ) {
   config.swaggerUrl = 'http://nothingtoseehere.xyz/swagger.yaml';
 }
 
-if ( prod && window.location.hostname === 'localhost' ) {
+// either docker instance and localhost (hooking up local dockers ) OR
+// specified with url params (npm start)
+if ( ( prod && window.location.hostname === 'localhost') ||
+    new URLSearchParams( window.location.search ).has( 'swaggerHost' ) ) {
   config.swaggerHost = 'localhost:5000';
 }
 

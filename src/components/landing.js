@@ -19,7 +19,6 @@ let sdk;
 const YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const TOP = 'top';
 const NEW = 'new';
-const PAGE_SIZE = 200;
 
 const opts = {
   playerVars: { // https://developers.google.com/youtube/player_parameters
@@ -101,31 +100,22 @@ export default connect( mapStateToProps )(class Landing extends React.Component 
 
   handleSearchSelection = ( searchMetadata ) => {
     let { playlist = 'Seattle' } = this.props.params;
-		console.error(playlist)
+		searchMetadata.playlist_id = playlist;
 
     // get metadata, add the song, then add it locally
     sdk.getSongMetadata(searchMetadata.youtube_title)
-    .then( (resp) => {
-      let songMetadata = resp.obj;
-      let song = songMetadata;
-      song.thumbnail_url = searchMetadata.thumbnail_url;
-      song.youtube_id = searchMetadata.youtube_id;
-
-      return sdk.addSongToPlaylist(playlist, song)
+    .then( resp => {
+			return {
+				title: searchMetadata.youtube_title, // we should override with songMetadata results
+				...searchMetadata,
+				...resp.obj
+			};
     } ) //TODO reduxify adding of songs
-    .then( (resp) => {
-      let song = resp.obj;
-			this.props.dispatch( fetchSongsSuccess( playlist, [ song ] ) );
-    } )
-    .catch( (err) => {
-			let song = { ...searchMetadata, title: searchMetadata.youtube_title };
-      return sdk.addSongToPlaylist( playlist, song )
-				.then( (resp) => {
-					song = resp.obj;
-					this.props.dispatch( fetchSongsSuccess( playlist, [ song ] ) );
-				} );
-    } )
-		.catch( ( err ) => {
+    .then( song => sdk.addSongToPlaylist( playlist, song ) )
+		.then( resp => {
+			this.props.dispatch( fetchSongsSuccess( playlist, [ resp.obj ] ) );
+		})
+		.catch( err => {
 			console.error( 'seems like we couldnt add a song', err, err.stack );
 		} );
   }

@@ -13,6 +13,7 @@ export const PLAY_SONG = 'PLAY_SONG';
 export const PAUSE_SONG = 'PAUSE_SONG';
 export const VOTE_SONG = 'VOTE_SONG';
 export const SET_SORT = 'SET_SORT';
+export const DELETE_SONG = 'DELETE_SONG';
 
 /* action creators */
 function requestSongs( playlistId ) {
@@ -99,7 +100,7 @@ export function addSongToPlaylist( song, playlistId ) {
 export const fetchSongs = ( playlistId, sdk ) => ( dispatch ) => {
 	dispatch( requestSongs( playlistId ) );
 
-	return sdk.getSongsForPlaylist( playlistId, 0, 200 )
+	return sdk.getSongsInPlaylist( playlistId, 0, 200 )
 		.then( ( response ) => {
 			dispatch( fetchSongsSuccess( playlistId, response.obj.songs ) );
 		} )	 // api fetch
@@ -133,8 +134,25 @@ export function voteSong( song, dir, sdk, dispatch ) {
 		} )
 		.catch( error => console.error( error, error.stack ) );
 
-	return {
+	dispatch( {
 		type: VOTE_SONG,
 		songId: song._id,
-	};
+	} );
+}
+
+export const deleteSong = (song, sdk) => dispatch =>  {
+	const { playlist_id, youtube_id, } = song;
+
+	sdk.deleteSong(playlist_id, youtube_id)
+		.then( res => {
+			console.log('successfully deleted song', res );
+			//dispatch( fetchSongsSuccess( song.playlist_id, [ res.obj.song ] ) );
+		} )
+		.catch( error => console.error( error, error.stack ) );
+
+	dispatch( {
+		type: DELETE_SONG,
+		song,
+		playlistId: song.playlist_id,
+	} );
 }
