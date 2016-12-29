@@ -10,7 +10,7 @@ import FTUEHero from './ftueBanner';
 import SongRow from './song-row';
 
 import BopSdk from '../sdk';
-import { fetchSongsSuccess, fetchSongs, loginUser, playSong, pauseSong, setSort } from '../app/actions';
+import { fetchSongsSuccess, fetchSongs, loginUser, playSong, pauseSong, setSort, shuffleSongs } from '../app/actions';
 import { getCurrentSort, getCurrentPlaylist, getUpvotedSongs, getUsername, getCurrentSong, getSongById, getSortedSongs,
 	getNextSong, } from '../app/reducer';
 
@@ -19,6 +19,7 @@ let sdk;
 const YOUTUBE_PREFIX = "https://www.youtube.com/watch?v="
 const TOP = 'top';
 const NEW = 'new';
+const SHUFFLE = 'shuffle';
 
 const opts = {
   playerVars: { // https://developers.google.com/youtube/player_parameters
@@ -154,10 +155,12 @@ export default connect( mapStateToProps )(class Landing extends React.Component 
 	}
 
   render() {
-    let sort = this.props.sort;
+    const sort = this.props.sort.sort;
+    const shuffle = this.props.sort.shuffle;
     let { playlist = 'Seattle' } = this.props.params;
     var hotBtnClasses = cx("filter-btn", "pointer", {active: sort === TOP});
     var newBtnClasses = cx("filter-btn", "pointer", {active: sort === NEW});
+    var shuffleBtnClasses = cx("pointer", 'fa', 'fa-random', {active: shuffle });
 
     let songs = this.props.songs;
 
@@ -179,7 +182,10 @@ export default connect( mapStateToProps )(class Landing extends React.Component 
           <Youtube url={YOUTUBE_PREFIX} id={'video'} opts={opts} onEnd={this.handleOnEnd} onReady={this.handleOnReady} onPause={this.handleOnPause} onPlay={this.handleOnPlay}/>
         </div>
         <div className={'row'} id={'gradient_bar'}>
-          <div className="btn-group col-xs-3 col-xs-offset-4" role="group">
+					<div className="col-xs-offset-4 cols-xs-1">
+						<i className={shuffleBtnClasses} onClick={ () => this.props.dispatch( shuffleSongs( playlist ) ) }/>
+					</div>
+          <div className="btn-group col-xs-3" role="group">
             <div className={hotBtnClasses} onClick={ () => this.props.dispatch( setSort( TOP ) ) }>Hot</div>
             <div className={newBtnClasses} onClick={ () => this.props.dispatch( setSort( NEW ) ) }>New</div>
           </div>

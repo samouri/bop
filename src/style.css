@@ -193,6 +193,10 @@ body {
 .filter-btn.active {
   background-color: purple;
 }
+#gradient_bar i.fa-random.active {
+	color: purple;
+}
+
 
 .pointer {
   cursor: pointer;
@@ -294,4 +298,3 @@ body {
 .tt-suggestion p {
     margin: 0;
 }
-

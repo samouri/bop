@@ -14,6 +14,7 @@ export const PAUSE_SONG = 'PAUSE_SONG';
 export const VOTE_SONG = 'VOTE_SONG';
 export const SET_SORT = 'SET_SORT';
 export const DELETE_SONG = 'DELETE_SONG';
+export const SHUFFLE_SONGS = 'SHUFFLE_SONGS';
 
 /* action creators */
 function requestSongs( playlistId ) {
@@ -73,10 +74,17 @@ export function pauseSong( songId ) {
 	}
 }
 
-export function setSort( sortType ) {
+export function setSort( sort ) {
 	return {
 		type: SET_SORT,
-		sortType
+		sort,
+	}
+}
+
+export function shuffleSongs( playlistId ) {
+	return {
+		type: SHUFFLE_SONGS,
+		playlistId,
 	}
 }
 

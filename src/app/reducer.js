@@ -34,6 +34,7 @@ import {
   PAUSE_SONG,
   VOTE_SONG,
   SET_SORT,
+  SHUFFLE_SONGS,
   LOGOUT_USER,
   DELETE_SONG,
 } from './actions';
@@ -83,6 +84,11 @@ function songs( state = songsInitialState, action ) {
         ...state,
         songs: _.without( state.songs, action.song._id )
       };
+    case SHUFFLE_SONGS:
+      return {
+        ...state,
+        shuffledSongs: _.shuffle( state.songs ),
+      }
 		default:
 			return state
 	}
@@ -98,6 +104,11 @@ function playlists( state = {}, action ) {
 	      ...state,
 	      [ action.playlistId ]: songs( state[ action.playlistId ], action ),
 	    };
+    case SHUFFLE_SONGS:
+      return {
+        ...state,
+        [ action.playlistId ]: songs( state[ action.playlistId ], action ),
+      }
 		default:
 			return state;
 	}
@@ -111,10 +122,19 @@ function currentPlaylist( state = initialCurrentPlaylist, action ) {
 	return state;
 }
 
-function currentSort( state = 'top', action ) {
+function currentSort( state = { sort: TOP, shuffle: false }, action ) {
 	if ( action.type === SET_SORT ) {
-		return action.sortType;
-	}
+    return {
+      ...state,
+      sort: action.sort
+    }
+  }
+  else if ( action.type === SHUFFLE_SONGS ) {
+    return {
+      ...state,
+      shuffle: ! state.shuffle,
+    }
+  }
 
 	return state;
 }
@@ -220,14 +240,24 @@ export function getCurrentSort( state ) {
 }
 
 export function getSongs( state ) {
-	return getSongsInPlaylist( state, getCurrentPlaylist( state) );
+	return getSongsInPlaylist( state, getCurrentPlaylist( state ) );
+}
+
+export function getShuffledSongsInPlaylist( state, playlistId ) {
+	const playlist = state.playlists[ playlistId ];
+
+	if( playlist ) {
+		 return playlist.shuffledSongs;
+	}
+	return [];
 }
 
 const TOP = 'top';
 const NEW = 'new';
+const SHUFFLE = 'shuffle';
 export function getSortedSongs( state ) {
 	const songs = getSongs( state );
-	const sort = getCurrentSort( state );
+	const sort = getCurrentSort( state ).sort;
 
 	if ( sort === TOP ) {
 		return _.reverse( _.sortBy( songs, [ 'upvotes', 'creation_date' ] ) );
@@ -238,7 +268,10 @@ export function getSortedSongs( state ) {
 
 export function getNextSong( state ) {
 	const currentSong = getCurrentSong( state );
-	const songs = _.map( getSortedSongs( state ), '_id');
+	let songs = _.map( getSortedSongs( state ), '_id');
+  if ( getCurrentSort( state ).shuffle ) {
+    songs = getShuffledSongsInPlaylist( state, getCurrentPlaylist( state ) );
+  }
 
 	if ( currentSong === null ) {
 		return null;
