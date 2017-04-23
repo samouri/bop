@@ -7,29 +7,25 @@ import { Provider } from 'react-redux';
 import createLogger from 'redux-logger';
 import thunk from 'redux-thunk';
 
-
 /* Internal Dependencies */
 import Landing from './components/landing';
 import './style.css';
 
 import bopApp from './app/reducer';
 
-let store = createStore(
-	bopApp,
-	applyMiddleware( thunk, createLogger() ),
- );
+let store = createStore(bopApp, applyMiddleware(thunk, createLogger()));
 
 const Root = ({ store }) => (
-	<Provider store={ store }>
-		<Router history={ browserHistory }>
-			<Route path="/" component={ Landing }/>
-			<Route path="/:playlist" component={ Landing }/>
+	<Provider store={store}>
+		<Router history={browserHistory}>
+			<Route path="/" component={Landing} />
+			<Route path="/:playlist" component={Landing} />
 		</Router>
 	</Provider>
 );
 
 Root.propTypes = {
-  store: PropTypes.object.isRequired,
+	store: PropTypes.object.isRequired,
 };
 
-render(<Root store={ store } />, document.getElementById("root"));
+render(<Root store={store} />, document.getElementById('root'));

@@ -2,27 +2,27 @@ import React from 'react';
 
 import { connect } from 'react-redux';
 import { playSong } from '../app/actions';
-import { getSortedSongs } from '../app/reducer'
+import { getSortedSongs } from '../app/reducer';
 
-function mapStateToProps( state ) {
+function mapStateToProps(state) {
 	return {
-		firstSong: getSortedSongs( state )[0],
+		firstSong: getSortedSongs(state)[0],
 	};
 }
 
-function mergeProps( { firstSong }, { dispatch } ) {
+function mergeProps({ firstSong }, { dispatch }) {
 	return {
-		handleOnClick: () => dispatch( playSong( firstSong._id )),
+		handleOnClick: () => dispatch(playSong(firstSong._id)),
 	};
 }
 
-function FTUEHero( props )  {
+function FTUEHero(props) {
 	return (
 		<div id="ftue-hero" className="row">
-			<div> <span id="ftue-hero-text">Discover and share music <br/> with people around you.</span></div>
-			<div id="ftue-play-button" onClick={ props.handleOnClick }><span id="ftue-play-button-text">Play</span></div>
+			<div> <span id="ftue-hero-text">Discover and share music <br /> with people around you.</span></div>
+			<div id="ftue-play-button" onClick={props.handleOnClick}><span id="ftue-play-button-text">Play</span></div>
 		</div>
 	);
 }
 
-export default connect( mapStateToProps, null, mergeProps )( FTUEHero );
+export default connect(mapStateToProps, null, mergeProps)(FTUEHero);
