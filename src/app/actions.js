@@ -15,6 +15,7 @@ export const VOTE_SONG = 'VOTE_SONG';
 export const SET_SORT = 'SET_SORT';
 export const DELETE_SONG = 'DELETE_SONG';
 export const SHUFFLE_SONGS = 'SHUFFLE_SONGS';
+export const RECEIVE_PLAYLIST = 'RECEIVE_PLAYLIST';
 
 /* action creators */
 function requestSongs(playlistId) {
@@ -52,11 +53,12 @@ export function logout(user) {
 	};
 }
 
-export function loginUserSuccess(username, upvotedSongs) {
+export function loginUserSuccess(username, upvotedSongs, id) {
 	return {
 		type: LOGIN_USER_SUCCESS,
 		username,
 		upvotedSongs,
+		id,
 	};
 }
 
@@ -102,35 +104,40 @@ export function addSongToPlaylist(song, playlistId) {
 	};
 }
 
+export const receivePlaylist = playlist => ({
+	type: RECEIVE_PLAYLIST,
+	payload: { playlist },
+});
+
 /* Thunk Async Actions */
 
-export const fetchSongs = (playlistId, sdk) => dispatch => {
-	dispatch(requestSongs(playlistId));
-
-	return sdk
-		.getSongsInPlaylist(playlistId, 0, 200)
-		.then(response => {
-			dispatch(fetchSongsSuccess(playlistId, response.obj.songs));
-		}) // api fetch
-		.catch(error => dispatch(fetchSongsFailure(playlistId)));
+export const requestPlaylist = playlistName => async dispatch => {
+	const sdk = window.sdk;
+	const playlist = await sdk.getPlaylistForName(playlistName);
+	dispatch(receivePlaylist(playlist));
 };
 
-export const loginUser = (login, sdk) => dispatch => {
+export const fetchSongs = playlistId => async dispatch => {
+	const sdk = window.sdk;
+	dispatch(requestSongs(playlistId));
+	try {
+		const songs = (await sdk.getSongsInPlaylist({ playlistId, offset: 0, limit: 200 })).obj;
+		dispatch(fetchSongsSuccess(playlistId, songs));
+	} catch (err) {
+		dispatch(fetchSongsFailure(err));
+	}
+};
+
+export const loginUser = (login, sdk) => async dispatch => {
 	dispatch(requestLogin(login.username));
-
-	sdk.login(login);
-
-	return sdk
-		.getUser()
-		.then(res => {
-			dispatch(loginUserSuccess(login.username, res.obj.upvotedSongs));
-
-			localStorage.setItem('login', JSON.stringify(login));
-		})
-		.catch(error => {
-			console.error(error, error.stack);
-			dispatch(loginUserFailure(login.username));
-		});
+	try {
+		const user = await sdk.getUser(login.username);
+		dispatch(loginUserSuccess(user.username, [], user.id));
+		localStorage.setItem('login', JSON.stringify(login));
+	} catch (error) {
+		console.error(error, error.stack);
+		dispatch(loginUserFailure(login.username));
+	}
 };
 
 // TODO actually make this async correctly

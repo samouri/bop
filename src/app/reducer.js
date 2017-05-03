@@ -23,6 +23,17 @@
 import _ from 'lodash';
 import { combineReducers } from 'redux';
 
+// taken from redux docs
+function createReducer(initialState, handlers) {
+	return function reducer(state = initialState, action) {
+		if (handlers.hasOwnProperty(action.type)) {
+			return handlers[action.type](state, action);
+		} else {
+			return state;
+		}
+	};
+}
+
 import {
 	FETCH_SONGS_REQUEST,
 	FETCH_SONGS_SUCCESS,
@@ -37,6 +48,7 @@ import {
 	SHUFFLE_SONGS,
 	LOGOUT_USER,
 	DELETE_SONG,
+	RECEIVE_PLAYLIST,
 } from './actions';
 
 const songsInitialState = {
@@ -48,7 +60,7 @@ const songsInitialState = {
 
 function songsById(state = {}, action) {
 	if (action.type === FETCH_SONGS_SUCCESS) {
-		const fetchedSongs = _.mapKeys(action.songs, song => song._id);
+		const fetchedSongs = _.mapKeys(action.songs, 'id');
 
 		return {
 			...state,
@@ -76,7 +88,7 @@ function songs(state = songsInitialState, action) {
 				...state,
 				isFetching: false,
 				didInvalidate: false,
-				songs: _.uniq([..._.map(action.songs, '_id'), ...state.songs]),
+				songs: _.uniq([..._.map(action.songs, 'id'), ...state.songs]),
 			};
 		case DELETE_SONG:
 			console.error(
@@ -101,29 +113,35 @@ function songs(state = songsInitialState, action) {
 
 function playlists(state = {}, action) {
 	switch (action.type) {
+		case RECEIVE_PLAYLIST:
+			const playlist = action.payload.playlist;
+			return {
+				...state,
+				[playlist.id]: Object.assign({}, state[playlist.id], playlist, songs(undefined, action)),
+			};
 		case FETCH_SONGS_REQUEST:
 		case FETCH_SONGS_SUCCESS:
 		case FETCH_SONGS_FAILURE:
+		case SHUFFLE_SONGS:
 		case DELETE_SONG:
 			return {
 				...state,
-				[action.playlistId]: songs(state[action.playlistId], action),
-			};
-		case SHUFFLE_SONGS:
-			return {
-				...state,
-				[action.playlistId]: songs(state[action.playlistId], action),
+				[action.playlistId]: Object.assign(
+					{},
+					state[action.playlistId],
+					songs(state[action.playlistId], action)
+				),
 			};
 		default:
 			return state;
 	}
 }
 
-const initialCurrentPlaylist = _.isEmpty(window.location.pathname.substring(1))
+const initialCurrentPlaylistName = _.isEmpty(window.location.pathname.substring(1))
 	? 'Seattle'
 	: window.location.pathname.substring(1);
 
-function currentPlaylist(state = initialCurrentPlaylist, action) {
+function currentPlaylistName(state = initialCurrentPlaylistName, action) {
 	return state;
 }
 
@@ -166,6 +184,7 @@ function user(state = {}, action) {
 				isFetching: false,
 				upvotedSongs: action.upvotedSongs,
 				username: action.username,
+				id: action.id,
 			};
 		case VOTE_SONG:
 			// if already upvoted, then remove.  if not upvoted, then keep
@@ -191,7 +210,7 @@ function user(state = {}, action) {
 const BopApp = combineReducers({
 	songsById,
 	playlists,
-	currentPlaylist,
+	currentPlaylistName,
 	currentSort,
 	currentSong,
 	user,
@@ -202,14 +221,14 @@ export default BopApp;
 
 // Selectors
 
-function getSongsInPlaylist(state, playlistId) {
-	const playlist = state.playlists[playlistId];
-	if (playlist) {
-		const songIds = playlist.songs;
-		const songs = _.map(songIds, songId => state.songsById[songId]);
-		return songs;
+function getSongsInPlaylist(state, playlist) {
+	if (!playlist) {
+		return [];
 	}
-	return [];
+
+	const songIds = playlist.songs;
+	const songs = _.map(songIds, songId => state.songsById[songId]);
+	return songs;
 }
 
 export function getSongById(state, id) {
@@ -230,8 +249,10 @@ export function getUsername(state) {
 	return null;
 }
 
-export function getCurrentPlaylist(state) {
-	return state.currentPlaylist;
+export const getUser = state => state.user;
+
+export function getCurrentPlaylistName(state) {
+	return state.currentPlaylistName;
 }
 
 export function getCurrentSong(state) {
@@ -245,6 +266,9 @@ export function getCurrentSort(state) {
 export function getSongs(state) {
 	return getSongsInPlaylist(state, getCurrentPlaylist(state));
 }
+
+export const getCurrentPlaylist = state =>
+	_.find(state.playlists, { name: getCurrentPlaylistName(state) });
 
 export function getShuffledSongsInPlaylist(state, playlistId) {
 	const playlist = state.playlists[playlistId];

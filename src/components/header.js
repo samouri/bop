@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { connect } from 'react-redux';
 
 import { logout } from '../app/actions';
-import { getUsername, getCurrentPlaylist } from '../app/reducer';
+import { getUsername, getCurrentPlaylistName } from '../app/reducer';
 
 class Header extends React.Component {
 	state = {
@@ -67,7 +67,9 @@ class Header extends React.Component {
 			<div id="header" className="row">
 				<div className="col-xs-4">
 					{' '}<h1 id="bop_header" className="pull-left"> Bop </h1>
-					<h2 id="seattle_header" className="pull-left"> {this.props.playlist.substring(0, 10)} </h2>
+					<h2 id="seattle_header" className="pull-left">
+						{' '}{this.props.playlist.substring(0, 10)}{' '}
+					</h2>
 				</div>
 				<div className="col-xs-3 col-xs-offset-5">
 					<h3 className="pull-right pointer" onClick={this.handleClick}> {loginText} </h3>
@@ -112,7 +114,7 @@ class Header extends React.Component {
 
 function mapStateToProps(state) {
 	const username = getUsername(state);
-	const playlist = getCurrentPlaylist(state);
+	const playlist = getCurrentPlaylistName(state);
 	return { username, playlist };
 }
 

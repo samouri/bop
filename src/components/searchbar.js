@@ -1,6 +1,9 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+import { mapSpotifyItemToBop } from '../sdk';
+
+/* eslint-disable */
 // TODO find a replacement for bloodhound + typeahead seeing as they are basically deprecated projects
 // ideally one that is react-friendly
 export default class SearchBar extends React.Component {
@@ -24,20 +27,12 @@ export default class SearchBar extends React.Component {
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace, // eslint-disable-line
 			queryTokenizer: Bloodhound.tokenizers.whitespace, // eslint-disable-line
 			remote: {
-				url: 'https://www.googleapis.com/youtube/v3/search?type=video&maxResults=20&key=AIzaSyAPGx5PbhdoO2QTR16yZHgMj-Q2vqO8W1M&part=snippet&q=%QUERY',
+				url: 'https://api.spotify.com/v1/search?type=track&q=%QUERY',
 				wildcard: '%QUERY',
 				transform: function(resp) {
-					_this.data = $.extend(
-						_this.data,
-						resp.items.reduce(function(memo, item) {
-							// eslint-disable-line
-							memo[item.snippet.title] = item;
-							return memo;
-						}, {})
-					);
-					return resp.items.map(function(elem) {
-						return elem.snippet.title;
-					});
+					const tracks = resp.tracks.items.map(mapSpotifyItemToBop);
+					tracks.forEach(track => (_this.data[track.title] = track));
+					return tracks.map(track => track.title);
 				},
 			},
 		});
@@ -48,20 +43,17 @@ export default class SearchBar extends React.Component {
 			templates: {
 				suggestion: function(val) {
 					return (
-						'<div class=""> <img src="' + _this.data[val].snippet.thumbnails.default.url + '"></img> ' + val + '</div>'
+						'<div class="search-result-thumbnail-wrapper">' +
+						`<img src="${_this.data[val].thumbnail_url}"></img>` +
+						`${val} by ${_this.data[val].artist}` +
+						'</div>'
 					);
 				},
 			},
 		});
 
 		$(ReactDOM.findDOMNode(_this.refs.typeahead)).on('typeahead:selected', function(evt, selected) {
-			// eslint-disable-line
-			var item = _this.data[selected];
-			_this.props.handleSelection({
-				youtube_id: item.id.videoId,
-				youtube_title: item.snippet.title,
-				thumbnail_url: item.snippet.thumbnails.default.url,
-			});
+			_this.props.handleSelection(_this.data[selected]);
 		});
 	}
 
@@ -82,3 +74,5 @@ export default class SearchBar extends React.Component {
 		);
 	}
 }
+
+/* eslint-enable */

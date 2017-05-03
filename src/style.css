@@ -261,6 +261,11 @@ body {
     outline: none;
 }
 
+.search-result-thumbnail-wrapper img {
+    max-height: 45px;
+    padding-right: 10px;
+}
+
 .tt-input { /* UPDATE: newer versions use tt-input instead of tt-query */
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
@@ -282,8 +287,8 @@ body {
 
 .tt-suggestion {
     padding: 3px 20px;
-    font-size: 18px;
-    line-height: 24px;
+    font-size: 14px;
+    line-height: 18px;
 }
 
 .tt-suggestion:hover {

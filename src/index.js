@@ -19,7 +19,7 @@ const Root = ({ store }) => (
 	<Provider store={store}>
 		<Router history={browserHistory}>
 			<Route path="/" component={Landing} />
-			<Route path="/:playlist" component={Landing} />
+			<Route path="/p/:playlist" component={Landing} />
 		</Router>
 	</Provider>
 );
