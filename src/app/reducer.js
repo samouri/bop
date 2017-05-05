@@ -23,16 +23,19 @@
 import _ from 'lodash';
 import { combineReducers } from 'redux';
 
+const TOP = 'top';
+const NEW = 'new';
+
 // taken from redux docs
-function createReducer(initialState, handlers) {
-	return function reducer(state = initialState, action) {
-		if (handlers.hasOwnProperty(action.type)) {
-			return handlers[action.type](state, action);
-		} else {
-			return state;
-		}
-	};
-}
+// function createReducer(initialState, handlers) {
+// 	return function reducer(state = initialState, action) {
+// 		if (handlers.hasOwnProperty(action.type)) {
+// 			return handlers[action.type](state, action);
+// 		} else {
+// 			return state;
+// 		}
+// 	};
+// }
 
 import {
 	FETCH_SONGS_REQUEST,
@@ -259,12 +262,12 @@ export function getCurrentSort(state) {
 	return state.currentSort;
 }
 
+export const getCurrentPlaylist = state =>
+	_.find(state.playlists, { name: getCurrentPlaylistName(state) });
+
 export function getSongs(state) {
 	return getSongsInPlaylist(state, getCurrentPlaylist(state));
 }
-
-export const getCurrentPlaylist = state =>
-	_.find(state.playlists, { name: getCurrentPlaylistName(state) });
 
 export function getShuffledSongsInPlaylist(state, playlistId) {
 	const playlist = state.playlists[playlistId];
@@ -275,9 +278,6 @@ export function getShuffledSongsInPlaylist(state, playlistId) {
 	return [];
 }
 
-const TOP = 'top';
-const NEW = 'new';
-const SHUFFLE = 'shuffle';
 export function getSortedSongs(state) {
 	const songs = getSongs(state);
 	const sort = getCurrentSort(state).sort;

@@ -11,7 +11,6 @@ import SongRow from './song-row';
 
 import BopSdk from '../sdk';
 import {
-	fetchSongsSuccess,
 	fetchSongs,
 	loginUser,
 	playSong,
@@ -39,7 +38,6 @@ let sdk;
 const YOUTUBE_PREFIX = 'https://www.youtube.com/watch?v=';
 const TOP = 'top';
 const NEW = 'new';
-const SHUFFLE = 'shuffle';
 
 const opts = {
 	playerVars: {
@@ -178,8 +176,6 @@ class Landing extends React.Component {
 		var hotBtnClasses = cx('filter-btn', 'pointer', { active: sort === TOP });
 		var newBtnClasses = cx('filter-btn', 'pointer', { active: sort === NEW });
 		var shuffleBtnClasses = cx('pointer', 'fa', 'fa-random', { active: shuffle });
-
-		let songs = this.props.songs;
 
 		if (this.props.currentSong && this.props.currentSong.playing) {
 			this.playVideo(this.props.currentSong.songId);

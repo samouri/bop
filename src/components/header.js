@@ -58,10 +58,6 @@ class Header extends React.Component {
 
 	render() {
 		let loginText = this.props.username || 'Login';
-		const logoutButtonStyle = {
-			float: 'right',
-			backgroundColor: '',
-		};
 
 		return (
 			<div id="header" className="row">

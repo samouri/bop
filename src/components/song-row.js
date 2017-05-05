@@ -3,9 +3,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { getCurrentSong, getSongById, getUpvotedSongs, getUser } from '../app/reducer';
+import { getCurrentSong, getSongById, getUser } from '../app/reducer';
 
-import { playSong, pauseSong, voteSong, deleteSong } from '../app/actions';
+import { playSong, pauseSong, deleteSong } from '../app/actions';
 
 class SongRow extends React.Component {
 	state = {
@@ -29,7 +29,6 @@ class SongRow extends React.Component {
 		const sdk = window.sdk;
 		const vote = isUpvoted ? -1 : 1;
 		const voteModifier = this.state.voteModifier !== 0 ? 0 : vote;
-		const prevModifier = this.state.voteModifier;
 
 		this.setState({ voteModifier });
 		const voteRequest = isUpvoted ? sdk.unvote : sdk.vote;
@@ -43,8 +42,8 @@ class SongRow extends React.Component {
 	};
 
 	render() {
-		const { title, artist, thumbnail_url, youtube_duration } = this.props.song.metadata;
-		const { date_added, id: songId, votes } = this.props.song;
+		const { title, artist, thumbnail_url } = this.props.song.metadata;
+		const { id: songId, votes } = this.props.song;
 		var playOrPauseClasses = cx('fa', 'fa-3x', 'pointer', {
 			'fa-pause': this.props.isPlaying,
 			'fa-play': !this.props.isPlaying,
@@ -72,7 +71,7 @@ class SongRow extends React.Component {
 						</div>}
 				</div>
 				<div className="pull-left col-xs-2" id="img-div">
-					<img className="img-circle" src={thumbnail_url} />
+					<img alt="artist thumbnail" className="img-circle" src={thumbnail_url} />
 				</div>
 				<div className="song-info pull-left col-xs-6">
 					<span className="song-title">{title}</span>

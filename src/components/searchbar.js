@@ -8,20 +8,20 @@ import { mapSpotifyItemToBop } from '../sdk';
 
 const spotifyEndpoint = 'https://api.spotify.com/v1/search?type=track&limit=5';
 
+const mapResponseToOptions = resp => {
+	const tracks = resp.tracks.items.map(mapSpotifyItemToBop);
+	return tracks.map(track => ({ value: track, label: track.title }));
+};
+
 const loadOptions = async input => {
 	return fetch(`${spotifyEndpoint}&q=${input}`)
 		.then(response => {
 			return response.json();
 		})
 		.then(async json => {
-			const ret = { options: mapResponseToTitles(json) };
+			const ret = { options: mapResponseToOptions(json) };
 			return ret;
 		});
-};
-
-const mapResponseToTitles = resp => {
-	const tracks = resp.tracks.items.map(mapSpotifyItemToBop);
-	return tracks.map(track => ({ value: track, label: track.title }));
 };
 
 class TrackValue extends React.Component {
@@ -38,7 +38,7 @@ class TrackValue extends React.Component {
 		this.props.onFocus(this.props.option, event);
 	};
 	render() {
-		const { children, placeholder, option, isFocused, isSelected } = this.props;
+		const { children, option, isFocused, isSelected } = this.props;
 		const { thumbnail_url, artist, title } = option.value;
 		return (
 			<div
@@ -49,8 +49,9 @@ class TrackValue extends React.Component {
 				onMouseEnter={this.handleMouseEnter}
 				onMouseMove={this.handleMouseMove}
 			>
-				<img src={thumbnail_url} />
+				<img alt="artist thumb" src={thumbnail_url} />
 				{title} by {artist}
+				{children}
 			</div>
 		);
 	}
