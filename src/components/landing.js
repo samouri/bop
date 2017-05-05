@@ -68,6 +68,17 @@ class Landing extends React.Component {
 			dispatch(setPlaylistName(params.playlistName));
 		}
 	}
+	fetchSongs = _.throttle(
+		(props = this.props) => props.dispatch(fetchSongs(props.playlist.id)),
+		200
+	);
+	componentWillReceiveProps(nextProps) {
+		console.error(nextProps);
+		if (_.isEmpty(nextProps.songs) && nextProps.playlist) {
+			this.fetchSongs(nextProps);
+		}
+	}
+
 	async componentDidMount() {
 		sdk = window.sdk = await new BopSdk();
 		this.props.dispatch(requestPlaylist(this.props.currentPlaylistName));
@@ -80,13 +91,6 @@ class Landing extends React.Component {
 			}
 		} catch (err) {
 			console.error(err, err.stack);
-		}
-	}
-
-	fetchSongs = _.throttle(() => this.props.dispatch(fetchSongs(this.props.playlist.id)), 200);
-	componentWillReceiveProps(nextProps) {
-		if (_.isEmpty(this.props.songs) && this.props.playlist) {
-			this.fetchSongs();
 		}
 	}
 
