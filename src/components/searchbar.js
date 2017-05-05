@@ -27,7 +27,7 @@ export default class SearchBar extends React.Component {
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace, // eslint-disable-line
 			queryTokenizer: Bloodhound.tokenizers.whitespace, // eslint-disable-line
 			remote: {
-				url: 'https://api.spotify.com/v1/search?type=track&q=%QUERY',
+				url: 'https://api.spotify.com/v1/search?type=track&limit=5&q=%QUERY',
 				wildcard: '%QUERY',
 				transform: function(resp) {
 					const tracks = resp.tracks.items.map(mapSpotifyItemToBop);
@@ -42,6 +42,7 @@ export default class SearchBar extends React.Component {
 			source: _this.youtubeVideos,
 			templates: {
 				suggestion: function(val) {
+					console.error(_this.data, _this.data[val]);
 					return (
 						'<div class="search-result-thumbnail-wrapper">' +
 						`<img src="${_this.data[val].thumbnail_url}"></img>` +

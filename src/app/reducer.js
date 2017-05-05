@@ -92,14 +92,14 @@ function songs(state = songsInitialState, action) {
 			};
 		case DELETE_SONG:
 			console.error(
-				action.song._id,
+				action.song.id,
 				state.songs,
-				_.without(state.songs, action.song._id),
-				_.filter(state.songs, id => id !== action.song._id)
+				_.without(state.songs, action.song.id),
+				_.filter(state.songs, id => id !== action.song.id)
 			);
 			return {
 				...state,
-				songs: _.without(state.songs, action.song._id),
+				songs: _.without(state.songs, action.song.id),
 			};
 		case SHUFFLE_SONGS:
 			return {
@@ -112,9 +112,9 @@ function songs(state = songsInitialState, action) {
 }
 
 function playlists(state = {}, action) {
+	const playlist = action.payload && action.payload.playlist;
 	switch (action.type) {
 		case RECEIVE_PLAYLIST:
-			const playlist = action.payload.playlist;
 			return {
 				...state,
 				[playlist.id]: Object.assign({}, state[playlist.id], playlist, songs(undefined, action)),
@@ -126,11 +126,7 @@ function playlists(state = {}, action) {
 		case DELETE_SONG:
 			return {
 				...state,
-				[action.playlistId]: Object.assign(
-					{},
-					state[action.playlistId],
-					songs(state[action.playlistId], action)
-				),
+				[playlist.id]: songs(state[playlist.id], action),
 			};
 		default:
 			return state;
@@ -295,7 +291,7 @@ export function getSortedSongs(state) {
 
 export function getNextSong(state) {
 	const currentSong = getCurrentSong(state);
-	let songs = _.map(getSortedSongs(state), '_id');
+	let songs = _.map(getSortedSongs(state), 'id');
 	if (getCurrentSort(state).shuffle) {
 		songs = getShuffledSongsInPlaylist(state, getCurrentPlaylist(state));
 	}

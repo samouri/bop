@@ -21,14 +21,18 @@ export const RECEIVE_PLAYLIST = 'RECEIVE_PLAYLIST';
 function requestSongs(playlistId) {
 	return {
 		type: FETCH_SONGS_REQUEST,
-		playlistId,
+		payload: {
+			playlist: { id: playlistId },
+		},
 	};
 }
 
 export function fetchSongsSuccess(playlistId, songs) {
 	return {
 		type: FETCH_SONGS_SUCCESS,
-		playlistId,
+		payload: {
+			playlist: { id: playlistId },
+		},
 		songs,
 	};
 }
@@ -156,11 +160,10 @@ export function voteSong(song, dir, sdk, dispatch) {
 	});
 }
 
-export const deleteSong = (song, sdk) => dispatch => {
-	const { playlist_id, youtube_id } = song;
-
+export const deleteSong = song => dispatch => {
+	const sdk = window.sdk;
 	sdk
-		.deleteSong(playlist_id, youtube_id)
+		.deleteSong(song.id)
 		.then(res => {
 			console.log('successfully deleted song', res);
 			//dispatch( fetchSongsSuccess( song.playlist_id, [ res.obj.song ] ) );
@@ -170,6 +173,6 @@ export const deleteSong = (song, sdk) => dispatch => {
 	dispatch({
 		type: DELETE_SONG,
 		song,
-		playlistId: song.playlist_id,
+		payload: { playlist: { id: song.playlist_id } },
 	});
 };

@@ -2,7 +2,9 @@ import Swagger from 'swagger-client';
 import config from './config';
 import { isEmpty } from 'lodash';
 import 'whatwg-fetch';
+import moment from 'moment';
 window.swagger = Swagger;
+window.moment = moment;
 
 export const mapSpotifyItemToBop = song => ({
 	artist: song.artists[0].name,
@@ -21,7 +23,7 @@ export default function BopSdk() {
 			playlist_id: `eq.${playlistId}`,
 			offset,
 			limit,
-			select: '*,metadata{*}',
+			select: '*,metadata{*},votes{*}',
 		});
 
 	this.createPlaylist = async ({ playlistName, userId }) =>
@@ -42,13 +44,19 @@ export default function BopSdk() {
 			body: { playlist_id: playlistId, user_added: userId, metadata_id: metaId },
 		});
 
-	this.getSongMetadata = async spotifyId =>
-		this.client.metadata.get_metadata({ spotify_id: `eq.${encodeURIComponent(spotifyId)}` });
-	this.addSongMetadata = async ({ spotifyMeta, youtubeMeta }) =>
-		this.client.metadata.post_metadata({
+	this.getSongMetadata = async spotifyId => {
+		const res = await this.client.metadata.get_metadata({
+			spotify_id: `eq.${encodeURIComponent(spotifyId)}`,
+		});
+		return res.obj.length > 0 && res.obj[0];
+	};
+	this.addSongMetadata = async ({ spotifyMeta, youtubeMeta }) => {
+		const res = await this.client.metadata.post_metadata({
 			body: { ...spotifyMeta, ...youtubeMeta },
 			Prefer: 'return=representation',
 		});
+		return res.obj[0];
+	};
 
 	this.getUser = async (optionalUsername, optionalPassword) => {
 		const matches = (await this.client.users.get_users({ username: `eq.${optionalUsername}` })).obj;
@@ -61,10 +69,13 @@ export default function BopSdk() {
 	this.putUser = async (username, password) =>
 		this.client.apis.users.post_users({ body: { username, password: 'todo' } });
 
-	this.vote = async ({ userId, songId }) => this.client.default.voteOnSong({ songId, userId });
+	this.vote = async ({ userId, songId }) =>
+		this.client.votes.post_votes({ body: { song_id: songId, user_added: userId } });
 
-	this.deleteSong = async (playlist_id, youtube_id) =>
-		this.client.default.deleteSong({ playlist_id, youtube_id });
+	this.unvote = async ({ userId, songId }) =>
+		this.client.votes.delete_votes({ song_id: `eq.${songId}`, user_added: `eq.${userId}` });
+
+	this.deleteSong = async songId => this.client.songs.delete_songs({ id: `eq.${songId}` });
 
 	this.searchYoutube = async ({ title, artist }) => {
 		const endpoint =
@@ -72,11 +83,21 @@ export default function BopSdk() {
 		const searchTerm = encodeURIComponent(`${title} ${artist}`);
 		const res = await fetch(`${endpoint}&q=${searchTerm}`);
 		const json = await res.json();
+
 		const first = json.items[0];
 		return {
 			youtube_id: first.id.videoId,
 			youtube_title: first.snippet.title,
 		};
+	};
+
+	this.getYoutubeVideoDuration = async youtube_id => {
+		const endpoint =
+			'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&key=AIzaSyAPGx5PbhdoO2QTR16yZHgMj-Q2vqO8W1M';
+		const res = await fetch(`${endpoint}&id=${youtube_id}`);
+		const json = await res.json();
+		const youtube_duration = json.items[0].contentDetails.duration;
+		return { youtube_duration };
 	};
 
 	this.searchForSong = async query => {

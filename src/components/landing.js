@@ -77,6 +77,7 @@ class Landing extends React.Component {
 			console.error(err, err.stack);
 		}
 	}
+
 	fetchSongs = _.throttle(() => this.props.dispatch(fetchSongs(this.props.playlist.id)), 200);
 	componentWillReceiveProps(nextProps) {
 		if (_.isEmpty(this.props.songs) && this.props.playlist) {
@@ -98,7 +99,7 @@ class Landing extends React.Component {
 		this.player = e.target;
 
 		if (this.props.songs.length > 0) {
-			let selectedVideoId = this.props.songs[0].youtube_id;
+			let selectedVideoId = this.props.songs[0].metadata.youtube_id;
 
 			this.player.cueVideoById({ videoId: selectedVideoId });
 			this.setState({ selectedVideoId });
@@ -109,16 +110,15 @@ class Landing extends React.Component {
 		const { playlist, user } = this.props;
 		let songMeta = await sdk.getSongMetadata(spotifyMeta.spotify_id);
 		// if we don't have the meta for it yet, create it
-		if (songMeta.obj.length === 0) {
+		if (!songMeta) {
 			const youtubeMeta = await sdk.searchYoutube({
 				title: spotifyMeta.title,
 				artist: spotifyMeta.artist,
 			});
-			songMeta = (await sdk.addSongMetadata({ youtubeMeta, spotifyMeta })).obj[0];
-		} else {
-			songMeta = songMeta.obj[0];
+			const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeMeta.youtube_id);
+			youtubeMeta.youtube_duration = youtubeDuration.youtube_duration;
+			songMeta = await sdk.addSongMetadata({ youtubeMeta, spotifyMeta });
 		}
-
 		// TODO add in for optim case
 		sdk
 			.addSongToPlaylist({ userId: user.id, playlistId: playlist.id, metaId: songMeta.id })
@@ -133,7 +133,7 @@ class Landing extends React.Component {
 
 	handleRegister = login => {
 		console.log('attempting to create user');
-		this.state.sdk.putUser(login.username, login.password).then(resp => {
+		sdk.putUser(login.username, login.password).then(resp => {
 			this.props.dispatch(loginUser(login, sdk));
 		});
 	};
@@ -141,7 +141,7 @@ class Landing extends React.Component {
 	playVideo(songId) {
 		if (this.props.currentSong.invalidatedSong) {
 			// only reload video if its new
-			const videoId = this.props.getSongById(songId).youtube_id;
+			const videoId = this.props.getSongById(songId).metadata.youtube_id;
 			this.player.loadVideoById(videoId);
 		}
 		this.player.playVideo();
@@ -152,14 +152,17 @@ class Landing extends React.Component {
 			return <p> Theres a first for everything </p>;
 		} else {
 			return _.map(this.props.songs, song => (
-				<li className="list-group-item">
-					<SongRow songId={song.id} key={`song-${song.id}`} />
+				<li className="list-group-item" key={`song-${song.id}`}>
+					<SongRow songId={song.id} />
 				</li>
 			));
 		}
 	};
 
 	render() {
+		// if (_.isEmpty(this.props.songs) && this.props.playlist) {
+		// 	this.fetchSongs();
+		// }
 		const sort = this.props.sort.sort;
 		const shuffle = this.props.sort.shuffle;
 		let { playlist = 'Seattle' } = this.props.params;

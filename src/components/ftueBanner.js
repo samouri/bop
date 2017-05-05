@@ -12,15 +12,20 @@ function mapStateToProps(state) {
 
 function mergeProps({ firstSong }, { dispatch }) {
 	return {
-		handleOnClick: () => dispatch(playSong(firstSong._id)),
+		handleOnClick: () => dispatch(playSong(firstSong.id)),
 	};
 }
 
 function FTUEHero(props) {
 	return (
 		<div id="ftue-hero" className="row">
-			<div> <span id="ftue-hero-text">Discover and share music <br /> with people around you.</span></div>
-			<div id="ftue-play-button" onClick={props.handleOnClick}><span id="ftue-play-button-text">Play</span></div>
+			<div>
+				{' '}
+				<span id="ftue-hero-text">Discover and share music <br /> with people around you.</span>
+			</div>
+			<div id="ftue-play-button" onClick={props.handleOnClick}>
+				<span id="ftue-play-button-text">Play</span>
+			</div>
 		</div>
 	);
 }
