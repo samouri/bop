@@ -131,6 +131,7 @@ function playlists(state = {}, action) {
 			return {
 				...state,
 				[playlist.id]: songs(state[playlist.id], action),
+				[17]: songs(state[17], action),
 			};
 		default:
 			return state;
