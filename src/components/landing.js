@@ -123,9 +123,9 @@ class Landing extends React.Component {
 				songMeta = await sdk.addSongMetadata({ youtubeMeta, spotifyMeta });
 			}
 		}
-		// TODO add in for optim case
 		sdk
 			.addSongToPlaylist({ userId: user.id, playlistId: playlist.id, metaId: songMeta.id })
+			.then(() => this.fetchSongs())
 			.catch(err => {
 				console.error('seems like we couldnt add a song', err, err.stack);
 			});

@@ -8,12 +8,12 @@ import { mapSpotifyItemToBop } from '../sdk';
 
 const spotifyEndpoint = 'https://api.spotify.com/v1/search?type=track&limit=5';
 
-const loadOptions = input => {
+const loadOptions = async input => {
 	return fetch(`${spotifyEndpoint}&q=${input}`)
 		.then(response => {
 			return response.json();
 		})
-		.then(json => {
+		.then(async json => {
 			const ret = { options: mapResponseToTitles(json) };
 			return ret;
 		});

@@ -9,7 +9,9 @@ if (prod) {
 	// prod means in docker
 	config.swaggerUrl = '/swagger.yaml';
 } else {
-	config.swaggerUrl = 'http://localhost:3333';
+	config.swaggerUrl = 'http://' + window.location.hostname + ':3333';
+	config.swaggerHost = window.location.hostname + ':3333';
+	console.error(config.swaggerUrl);
 }
 
 // // either docker instance and localhost (hooking up local dockers ) OR

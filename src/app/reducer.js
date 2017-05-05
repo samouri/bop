@@ -283,9 +283,9 @@ export function getSortedSongs(state) {
 	const sort = getCurrentSort(state).sort;
 
 	if (sort === TOP) {
-		return _.reverse(_.sortBy(songs, ['upvotes', 'creation_date']));
+		return _.reverse(_.sortBy(songs, song => song.votes.length));
 	} else if (sort === NEW) {
-		return _.reverse(_.sortBy(songs, ['creation_date', 'upvotes']));
+		return _.reverse(_.sortBy(songs, song => song.date_added));
 	}
 }
 
