@@ -164,12 +164,9 @@ class Landing extends React.Component {
 	};
 
 	render() {
-		// if (_.isEmpty(this.props.songs) && this.props.playlist) {
-		// 	this.fetchSongs();
-		// }
+		const { playlist } = this.props;
 		const sort = this.props.sort.sort;
 		const shuffle = this.props.sort.shuffle;
-		let { playlist = 'Seattle' } = this.props.params;
 		var hotBtnClasses = cx('filter-btn', 'pointer', { active: sort === TOP });
 		var newBtnClasses = cx('filter-btn', 'pointer', { active: sort === NEW });
 		var shuffleBtnClasses = cx('pointer', 'fa', 'fa-random', { active: shuffle });
@@ -208,7 +205,7 @@ class Landing extends React.Component {
 					<div className="col-xs-offset-4 cols-xs-1">
 						<i
 							className={shuffleBtnClasses}
-							onClick={() => this.props.dispatch(shuffleSongs(playlist))}
+							onClick={() => this.props.dispatch(shuffleSongs(playlist.id))}
 						/>
 					</div>
 					<div className="btn-group col-xs-3" role="group">

@@ -90,7 +90,9 @@ export function setSort(sort) {
 export function shuffleSongs(playlistId) {
 	return {
 		type: SHUFFLE_SONGS,
-		playlistId,
+		payload: {
+			playlist: { id: playlistId },
+		},
 	};
 }
 

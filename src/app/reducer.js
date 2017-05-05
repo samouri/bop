@@ -293,7 +293,7 @@ export function getNextSong(state) {
 	const currentSong = getCurrentSong(state);
 	let songs = _.map(getSortedSongs(state), 'id');
 	if (getCurrentSort(state).shuffle) {
-		songs = getShuffledSongsInPlaylist(state, getCurrentPlaylist(state));
+		songs = getShuffledSongsInPlaylist(state, getCurrentPlaylist(state).id);
 	}
 
 	if (currentSong === null) {
