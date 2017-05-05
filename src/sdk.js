@@ -18,13 +18,30 @@ export const mapSpotifyItemToBop = song => ({
 export default function BopSdk() {
 	this.loaded = false;
 
-	this.getSongsInPlaylist = async ({ playlistId, offset = 0, limit = 200 }) =>
-		this.client.songs.get_songs({
+	this.getSongsInPlaylist = async ({ playlistId, offset = 0, limit = 200 }) => {
+		// hardcoded all playlist
+		if (playlistId === 17) {
+			return this.getSongsInAllPlaylist({ offset, limit });
+		}
+
+		const matches = this.client.songs.get_songs({
 			playlist_id: `eq.${playlistId}`,
 			offset,
 			limit,
 			select: '*,metadata{*},votes{*}',
 		});
+		return (await matches).obj;
+	};
+
+	//todo need better system
+	this.getSongsInAllPlaylist = async ({ offset, limit }) => {
+		const matches = this.client.songs.get_songs({
+			offset,
+			limit,
+			select: '*,metadata{*},votes{*}',
+		});
+		return (await matches).obj;
+	};
 
 	this.createPlaylist = async ({ playlistName, userId }) =>
 		this.client.playlists.post_playlists({ body: { name: playlistName, user_added: userId } });

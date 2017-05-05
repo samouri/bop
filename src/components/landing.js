@@ -19,6 +19,7 @@ import {
 	setSort,
 	shuffleSongs,
 	requestPlaylist,
+	setPlaylistName,
 } from '../app/actions';
 import {
 	getCurrentSort,
@@ -63,6 +64,12 @@ class Landing extends React.Component {
 		sdk: null,
 	};
 
+	componentWillMount() {
+		const { params, dispatch } = this.props;
+		if (params.playlistName) {
+			dispatch(setPlaylistName(params.playlistName));
+		}
+	}
 	async componentDidMount() {
 		sdk = window.sdk = await new BopSdk();
 		this.props.dispatch(requestPlaylist(this.props.currentPlaylistName));
@@ -123,6 +130,7 @@ class Landing extends React.Component {
 				songMeta = await sdk.addSongMetadata({ youtubeMeta, spotifyMeta });
 			}
 		}
+
 		sdk
 			.addSongToPlaylist({ userId: user.id, playlistId: playlist.id, metaId: songMeta.id })
 			.then(() => this.fetchSongs())

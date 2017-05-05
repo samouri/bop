@@ -73,6 +73,7 @@ export default class SearchBar extends React.Component {
 				onChange={option => {
 					option && this.props.handleSelection(option.value);
 				}}
+				filterOption={() => true}
 			/>
 		);
 	}

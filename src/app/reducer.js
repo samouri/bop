@@ -49,6 +49,7 @@ import {
 	LOGOUT_USER,
 	DELETE_SONG,
 	RECEIVE_PLAYLIST,
+	SET_PLAYLIST_NAME,
 } from './actions';
 
 const songsInitialState = {
@@ -133,11 +134,10 @@ function playlists(state = {}, action) {
 	}
 }
 
-const initialCurrentPlaylistName = _.isEmpty(window.location.pathname.substring(1))
-	? 'Seattle'
-	: window.location.pathname.substring(1);
-
-function currentPlaylistName(state = initialCurrentPlaylistName, action) {
+function currentPlaylistName(state = 'All', action) {
+	if (action.type === SET_PLAYLIST_NAME) {
+		return action.payload.name;
+	}
 	return state;
 }
 

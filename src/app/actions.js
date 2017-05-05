@@ -16,6 +16,7 @@ export const SET_SORT = 'SET_SORT';
 export const DELETE_SONG = 'DELETE_SONG';
 export const SHUFFLE_SONGS = 'SHUFFLE_SONGS';
 export const RECEIVE_PLAYLIST = 'RECEIVE_PLAYLIST';
+export const SET_PLAYLIST_NAME = 'SET_PLAYLIST_NAME';
 
 /* action creators */
 function requestSongs(playlistId) {
@@ -26,6 +27,13 @@ function requestSongs(playlistId) {
 		},
 	};
 }
+
+export const setPlaylistName = playlistName => ({
+	type: SET_PLAYLIST_NAME,
+	payload: {
+		name: playlistName,
+	},
+});
 
 export function fetchSongsSuccess(playlistId, songs) {
 	return {
@@ -119,15 +127,23 @@ export const receivePlaylist = playlist => ({
 
 export const requestPlaylist = playlistName => async dispatch => {
 	const sdk = window.sdk;
-	const playlist = await sdk.getPlaylistForName(playlistName);
-	dispatch(receivePlaylist(playlist));
+	try {
+		const playlist = await sdk.getPlaylistForName(playlistName);
+		dispatch(receivePlaylist(playlist));
+	} catch (err) {
+		// TODO this is a hack for now to add the playlist if it doens't exist
+		await sdk.createPlaylist({ playlistName });
+		const playlist = await sdk.getPlaylistForName(playlistName);
+		dispatch(receivePlaylist(playlist));
+		console.error(err);
+	}
 };
 
 export const fetchSongs = playlistId => async dispatch => {
 	const sdk = window.sdk;
 	dispatch(requestSongs(playlistId));
 	try {
-		const songs = (await sdk.getSongsInPlaylist({ playlistId, offset: 0, limit: 200 })).obj;
+		const songs = await sdk.getSongsInPlaylist({ playlistId, offset: 0, limit: 200 });
 		dispatch(fetchSongsSuccess(playlistId, songs));
 	} catch (err) {
 		dispatch(fetchSongsFailure(err));
