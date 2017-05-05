@@ -44,10 +44,11 @@ export default function BopSdk() {
 			body: { playlist_id: playlistId, user_added: userId, metadata_id: metaId },
 		});
 
-	this.getSongMetadata = async spotifyId => {
-		const res = await this.client.metadata.get_metadata({
-			spotify_id: `eq.${encodeURIComponent(spotifyId)}`,
-		});
+	this.getSongMetadata = async ({ spotifyId, youtubeId }) => {
+		const metadataParams = {};
+		spotifyId && (metadataParams.spotify_id = `eq.${encodeURIComponent(spotifyId)}`);
+		youtubeId && (metadataParams.youtube_id = `eq.${encodeURIComponent(youtubeId)}`);
+		const res = await this.client.metadata.get_metadata(metadataParams);
 		return res.obj.length > 0 && res.obj[0];
 	};
 	this.addSongMetadata = async ({ spotifyMeta, youtubeMeta }) => {

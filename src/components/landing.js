@@ -108,16 +108,20 @@ class Landing extends React.Component {
 
 	handleSearchSelection = async spotifyMeta => {
 		const { playlist, user } = this.props;
-		let songMeta = await sdk.getSongMetadata(spotifyMeta.spotify_id);
+		let songMeta = await sdk.getSongMetadata({ spotifyId: spotifyMeta.spotify_id });
 		// if we don't have the meta for it yet, create it
 		if (!songMeta) {
 			const youtubeMeta = await sdk.searchYoutube({
 				title: spotifyMeta.title,
 				artist: spotifyMeta.artist,
 			});
-			const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeMeta.youtube_id);
-			youtubeMeta.youtube_duration = youtubeDuration.youtube_duration;
-			songMeta = await sdk.addSongMetadata({ youtubeMeta, spotifyMeta });
+			// maybe its multiple tracks that correspond to the same song
+			songMeta = await sdk.getSongMetadata({ youtubeId: youtubeMeta.youtube_id });
+			if (!songMeta) {
+				const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeMeta.youtube_id);
+				youtubeMeta.youtube_duration = youtubeDuration.youtube_duration;
+				songMeta = await sdk.addSongMetadata({ youtubeMeta, spotifyMeta });
+			}
 		}
 		// TODO add in for optim case
 		sdk
