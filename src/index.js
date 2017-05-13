@@ -1,13 +1,10 @@
-/* External Dependencies */
-import React, { PropTypes } from 'react';
+import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route, browserHistory } from 'react-router';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import createLogger from 'redux-logger';
 import thunk from 'redux-thunk';
-
-/* Internal Dependencies */
 import Landing from './components/landing';
 import './style.css';
 
@@ -23,9 +20,5 @@ const Root = ({ store }) => (
 		</Router>
 	</Provider>
 );
-
-Root.propTypes = {
-	store: PropTypes.object.isRequired,
-};
 
 render(<Root store={store} />, document.getElementById('root'));
