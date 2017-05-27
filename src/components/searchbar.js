@@ -51,7 +51,6 @@ class TrackValue extends React.Component {
 			>
 				<img alt="artist thumb" src={thumbnail_url} />
 				{title} by {artist}
-				{children}
 			</div>
 		);
 	}

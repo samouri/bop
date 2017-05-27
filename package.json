@@ -21,12 +21,14 @@
     "whatwg-fetch": "^2.0.3"
   },
   "devDependencies": {
+    "flow-bin": "^0.47.0",
     "react-scripts": "^0.9.5"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "flow": "flow"
   },
   "author": "jake fried",
   "license": "ISC"

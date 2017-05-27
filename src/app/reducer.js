@@ -131,7 +131,7 @@ function playlists(state = {}, action) {
 			return {
 				...state,
 				[playlist.id]: songs(state[playlist.id], action),
-				[17]: songs(state[17], action),
+				'17': songs(state[17], action),
 			};
 		default:
 			return state;
@@ -145,7 +145,7 @@ function currentPlaylistName(state = 'All', action) {
 	return state;
 }
 
-function currentSort(state = { sort: TOP, shuffle: false }, action) {
+function currentSort(state = { sort: NEW, shuffle: false }, action) {
 	if (action.type === SET_SORT) {
 		return {
 			...state,

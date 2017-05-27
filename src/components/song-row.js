@@ -22,7 +22,7 @@ class SongRow extends React.Component {
 		return duration_minutes + ':' + duration_seconds;
 	}
 
-	getAge = () => moment(this.props.song.date_added).fromNow();
+	getAge = () => moment.utc(this.props.song.date_added).fromNow();
 
 	handleUpvote = () => {
 		const { isUpvoted } = this.props;
@@ -76,7 +76,9 @@ class SongRow extends React.Component {
 				<div className="song-info pull-left col-xs-6">
 					<span className="song-title">{title}</span>
 					<span className="song-artist">{artist}</span>
-					<span className="time-since">{this.getAge()}</span>
+					<span className="posted-info">
+						posted {this.getAge()} by {this.props.song.user.username}
+					</span>
 				</div>
 				<div className="play-info pull-right col-xs-1">
 					<i className={playOrPauseClasses} onClick={handlePausePlay} />

@@ -28,7 +28,7 @@ export default function BopSdk() {
 			playlist_id: `eq.${playlistId}`,
 			offset,
 			limit,
-			select: '*,metadata{*},votes{*}',
+			select: '*,metadata{*},votes{*},user{id,username}',
 		});
 		return (await matches).obj;
 	};
@@ -38,7 +38,17 @@ export default function BopSdk() {
 		const matches = this.client.songs.get_songs({
 			offset,
 			limit,
-			select: '*,metadata{*},votes{*}',
+			select: '*,metadata{*},votes{*},user{id,username}',
+		});
+		return (await matches).obj;
+	};
+
+	this.getSongsAddedByUser = async ({ userId, limit = 200, offset = 0 }) => {
+		const matches = this.client.users.get_users({
+			id: `eq.${userId}`,
+			offset,
+			limit,
+			select: '*,songs{*}',
 		});
 		return (await matches).obj;
 	};

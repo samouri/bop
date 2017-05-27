@@ -19,14 +19,12 @@ export const RECEIVE_PLAYLIST = 'RECEIVE_PLAYLIST';
 export const SET_PLAYLIST_NAME = 'SET_PLAYLIST_NAME';
 
 /* action creators */
-function requestSongs(playlistId) {
-	return {
-		type: FETCH_SONGS_REQUEST,
-		payload: {
-			playlist: { id: playlistId },
-		},
-	};
-}
+export const requestSongs = playlistId => ({
+	type: FETCH_SONGS_REQUEST,
+	payload: {
+		playlist: { id: playlistId },
+	},
+});
 
 export const setPlaylistName = playlistName => ({
 	type: SET_PLAYLIST_NAME,
@@ -45,78 +43,60 @@ export function fetchSongsSuccess(playlistId, songs) {
 	};
 }
 
-function fetchSongsFailure(playlistId) {
+export const fetchSongsFailure = playlistId => {
 	return {
 		type: FETCH_SONGS_FAILURE,
 		playlistId,
 	};
-}
+};
 
-export function requestLogin(user) {
-	return {
-		type: LOGIN_USER_REQUEST,
-		user,
-	};
-}
+export const requestLogin = user => ({
+	type: LOGIN_USER_REQUEST,
+	user,
+});
 
-export function logout(user) {
-	return {
-		type: LOGOUT_USER,
-	};
-}
+export const logout = user => ({
+	type: LOGOUT_USER,
+});
 
-export function loginUserSuccess(username, upvotedSongs, id) {
-	return {
-		type: LOGIN_USER_SUCCESS,
-		username,
-		upvotedSongs,
-		id,
-	};
-}
+export const loginUserSuccess = (username, upvotedSongs, id) => ({
+	type: LOGIN_USER_SUCCESS,
+	username,
+	upvotedSongs,
+	id,
+});
 
-export function playSong(songId) {
-	return {
-		type: PLAY_SONG,
-		songId,
-	};
-}
+export const playSong = songId => ({
+	type: PLAY_SONG,
+	songId,
+});
 
-export function pauseSong(songId) {
-	return {
-		type: PAUSE_SONG,
-		songId,
-	};
-}
+export const pauseSong = songId => ({
+	type: PAUSE_SONG,
+	songId,
+});
 
-export function setSort(sort) {
-	return {
-		type: SET_SORT,
-		sort,
-	};
-}
+export const setSort = sort => ({
+	type: SET_SORT,
+	sort,
+});
 
-export function shuffleSongs(playlistId) {
-	return {
-		type: SHUFFLE_SONGS,
-		payload: {
-			playlist: { id: playlistId },
-		},
-	};
-}
+export const shuffleSongs = playlistId => ({
+	type: SHUFFLE_SONGS,
+	payload: {
+		playlist: { id: playlistId },
+	},
+});
 
-export function loginUserFailure(user) {
-	return {
-		type: LOGIN_USER_FAILURE,
-		user,
-	};
-}
+export const loginUserFailure = user => ({
+	type: LOGIN_USER_FAILURE,
+	user,
+});
 
-export function addSongToPlaylist(song, playlistId) {
-	return {
-		type: ADD_SONG_TO_PLAYLIST,
-		playlistId,
-	};
-}
+export const addSongToPlaylist = (song, playlistId) => ({
+	type: ADD_SONG_TO_PLAYLIST,
+	playlistId,
+});
 
 export const receivePlaylist = playlist => ({
 	type: RECEIVE_PLAYLIST,
