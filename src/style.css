@@ -142,9 +142,6 @@ body {
     display: block;
     text-align: center;
 }
-.song-div span {
-/*   text-align: center; */
-}
 
 .song-info, .play-info, .vote-info {
     display: -webkit-box;

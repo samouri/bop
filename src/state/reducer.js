@@ -1,7 +1,9 @@
 // @flow
 import _ from 'lodash';
 import { combineReducers } from 'redux';
-import type { Action } from './actions';
+import { createReducer, keyedReducer } from './utils';
+
+import type { Action, ActionType } from './actions';
 
 /**
  * state = {
@@ -27,12 +29,6 @@ type SORT = 'top' | 'new';
 export type Reducer<S, A: Action> = (S, A) => S;
 
 import {
-	FETCH_SONGS_REQUEST,
-	FETCH_SONGS_SUCCESS,
-	FETCH_SONGS_FAILURE,
-	LOGIN_USER_REQUEST,
-	LOGIN_USER_SUCCESS,
-	LOGIN_USER_FAILURE,
 	PLAY_SONG,
 	PAUSE_SONG,
 	VOTE_SONG,
@@ -40,47 +36,35 @@ import {
 	SHUFFLE_SONGS,
 	LOGOUT_USER,
 	DELETE_SONG,
-	RECEIVE_PLAYLIST,
 	SET_PLAYLIST_NAME,
+	LOAD_SONGS,
+	LOAD_PLAYLIST,
 } from './actions';
+
+type SongsByIdState = { [id: number]: Object };
+const songsById = createReducer(
+	{},
+	{
+		[LOAD_SONGS]: (state: SongsByIdState, action: Action): SongsByIdState => {
+			return {
+				...state,
+				..._.mapKeys(action.payload.songs, 'id'),
+			};
+		},
+	}
+);
+
+type SongsState = {
+	isFetching: boolean,
+	page: number,
+	songs: Array<any>,
+};
 
 const songsInitialState = {
 	isFetching: false,
 	didInvalidate: false,
 	page: 0,
 	songs: [],
-};
-
-type SongsByIdState = { [id: number]: Object };
-const songsById = createReducer(
-	{},
-	{
-		[FETCH_SONGS_SUCCESS]: (state: SongsByIdState, action): SongsByIdState => {
-			return {
-				...state,
-				..._.mapKeys(action.songs, 'id'),
-			};
-		},
-	}
-);
-
-// const songsById = (state: SongsByIdState = {}, action): SongsByIdState => {
-// 	if (action.type === FETCH_SONGS_SUCCESS) {
-// 		const fetchedSongs = _.mapKeys(action.songs, 'id');
-
-// 		return {
-// 			...state,
-// 			...fetchedSongs,
-// 		};
-// 	}
-// 	return state;
-// };
-
-type SongsState = {
-	isFetching: boolean,
-	didInvalidate: boolean,
-	page: number,
-	songs: Array<any>,
 };
 const songs = (state: SongsState = songsInitialState, action): SongsState => {
 	switch (action.type) {
@@ -89,26 +73,13 @@ const songs = (state: SongsState = songsInitialState, action): SongsState => {
 				...state,
 				isFetching: true,
 			};
-		case FETCH_SONGS_FAILURE:
-			return {
-				...state,
-				isFetching: false,
-				didInvalidate: true,
-			};
 		case FETCH_SONGS_SUCCESS:
 			return {
 				...state,
 				isFetching: false,
-				didInvalidate: false,
 				songs: _.uniq([..._.map(action.songs, 'id'), ...state.songs]),
 			};
 		case DELETE_SONG:
-			console.error(
-				action.song.id,
-				state.songs,
-				_.without(state.songs, action.song.id),
-				_.filter(state.songs, id => id !== action.song.id)
-			);
 			return {
 				...state,
 				songs: _.without(state.songs, action.song.id),
@@ -124,17 +95,53 @@ const songs = (state: SongsState = songsInitialState, action): SongsState => {
 };
 
 type PlaylistsState = any;
+const songsByPlaylist = keyedReducer(
+	'playlistId',
+	createReducer(
+		{},
+		{
+			[LOAD_PLAYLIST]: (state, action) => _.uniq(_.map(action.payload.songs, 'id')),
+		}
+	)
+);
+
+const playlists = createReducer(
+	{},
+	{
+		[LOAD_PLAYLIST]: (state, action) => {
+			if (action.payload) {
+				const id = action.meta.playlistId;
+				return {
+					...state,
+					[id]: { ...state[id], songs: _.uniq(_.map(action.payload.songs, 'id')) },
+				};
+			}
+		},
+		[SHUFFLE_SONGS]: (state, action) => {
+			const id = action.meta.playlistId;
+			return {
+				...state,
+				[id]: { ...state[id], shuffledSongs: _.shuffle(state[id].songs) },
+			};
+		},
+		[DELETE_SONG]: (state, action) => {
+			return {
+				...state,
+				songs: _.without(state.songs, action.song.id),
+			};
+		},
+	}
+);
+
 const playlists = (state: PlaylistsState = {}, action): PlaylistsState => {
 	const playlist = action.payload && action.payload.playlist;
 	switch (action.type) {
-		case RECEIVE_PLAYLIST:
+		case LOAD_PLAYLIST:
 			return {
 				...state,
 				[playlist.id]: Object.assign({}, state[playlist.id], playlist, songs(undefined, action)),
 			};
-		case FETCH_SONGS_REQUEST:
-		case FETCH_SONGS_SUCCESS:
-		case FETCH_SONGS_FAILURE:
+		case LOAD_SONGS:
 		case SHUFFLE_SONGS:
 		case DELETE_SONG:
 			return {

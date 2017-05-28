@@ -3,9 +3,9 @@ import cx from 'classnames';
 import _ from 'lodash';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { getCurrentSong, getSongById, getUser } from '../app/reducer';
+import { getCurrentSong, getSongById, getUser } from '../state/reducer';
 
-import { playSong, pauseSong, deleteSong } from '../app/actions';
+import { playSong, pauseSong, deleteSong } from '../state/actions';
 
 class SongRow extends React.Component {
 	state = {

@@ -2,8 +2,8 @@
 import React from 'react';
 
 import { connect } from 'react-redux';
-import { playSong } from '../app/actions';
-import { getSortedSongs } from '../app/reducer';
+import { playSong } from '../state/actions';
+import { getSortedSongs } from '../state/reducer';
 
 const mapStateToProps = state => ({
 	firstSong: getSortedSongs(state)[0],

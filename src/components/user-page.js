@@ -19,7 +19,7 @@ import {
 	shuffleSongs,
 	requestPlaylist,
 	setPlaylistName,
-} from '../app/actions';
+} from '../state/actions';
 import {
 	getCurrentSort,
 	getCurrentPlaylistName,
@@ -31,7 +31,7 @@ import {
 	getNextSong,
 	getUser,
 	getCurrentPlaylist,
-} from '../app/reducer';
+} from '../state/reducer';
 
 let sdk;
 

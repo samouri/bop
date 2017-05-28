@@ -2,8 +2,8 @@ import React from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 
-import { logout } from '../app/actions';
-import { getUsername, getCurrentPlaylistName } from '../app/reducer';
+import { logout } from '../state/actions';
+import { getUsername, getCurrentPlaylistName } from '../state/reducer';
 
 class Header extends React.Component {
 	state = {
