@@ -2,3 +2,5 @@
 bundle.js
 node_modules
 build/
+yarn.lock
+flow-typed
