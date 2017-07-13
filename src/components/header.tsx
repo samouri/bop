@@ -1,5 +1,4 @@
-import React from 'react';
-import _ from 'lodash';
+import * as React from 'react';
 import { connect } from 'react-redux';
 
 import { logout } from '../state/actions';
@@ -62,13 +61,17 @@ class Header extends React.Component {
 		return (
 			<div id="header" className="row">
 				<div className="col-xs-4">
-					{' '}<h1 id="bop_header" className="pull-left"> Bop </h1>
+					{' '}<h1 id="bop_header" className="pull-left">
+						{' '}Bop{' '}
+					</h1>
 					<h2 id="seattle_header" className="pull-left">
 						{' '}{this.props.playlist.substring(0, 10)}{' '}
 					</h2>
 				</div>
 				<div className="col-xs-3 col-xs-offset-5">
-					<h3 className="pull-right pointer" onClick={this.handleClick}> {loginText} </h3>
+					<h3 className="pull-right pointer" onClick={this.handleClick}>
+						{' '}{loginText}{' '}
+					</h3>
 					{this.state.showLoginForm &&
 						!this.props.username &&
 						<div className="dropdown-menu" style={{ padding: '17px' }}>

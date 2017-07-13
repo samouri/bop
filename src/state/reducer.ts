@@ -1,9 +1,6 @@
-// @flow
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { combineReducers } from 'redux';
 import { createReducer, keyedReducer } from './utils';
-
-import type { Action, ActionType } from './actions';
 
 /**
  * state = {
@@ -24,9 +21,6 @@ import type { Action, ActionType } from './actions';
  *  } 
  * }
  */
-
-type SORT = 'top' | 'new';
-export type Reducer<S, A: Action> = (S, A) => S;
 
 import {
 	PLAY_SONG,

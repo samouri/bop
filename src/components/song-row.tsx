@@ -1,7 +1,7 @@
-import React from 'react';
-import cx from 'classnames';
-import _ from 'lodash';
-import moment from 'moment';
+import * as React from 'react';
+import * as cx from 'classnames';
+import * as _ from 'lodash';
+import * as moment from 'moment';
 import { connect } from 'react-redux';
 import { getCurrentSong, getSongById, getUser } from '../state/reducer';
 
@@ -51,8 +51,8 @@ class SongRow extends React.Component {
 		});
 
 		var upChevronClasses = cx('fa fa-chevron-up fa-2x pointer', {
-			'up-chevron-selected': (this.props.isUpvoted && this.state.voteModifier !== -1) ||
-				this.state.voteModifier === 1,
+			'up-chevron-selected':
+				(this.props.isUpvoted && this.state.voteModifier !== -1) || this.state.voteModifier === 1,
 		});
 
 		let handlePausePlay = this.props.isPlaying
@@ -74,19 +74,27 @@ class SongRow extends React.Component {
 					<img alt="artist thumbnail" className="img-circle" src={thumbnail_url} />
 				</div>
 				<div className="song-info pull-left col-xs-6">
-					<span className="song-title">{title}</span>
-					<span className="song-artist">{artist}</span>
+					<span className="song-title">
+						{title}
+					</span>
+					<span className="song-artist">
+						{artist}
+					</span>
 					<span className="posted-info">
 						posted {this.getAge()} by {this.props.song.user.username}
 					</span>
 				</div>
 				<div className="play-info pull-right col-xs-1">
 					<i className={playOrPauseClasses} onClick={handlePausePlay} />
-					<span className="duration">{this.durationToString(this.props.song.duration)}</span>
+					<span className="duration">
+						{this.durationToString(this.props.song.duration)}
+					</span>
 				</div>
 				<div className="vote-info pull-right col-xs-1">
 					<i className={upChevronClasses} onClick={this.handleUpvote} />
-					<span className="vote-count">{votes.length + this.state.voteModifier}</span>
+					<span className="vote-count">
+						{votes.length + this.state.voteModifier}
+					</span>
 				</div>
 			</div>
 		);

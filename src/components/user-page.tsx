@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import React from 'react';
+import * as _ from 'lodash';
+import * as React from 'react';
 import { connect } from 'react-redux';
-import Youtube from 'react-youtube';
-import cx from 'classnames';
+import * as Youtube from 'react-youtube';
+import * as cx from 'classnames';
 
 import Header from './header';
 import SearchBar from './searchbar';
@@ -164,11 +164,11 @@ class Landing extends React.Component {
 		if (_.isEmpty(this.props.songs)) {
 			return <p> Theres a first for everything </p>;
 		} else {
-			return _.map(this.props.songs, song => (
+			return _.map(this.props.songs, song =>
 				<li className="list-group-item" key={`song-${song.id}`}>
 					<SongRow songId={song.id} />
 				</li>
-			));
+			);
 		}
 	};
 
@@ -224,9 +224,10 @@ class Landing extends React.Component {
 						</div>
 					</div>
 					<div className="col-xs-4 col-xs-offset-1">
-						{' '}
-						<SearchBar handleSelection={_.throttle(this.handleSearchSelection, 100)} sdk={sdk} />
-						{' '}
+						{' '}<SearchBar
+							handleSelection={_.throttle(this.handleSearchSelection, 100)}
+							sdk={sdk}
+						/>{' '}
 					</div>
 				</div>
 				<div className="row">

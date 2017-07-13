@@ -1,8 +1,7 @@
-import React from 'react';
-import Select from 'react-select';
+import * as React from 'react';
+import * as Select from 'react-select';
 import 'react-select/dist/react-select.css';
-import _ from 'lodash';
-import cx from 'classnames';
+import * as cx from 'classnames';
 
 import { mapSpotifyItemToBop } from '../sdk';
 

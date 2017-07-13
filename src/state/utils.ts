@@ -1,7 +1,7 @@
 import { noop } from 'lodash';
 
-import type { Action } from './action';
-import type { Reducer } from './reducer';
+import { Action } from './action';
+import { Reducer } from './reducer';
 
 type Handlers = { [type: string]: Function };
 type Fetched = 'fetched';
