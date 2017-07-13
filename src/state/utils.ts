@@ -1,16 +1,7 @@
 import { noop } from 'lodash';
 
-import { Action } from './action';
-import { Reducer } from './reducer';
-
-type Handlers = { [type: string]: Function };
-type Fetched = 'fetched';
-type Fetching = 'fetching';
-type UnFetched = 'unfetched';
-type FetchingState = Fetched | Fetching | UnFetched;
-
-export function createReducer<S, A: Action>(initialState: S, handlers: Handlers): Reducer<S, A> {
-	return (state: S = initialState, action: A): S => {
+export function createReducer(initialState, handlers) {
+	return (state, action) => {
 		if (handlers.hasOwnProperty(action.type)) {
 			return handlers[action.type](state, action);
 		} else {
@@ -19,8 +10,8 @@ export function createReducer<S, A: Action>(initialState: S, handlers: Handlers)
 	};
 }
 
-export function keyedReducer<S, A: Action>(metaKey, reducer): Reducer<S, A> {
-	return function(state: S, action: Action): S {
+export function keyedReducer(metaKey, reducer) {
+	return function(state, action) {
 		return {
 			...state,
 			[metaKey]: reducer(state[metaKey], action),
@@ -35,8 +26,8 @@ export function keyedReducer<S, A: Action>(metaKey, reducer): Reducer<S, A> {
  * @param {*} param0 
  */
 export const createActionThunk = ({
-	type: string,
-	dataFetch: Function,
+	type,
+	dataFetch,
 	meta,
 	onError = noop,
 	onSuccess = noop,

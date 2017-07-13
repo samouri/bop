@@ -2,9 +2,18 @@ import Swagger from 'swagger-client';
 import config from './config';
 import { isEmpty } from 'lodash';
 import 'whatwg-fetch';
-import moment from 'moment';
+import * as moment from 'moment';
 window.swagger = Swagger;
 window.moment = moment;
+
+declare global {
+	interface Window {
+		swagger: any;
+		moment: any;
+		sdk: any;
+		swaggerClient: any;
+	}
+}
 
 export const mapSpotifyItemToBop = song => ({
 	artist: song.artists[0].name,
@@ -15,10 +24,22 @@ export const mapSpotifyItemToBop = song => ({
 	popularity: song.popularity,
 });
 
-export default function BopSdk() {
-	this.loaded = false;
+export default class BopSdk {
+	loaded = false;
+	client: any = false;
+	constructor() {
+		new Swagger({ url: config.swaggerUrl, usePromise: true })
+			.then(c => {
+				this.client = window.swaggerClient = c;
+				if (config.swaggerHost) {
+					this.client.setHost(config.swaggerHost);
+				}
+				return this;
+			})
+			.catch(error => console.error('could not load the sdk, what to do, what to do'));
+	}
 
-	this.getSongsInPlaylist = async ({ playlistId, offset = 0, limit = 200 }) => {
+	getSongsInPlaylist = async ({ playlistId, offset = 0, limit = 200 }) => {
 		// hardcoded all playlist
 		if (playlistId === 17) {
 			return this.getSongsInAllPlaylist({ offset, limit });
@@ -34,7 +55,7 @@ export default function BopSdk() {
 	};
 
 	//todo need better system
-	this.getSongsInAllPlaylist = async ({ offset, limit }) => {
+	getSongsInAllPlaylist = async ({ offset, limit }) => {
 		const matches = this.client.songs.get_songs({
 			offset,
 			limit,
@@ -43,7 +64,7 @@ export default function BopSdk() {
 		return (await matches).obj;
 	};
 
-	this.getSongsAddedByUser = async ({ userId, limit = 200, offset = 0 }) => {
+	getSongsAddedByUser = async ({ userId, limit = 200, offset = 0 }) => {
 		const matches = this.client.users.get_users({
 			id: `eq.${userId}`,
 			offset,
@@ -53,10 +74,10 @@ export default function BopSdk() {
 		return (await matches).obj;
 	};
 
-	this.createPlaylist = async ({ playlistName, userId }) =>
+	createPlaylist = async ({ playlistName, userId }) =>
 		this.client.playlists.post_playlists({ body: { name: playlistName, user_added: userId } });
 
-	this.getPlaylistForName = async playlistName => {
+	getPlaylistForName = async playlistName => {
 		const matches = (await this.client.playlists.get_playlists({
 			name: `eq.${encodeURIComponent(playlistName)}`,
 		})).obj;
@@ -66,19 +87,19 @@ export default function BopSdk() {
 		return matches[0];
 	};
 
-	this.addSongToPlaylist = async ({ playlistId, userId, metaId }) =>
+	addSongToPlaylist = async ({ playlistId, userId, metaId }) =>
 		this.client.songs.post_songs({
 			body: { playlist_id: playlistId, user_added: userId, metadata_id: metaId },
 		});
 
-	this.getSongMetadata = async ({ spotifyId, youtubeId }) => {
-		const metadataParams = {};
+	getSongMetadata = async ({ spotifyId, youtubeId }) => {
+		const metadataParams: any = {};
 		spotifyId && (metadataParams.spotify_id = `eq.${encodeURIComponent(spotifyId)}`);
 		youtubeId && (metadataParams.youtube_id = `eq.${encodeURIComponent(youtubeId)}`);
 		const res = await this.client.metadata.get_metadata(metadataParams);
 		return res.obj.length > 0 && res.obj[0];
 	};
-	this.addSongMetadata = async ({ spotifyMeta, youtubeMeta }) => {
+	addSongMetadata = async ({ spotifyMeta, youtubeMeta }) => {
 		const res = await this.client.metadata.post_metadata({
 			body: { ...spotifyMeta, ...youtubeMeta },
 			Prefer: 'return=representation',
@@ -86,7 +107,7 @@ export default function BopSdk() {
 		return res.obj[0];
 	};
 
-	this.getUser = async (optionalUsername, optionalPassword) => {
+	getUser = async (optionalUsername, optionalPassword) => {
 		const matches = (await this.client.users.get_users({ username: `eq.${optionalUsername}` })).obj;
 		if (isEmpty(matches)) {
 			throw new Error('No User Matching Description');
@@ -94,18 +115,18 @@ export default function BopSdk() {
 		return matches[0];
 	};
 
-	this.putUser = async (username, password) =>
+	putUser = async (username, password) =>
 		this.client.apis.users.post_users({ body: { username, password: 'todo' } });
 
-	this.vote = async ({ userId, songId }) =>
+	vote = async ({ userId, songId }) =>
 		this.client.votes.post_votes({ body: { song_id: songId, user_added: userId } });
 
-	this.unvote = async ({ userId, songId }) =>
+	unvote = async ({ userId, songId }) =>
 		this.client.votes.delete_votes({ song_id: `eq.${songId}`, user_added: `eq.${userId}` });
 
-	this.deleteSong = async songId => this.client.songs.delete_songs({ id: `eq.${songId}` });
+	deleteSong = async songId => this.client.songs.delete_songs({ id: `eq.${songId}` });
 
-	this.searchYoutube = async ({ title, artist }) => {
+	searchYoutube = async ({ title, artist }) => {
 		const endpoint =
 			'https://www.googleapis.com/youtube/v3/search?type=video&maxResults=20&key=AIzaSyAPGx5PbhdoO2QTR16yZHgMj-Q2vqO8W1M&part=snippet';
 		const searchTerm = encodeURIComponent(`${title} ${artist}`);
@@ -119,7 +140,7 @@ export default function BopSdk() {
 		};
 	};
 
-	this.getYoutubeVideoDuration = async youtube_id => {
+	getYoutubeVideoDuration = async youtube_id => {
 		const endpoint =
 			'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&key=AIzaSyAPGx5PbhdoO2QTR16yZHgMj-Q2vqO8W1M';
 		const res = await fetch(`${endpoint}&id=${youtube_id}`);
@@ -128,26 +149,15 @@ export default function BopSdk() {
 		return { youtube_duration };
 	};
 
-	this.searchForSong = async query => {
+	searchForSong = async query => {
 		const encodedQuery = encodeURIComponent(query);
 		const endpoint = `https://api.spotify.com/v1/search?type=track&q=${encodedQuery}`;
 		try {
-			const res = await fetch(endpoint);
+			const res: any = await fetch(endpoint);
 			return res.items.map(mapSpotifyItemToBop);
 		} catch (err) {
 			console.error('fuck, search didnt work', err);
 			return [];
 		}
 	};
-
-	return new Swagger({ url: config.swaggerUrl, usePromise: true })
-		.then(client => {
-			this.client = client;
-			window.swaggerClient = this.client;
-			if (config.swaggerHost) {
-				client.setHost(config.swaggerHost);
-			}
-			return this;
-		})
-		.catch(error => console.error('could not load the sdk, what to do, what to do'));
 }

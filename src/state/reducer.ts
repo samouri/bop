@@ -39,7 +39,7 @@ type SongsByIdState = { [id: number]: Object };
 const songsById = createReducer(
 	{},
 	{
-		[LOAD_SONGS]: (state: SongsByIdState, action: Action): SongsByIdState => {
+		[LOAD_SONGS]: (state: SongsByIdState, action): SongsByIdState => {
 			return {
 				...state,
 				..._.mapKeys(action.payload.songs, 'id'),
@@ -62,12 +62,7 @@ const songsInitialState = {
 };
 const songs = (state: SongsState = songsInitialState, action): SongsState => {
 	switch (action.type) {
-		case FETCH_SONGS_REQUEST:
-			return {
-				...state,
-				isFetching: true,
-			};
-		case FETCH_SONGS_SUCCESS:
+		case LOAD_SONGS:
 			return {
 				...state,
 				isFetching: false,

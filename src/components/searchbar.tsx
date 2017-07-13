@@ -7,7 +7,7 @@ import { mapSpotifyItemToBop } from '../sdk';
 
 const spotifyEndpoint = 'https://api.spotify.com/v1/search?type=track&limit=5';
 
-const mapResponseToOptions = resp => {
+const mapResponseToOptions = (resp: any): Option[] => {
 	const tracks = resp.tracks.items.map(mapSpotifyItemToBop);
 	return tracks.map(track => ({ value: track, label: track.title }));
 };
@@ -23,7 +23,18 @@ const loadOptions = async input => {
 		});
 };
 
-class TrackValue extends React.Component {
+type Option = {
+	value: { thumbnail_url: string; artist: string; title: string };
+};
+type TrackValueProps = {
+	option: Option;
+	isFocused: boolean;
+	isSelected: boolean;
+	onSelect: (Option, event: any) => void;
+	onFocus: (Option, event: any) => void;
+};
+
+class TrackValue extends React.Component<TrackValueProps> {
 	handleMouseDown = event => {
 		event.preventDefault();
 		event.stopPropagation();
@@ -37,7 +48,7 @@ class TrackValue extends React.Component {
 		this.props.onFocus(this.props.option, event);
 	};
 	render() {
-		const { children, option, isFocused, isSelected } = this.props;
+		const { option, isFocused, isSelected } = this.props;
 		const { thumbnail_url, artist, title } = option.value;
 		return (
 			<div
@@ -55,27 +66,28 @@ class TrackValue extends React.Component {
 	}
 }
 
-/* eslint-disable */
-export default class SearchBar extends React.Component {
+type SearchBarProps = {
+	handleSelection: (string) => void;
+};
+
+export default class SearchBar extends React.Component<SearchBarProps> {
 	render() {
 		return (
 			<Select.Async
+				loadOptions={loadOptions}
 				name="form-field-name"
 				value="one"
-				loadOptions={loadOptions}
 				autoload={false}
 				optionComponent={TrackValue}
-				onValueClick={option => {
+				onValueClick={(option: any) => {
 					console.error(option);
 					this.props.handleSelection(option.value);
 				}}
-				onChange={option => {
+				onChange={(option: any) => {
 					option && this.props.handleSelection(option.value);
 				}}
-				filterOption={() => true}
 			/>
 		);
 	}
 }
-
-/* eslint-enable */
+// filterOption={() => true}

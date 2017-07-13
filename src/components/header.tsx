@@ -4,7 +4,16 @@ import { connect } from 'react-redux';
 import { logout } from '../state/actions';
 import { getUsername, getCurrentPlaylistName } from '../state/reducer';
 
-class Header extends React.Component {
+type Props = {
+	setState: any;
+	handleLogout: any;
+	handleLogin: any;
+	onLogin: any;
+	onRegister: any;
+	username: string;
+	playlist: any;
+};
+class Header extends React.Component<Props> {
 	state = {
 		showLogoutForm: false,
 		showLoginForm: false,

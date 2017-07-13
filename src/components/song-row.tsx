@@ -7,7 +7,30 @@ import { getCurrentSong, getSongById, getUser } from '../state/reducer';
 
 import { playSong, pauseSong, deleteSong } from '../state/actions';
 
-class SongRow extends React.Component {
+type SongMetadata = {
+	youtube_duration: number;
+	thumbnail_url: string;
+	title: string;
+	artist: string;
+};
+type Song = {
+	id: number;
+	metadata: SongMetadata;
+	date_added: number;
+	votes: number;
+	added_by: number;
+	user: { username: any };
+};
+type Props = {
+	song: Song;
+	isUpvoted: boolean;
+	isSelected: boolean;
+	isPlaying: boolean;
+	user: any;
+	dispatch: any;
+};
+
+class SongRow extends React.Component<Props> {
 	state = {
 		voteModifier: 0,
 	};
@@ -15,7 +38,7 @@ class SongRow extends React.Component {
 	durationToString() {
 		var duration = moment.duration(this.props.song.metadata.youtube_duration);
 		var duration_minutes = duration.minutes();
-		var duration_seconds = duration.seconds();
+		var duration_seconds: any = duration.seconds();
 		if (duration_seconds < 10) {
 			duration_seconds = '0' + duration_seconds;
 		}
@@ -38,7 +61,7 @@ class SongRow extends React.Component {
 	};
 
 	handleDelete = () => {
-		this.props.dispatch(deleteSong(this.props.song));
+		this.props.dispatch(deleteSong(this.props.song.id));
 	};
 
 	render() {
@@ -87,13 +110,13 @@ class SongRow extends React.Component {
 				<div className="play-info pull-right col-xs-1">
 					<i className={playOrPauseClasses} onClick={handlePausePlay} />
 					<span className="duration">
-						{this.durationToString(this.props.song.duration)}
+						{this.durationToString()}
 					</span>
 				</div>
 				<div className="vote-info pull-right col-xs-1">
 					<i className={upChevronClasses} onClick={this.handleUpvote} />
 					<span className="vote-count">
-						{votes.length + this.state.voteModifier}
+						{votes + this.state.voteModifier}
 					</span>
 				</div>
 			</div>
@@ -102,11 +125,11 @@ class SongRow extends React.Component {
 }
 
 function mapStateToProps(state, ownProps) {
-	const song = getSongById(state, ownProps.songId);
-	const currentSong = getCurrentSong(state);
+	const song: any = getSongById(state, ownProps.songId);
+	const currentSong: any = getCurrentSong(state);
 	const isSelected = currentSong && currentSong.songId === song.id;
 	const isPlaying = isSelected && currentSong.playing;
-	const user = getUser(state);
+	const user: any = getUser(state);
 
 	return {
 		song,

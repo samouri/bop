@@ -16,7 +16,7 @@ export const LOAD_PLAYLIST = 'LOAD_PLAYLIST';
 
 /* flow types */
 
-export type Action = { type: ActionType, payload?: Object, meta?: Object, error?: boolean };
+export type Action = { type: ActionType; payload?: Object; meta?: Object; error?: boolean };
 export type ActionType =
 	| 'ADD_SONG_TO_PLAYLIST'
 	| 'LOAD_SONGS'
@@ -27,10 +27,6 @@ export type ActionType =
 	| 'SHUFFLE_SONGS'
 	| 'SET_SORT';
 
-type User = {
-	username: string,
-	upvotedSongs: Array<Object>,
-};
 type SongId = number;
 type PlaylistId = number;
 type SORT = 'top' | 'new';
@@ -44,8 +40,8 @@ export const setPlaylistName = (playlistName: string): Action => ({
 });
 
 export const logout = (): Action => ({ type: LOGOUT_USER });
-export const playSong = (songId: SongId): Action => ({ type: PLAY_SONG, songId });
-export const pauseSong = (songId: SongId): Action => ({ type: PAUSE_SONG, songId });
+export const playSong = (songId: SongId) => ({ type: PLAY_SONG, songId });
+export const pauseSong = (songId: SongId) => ({ type: PAUSE_SONG, songId });
 export const setSort = (sort: SORT): Action => ({ type: SET_SORT, meta: { sort } });
 
 export const shuffleSongs = (playlistId: PlaylistId): Action => ({
@@ -85,7 +81,7 @@ export const loginUser = (login: { username: string }) => {
 	return createActionThunk({
 		type: LOGIN_USER,
 		dataFetch: () => sdk.getUser(login.username),
-		meta: { username },
+		meta: { username: login.username },
 		onSuccess: () => localStorage.setItem('login', JSON.stringify(login)),
 	});
 };
