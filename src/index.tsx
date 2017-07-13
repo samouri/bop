@@ -1,6 +1,6 @@
-import React from 'react';
+import * as React from 'react';
 import { render } from 'react-dom';
-import { Router, Route, browserHistory } from 'react-router';
+import { Router, Route, browserHistory } from 'react-router-dom';
 import { createStore, applyMiddleware } from 'redux';
 import { middleware as reduxPackMiddleware } from 'redux-pack';
 import { Provider } from 'react-redux';
@@ -14,14 +14,13 @@ import bopApp from './state/reducer';
 
 let store = createStore(bopApp, applyMiddleware(thunk, reduxPackMiddleware, createLogger()));
 
-const Root = ({ store }) => (
+const Root = ({ store }) =>
 	<Provider store={store}>
 		<Router history={browserHistory}>
 			<Route path="/" component={PlaylistPage} />
 			<Route path="/p/:playlistName" component={PlaylistPage} />
 			<Route path="/u/:userName" component={UserPage} />
 		</Router>
-	</Provider>
-);
+	</Provider>;
 
 render(<Root store={store} />, document.getElementById('root'));
