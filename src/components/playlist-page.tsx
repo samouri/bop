@@ -51,7 +51,7 @@ const opts = {
 };
 
 type Props = {
-	params: any;
+	match: { params: any };
 	dispatch: any;
 	playlist: any;
 	nextSong: any;
@@ -78,7 +78,7 @@ class PlaylistPage extends React.Component<Props> {
 	};
 
 	componentWillMount() {
-		const { params, dispatch } = this.props;
+		const { match: { params }, dispatch } = this.props;
 		if (params.playlistName) {
 			dispatch(setPlaylistName(params.playlistName));
 		}
@@ -201,7 +201,7 @@ class PlaylistPage extends React.Component<Props> {
 			this.player.pauseVideo();
 		}
 
-		return (
+		const ret = (
 			<div className="row">
 				<div className="row">
 					<Header
@@ -249,6 +249,8 @@ class PlaylistPage extends React.Component<Props> {
 				</div>
 			</div>
 		);
+		console.log(ret);
+		return <h1> WHY</h1>;
 	}
 }
 

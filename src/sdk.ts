@@ -1,4 +1,4 @@
-import Swagger from 'swagger-client';
+import * as Swagger from 'swagger-client';
 import config from './config';
 import { isEmpty } from 'lodash';
 import 'whatwg-fetch';
