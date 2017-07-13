@@ -4,15 +4,19 @@ import { connect } from 'react-redux';
 import { logout } from '../state/actions';
 import { getUsername, getCurrentPlaylistName } from '../state/reducer';
 
-type Props = {
-	setState: any;
-	handleLogout: any;
-	handleLogin: any;
+type PassedProps = {
 	onLogin: any;
 	onRegister: any;
-	username: string;
+};
+type StateProps = {
+	username: any;
 	playlist: any;
 };
+type DispatchProps = {
+	handleLogout: any;
+};
+type Props = PassedProps & StateProps & DispatchProps;
+
 class Header extends React.Component<Props> {
 	state = {
 		showLogoutForm: false,
@@ -131,4 +135,6 @@ function mapDispatchToProps(dispatch) {
 	return { handleLogout };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default connect<StateProps, DispatchProps, PassedProps>(mapStateToProps, mapDispatchToProps)(
+	Header
+);

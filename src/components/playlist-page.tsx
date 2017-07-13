@@ -33,7 +33,7 @@ import {
 	getCurrentPlaylist,
 } from '../state/reducer';
 
-let sdk;
+let sdk: any;
 
 const YOUTUBE_PREFIX = 'https://www.youtube.com/watch?v=';
 const TOP = 'top';
@@ -50,7 +50,22 @@ const opts = {
 	},
 };
 
-class Landing extends React.Component {
+type Props = {
+	params: any;
+	dispatch: any;
+	playlist: any;
+	nextSong: any;
+	songs: any;
+	currentPlaylistName: any;
+	player: any;
+	currentSong: any;
+	getSongById: any;
+	user: any;
+	sort: any;
+	showFTUEHero: boolean;
+};
+class PlaylistPage extends React.Component<Props> {
+	player: any = false;
 	state = {
 		selectedVideoId: null,
 		playing: false,
@@ -86,7 +101,7 @@ class Landing extends React.Component {
 			let login = localStorage.getItem('login');
 			if (login) {
 				login = JSON.parse(login);
-				this.props.dispatch(loginUser(login, sdk));
+				this.props.dispatch(loginUser(login));
 			}
 		} catch (err) {
 			console.error(err, err.stack);
@@ -147,7 +162,7 @@ class Landing extends React.Component {
 	handleRegister = login => {
 		console.log('attempting to create user');
 		sdk.putUser(login.username, login.password).then(resp => {
-			this.props.dispatch(loginUser(login, sdk));
+			this.props.dispatch(loginUser(login));
 		});
 	};
 
@@ -164,7 +179,7 @@ class Landing extends React.Component {
 		if (_.isEmpty(this.props.songs)) {
 			return <p> Theres a first for everything </p>;
 		} else {
-			return _.map(this.props.songs, song =>
+			return _.map(this.props.songs, (song: any) =>
 				<li className="list-group-item" key={`song-${song.id}`}>
 					<SongRow songId={song.id} />
 				</li>
@@ -190,7 +205,7 @@ class Landing extends React.Component {
 			<div className="row">
 				<div className="row">
 					<Header
-						onLogin={login => this.props.dispatch(loginUser(login, sdk))}
+						onLogin={(login: any) => this.props.dispatch(loginUser(login))}
 						onRegister={this.handleRegister}
 					/>
 				</div>
@@ -224,10 +239,7 @@ class Landing extends React.Component {
 						</div>
 					</div>
 					<div className="col-xs-4 col-xs-offset-1">
-						{' '}<SearchBar
-							handleSelection={_.throttle(this.handleSearchSelection, 100)}
-							sdk={sdk}
-						/>{' '}
+						<SearchBar handleSelection={_.throttle(this.handleSearchSelection, 100)} />
 					</div>
 				</div>
 				<div className="row">
@@ -256,4 +268,4 @@ function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps)(Landing);
+export default connect<{}, {}, Props>(mapStateToProps)(PlaylistPage);
