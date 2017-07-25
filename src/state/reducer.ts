@@ -51,7 +51,7 @@ const songsInitialState = {
 	songs: [],
 };
 
-function songsById(state = {}, action) {
+function songsById(state = {}, action: any) {
 	if (action.type === FETCH_SONGS_SUCCESS) {
 		const fetchedSongs = _.mapKeys(action.songs, 'id');
 
@@ -63,7 +63,7 @@ function songsById(state = {}, action) {
 	return state;
 }
 
-function songs(state = songsInitialState, action) {
+function songs(state = songsInitialState, action: any) {
 	switch (action.type) {
 		case FETCH_SONGS_REQUEST:
 			return {
@@ -104,7 +104,7 @@ function songs(state = songsInitialState, action) {
 	}
 }
 
-function playlists(state = {}, action) {
+function playlists(state = {}, action: any) {
 	const playlist = action.payload && action.payload.playlist;
 	switch (action.type) {
 		case RECEIVE_PLAYLIST:
@@ -127,14 +127,14 @@ function playlists(state = {}, action) {
 	}
 }
 
-function currentPlaylistName(state = 'All', action) {
+function currentPlaylistName(state = 'All', action: any) {
 	if (action.type === SET_PLAYLIST_NAME) {
 		return action.payload.name;
 	}
 	return state;
 }
 
-function currentSort(state = { sort: TOP, shuffle: false }, action) {
+function currentSort(state = { sort: TOP, shuffle: false }, action: any) {
 	if (action.type === SET_SORT) {
 		return {
 			...state,
@@ -150,7 +150,7 @@ function currentSort(state = { sort: TOP, shuffle: false }, action) {
 	return state;
 }
 
-function currentSong(state: any = null, action) {
+function currentSong(state: any = null, action: any) {
 	if (action.type === PLAY_SONG) {
 		const invalidatedSong = !state || state.songId !== action.songId;
 		return { songId: action.songId, playing: true, invalidatedSong };
@@ -161,7 +161,7 @@ function currentSong(state: any = null, action) {
 	return state;
 }
 
-function user(state: any = {}, action) {
+function user(state: any = {}, action: any) {
 	switch (action.type) {
 		case LOGIN_USER_REQUEST:
 			return { ...state, isFetching: true };
@@ -210,7 +210,7 @@ export default BopApp;
 
 // Selectors
 
-function getSongsInPlaylist(state, playlist) {
+function getSongsInPlaylist(state: any, playlist: any) {
 	if (!playlist) {
 		return [];
 	}
@@ -220,46 +220,46 @@ function getSongsInPlaylist(state, playlist) {
 	return songs;
 }
 
-export function getSongById(state, id) {
+export function getSongById(state: any, id: any) {
 	return state.songsById[id];
 }
 
-export function getUpvotedSongs(state) {
+export function getUpvotedSongs(state: any) {
 	if (state.user && state.user.upvotedSongs) {
 		return state.user.upvotedSongs;
 	}
 	return [];
 }
 
-export function getUsername(state) {
+export function getUsername(state: any) {
 	if (state.user && state.user.username) {
 		return state.user.username;
 	}
 	return null;
 }
 
-export const getUser = state => state.user;
+export const getUser = (state: any) => state.user;
 
-export function getCurrentPlaylistName(state) {
+export function getCurrentPlaylistName(state: any) {
 	return state.currentPlaylistName;
 }
 
-export function getCurrentSong(state) {
+export function getCurrentSong(state: any) {
 	return state.currentSong;
 }
 
-export function getCurrentSort(state) {
+export function getCurrentSort(state: any) {
 	return state.currentSort;
 }
 
-export const getCurrentPlaylist: any = state =>
+export const getCurrentPlaylist: any = (state: any) =>
 	_.find(state.playlists, { name: getCurrentPlaylistName(state) });
 
-export function getSongs(state) {
+export function getSongs(state: any) {
 	return getSongsInPlaylist(state, getCurrentPlaylist(state));
 }
 
-export function getShuffledSongsInPlaylist(state, playlistId) {
+export function getShuffledSongsInPlaylist(state: any, playlistId: string) {
 	const playlist = state.playlists[playlistId];
 
 	if (playlist) {
@@ -268,7 +268,7 @@ export function getShuffledSongsInPlaylist(state, playlistId) {
 	return [];
 }
 
-export function getSortedSongs(state): any {
+export function getSortedSongs(state: any): any {
 	const songs = getSongs(state);
 	const sort = getCurrentSort(state).sort;
 
@@ -279,7 +279,7 @@ export function getSortedSongs(state): any {
 	}
 }
 
-export function getNextSong(state) {
+export function getNextSong(state: any) {
 	const currentSong = getCurrentSong(state);
 	let songs = _.map(getSortedSongs(state), 'id');
 	if (getCurrentSort(state).shuffle) {

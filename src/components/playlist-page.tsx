@@ -95,7 +95,7 @@ class PlaylistPage extends React.Component<Props> {
 
 	async componentDidMount() {
 		sdk = window.sdk = await new BopSdk();
-		this.props.dispatch(requestPlaylist(this.props.currentPlaylistName));
+		this.props.dispatch(requestPlaylist(this.props.currentPlaylistName, this.props.dispatch));
 
 		try {
 			let login = localStorage.getItem('login');
@@ -249,8 +249,7 @@ class PlaylistPage extends React.Component<Props> {
 				</div>
 			</div>
 		);
-		console.log(ret);
-		return <h1> WHY</h1>;
+		return ret;
 	}
 }
 

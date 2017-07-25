@@ -19,7 +19,7 @@ export const RECEIVE_PLAYLIST = 'RECEIVE_PLAYLIST';
 export const SET_PLAYLIST_NAME = 'SET_PLAYLIST_NAME';
 
 /* action creators */
-function requestSongs(playlistId) {
+function requestSongs(playlistId: string) {
 	return {
 		type: FETCH_SONGS_REQUEST,
 		payload: {
@@ -28,14 +28,14 @@ function requestSongs(playlistId) {
 	};
 }
 
-export const setPlaylistName = playlistName => ({
+export const setPlaylistName = (playlistName: string) => ({
 	type: SET_PLAYLIST_NAME,
 	payload: {
 		name: playlistName,
 	},
 });
 
-export function fetchSongsSuccess(playlistId, songs) {
+export function fetchSongsSuccess(playlistId: string, songs: any) {
 	return {
 		type: FETCH_SONGS_SUCCESS,
 		payload: {
@@ -125,7 +125,7 @@ export const receivePlaylist = playlist => ({
 
 /* Thunk Async Actions */
 
-export const requestPlaylist = playlistName => async dispatch => {
+export const requestPlaylist = async (playlistName: any, dispatch: any) => {
 	const sdk = window.sdk;
 	try {
 		const playlist = await sdk.getPlaylistForName(playlistName);
@@ -139,7 +139,7 @@ export const requestPlaylist = playlistName => async dispatch => {
 	}
 };
 
-export const fetchSongs = playlistId => async dispatch => {
+export const fetchSongs = (playlistId: any) => async (dispatch: any) => {
 	const sdk = window.sdk;
 	dispatch(requestSongs(playlistId));
 	try {
@@ -150,7 +150,7 @@ export const fetchSongs = playlistId => async dispatch => {
 	}
 };
 
-export const loginUser = login => async dispatch => {
+export const loginUser = (login: any) => async (dispatch: any) => {
 	const sdk = window.sdk;
 	dispatch(requestLogin(login.username));
 	try {
@@ -164,7 +164,7 @@ export const loginUser = login => async dispatch => {
 };
 
 // TODO actually make this async correctly
-export function voteSong(song, dir, dispatch) {
+export const voteSong = (song, dir) => async dispatch => {
 	const sdk = window.sdk;
 	sdk
 		.vote(song.playlist_id, song.youtube_id, dir)
@@ -178,9 +178,9 @@ export function voteSong(song, dir, dispatch) {
 		type: VOTE_SONG,
 		songId: song._id,
 	});
-}
+};
 
-export const deleteSong = song => dispatch => {
+export const deleteSong = song => async dispatch => {
 	const sdk = window.sdk;
 	sdk
 		.deleteSong(song.id)
