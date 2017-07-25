@@ -125,7 +125,7 @@ export const receivePlaylist = playlist => ({
 
 /* Thunk Async Actions */
 
-export const requestPlaylist = async (playlistName: any, dispatch: any) => {
+export const requestPlaylist = (playlistName: any) => async dispatch => {
 	const sdk = window.sdk;
 	try {
 		const playlist = await sdk.getPlaylistForName(playlistName);
