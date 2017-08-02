@@ -69,7 +69,6 @@ class PlaylistPage extends React.Component<Props> {
 	player: any = false;
 	state = {
 		selectedVideoId: null,
-		playing: false,
 		songs: [],
 		page: 0,
 		sort: TOP,
@@ -185,9 +184,10 @@ class PlaylistPage extends React.Component<Props> {
 
 				<div className={this.props.showFTUEHero ? 'hidden' : 'row'}>
 					<Player
-						playing
+						playing={this.props.currentSong && this.props.currentSong.playing}
 						url={`${YOUTUBE_PREFIX}${this.props.currentSong &&
 							this.props.getSongById(this.props.currentSong.songId).metadata.youtube_id}`}
+						width={828}
 						youtubeConfig={opts}
 						onEnded={this.handleOnEnd}
 						onPause={this.handleOnPause}
