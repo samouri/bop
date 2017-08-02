@@ -8,7 +8,7 @@ type Config = {
 // const swaggerHost = prod ? window.location.hostname + '/api/' : window.location.hostname + ':3333';
 
 const swaggerUrl = 'http://nothingtoseehere.xyz/swagger.yaml';
-const swaggerHost = 'http://nothingtoseehere.xyz/api/';
+const swaggerHost = 'http://nothingtoseehere.xyz/api';
 
 const config: Config = {
 	swaggerHost,

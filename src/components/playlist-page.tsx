@@ -1,12 +1,12 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
-// import * as Youtube from 'react-youtube';
-// import * as cx from 'classnames';
+import Player from 'react-player';
+import * as cx from 'classnames';
 
-// import Header from './header';
-// import SearchBar from './searchbar';
-// import FTUEHero from './ftueBanner';
+import Header from './header';
+import SearchBar from './searchbar';
+import FTUEHero from './ftueBanner';
 import SongRow from './song-row';
 
 import BopSdk from '../sdk';
@@ -15,8 +15,8 @@ import {
 	loginUser,
 	playSong,
 	pauseSong,
-	// setSort,
-	// shuffleSongs,
+	setSort,
+	shuffleSongs,
 	requestPlaylist,
 	setPlaylistName,
 } from '../state/actions';
@@ -35,20 +35,21 @@ import {
 
 let sdk: any;
 
-// const YOUTUBE_PREFIX = 'https://www.youtube.com/watch?v=';
+const YOUTUBE_PREFIX = 'https://www.youtube.com/watch?v=';
 const TOP = 'top';
-// const NEW = 'new';
+const NEW = 'new';
 
-// const opts = {
-// 	playerVars: {
-// 		// https://developers.google.com/youtube/player_parameters
-// 		autoplay: 0,
-// 		controls: 1,
-// 		enablejsapi: 1,
-// 		modestbranding: 1,
-// 		playsinline: 1,
-// 	},
-// };
+const opts = {
+	playerVars: {
+		// https://developers.google.com/youtube/player_parameters
+		autoplay: 0,
+		controls: 1,
+		enablejsapi: 1,
+		modestbranding: 1,
+		playsinline: 1,
+	},
+	preload: true,
+};
 
 type Props = {
 	match: { params: any };
@@ -108,7 +109,7 @@ class PlaylistPage extends React.Component<Props> {
 		}
 	}
 
-	handleOnPause = event => {
+	handleOnPause = () => {
 		this.props.dispatch(pauseSong(this.props.currentSong.songId));
 	};
 
@@ -117,34 +118,18 @@ class PlaylistPage extends React.Component<Props> {
 		this.props.dispatch(playSong(this.props.nextSong));
 	};
 
-	handleOnReady = e => {
-		// set player
-		this.player = e.target;
-
-		if (this.props.songs.length > 0) {
-			let selectedVideoId = this.props.songs[0].metadata.youtube_id;
-
-			this.player.cueVideoById({ videoId: selectedVideoId });
-			this.setState({ selectedVideoId });
-		}
-	};
-
-	handleSearchSelection = async spotifyMeta => {
+	handleSearchSelection = async ({ title, artist, thumbnail_url }) => {
 		const { playlist, user } = this.props;
-		let songMeta = await sdk.getSongMetadata({ spotifyId: spotifyMeta.spotify_id });
+		console.error(title, artist);
+		let songMeta = await sdk.getSongMetadata({ title, artist });
 		// if we don't have the meta for it yet, create it
 		if (!songMeta) {
-			const youtubeMeta = await sdk.searchYoutube({
-				title: spotifyMeta.title,
-				artist: spotifyMeta.artist,
+			const youtubeMeta = await sdk.searchYoutube({ title, artist });
+			const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeMeta.youtube_id);
+			youtubeMeta.youtube_duration = youtubeDuration.youtube_duration;
+			songMeta = await sdk.addSongMetadata({
+				metadata: { ...songMeta, title, artist, thumbnail_url, ...youtubeDuration, ...youtubeMeta },
 			});
-			// maybe its multiple tracks that correspond to the same song
-			songMeta = await sdk.getSongMetadata({ youtubeId: youtubeMeta.youtube_id });
-			if (!songMeta) {
-				const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeMeta.youtube_id);
-				youtubeMeta.youtube_duration = youtubeDuration.youtube_duration;
-				songMeta = await sdk.addSongMetadata({ youtubeMeta, spotifyMeta });
-			}
 		}
 
 		sdk
@@ -154,8 +139,9 @@ class PlaylistPage extends React.Component<Props> {
 				console.error('seems like we couldnt add a song', err, err.stack);
 			});
 	};
+	throttledSearchSelection = _.throttle(this.handleSearchSelection, 100);
 
-	handleOnPlay = songId => {
+	handleOnPlay = (songId?) => {
 		this.props.dispatch(playSong(this.props.currentSong.songId));
 	};
 
@@ -165,15 +151,6 @@ class PlaylistPage extends React.Component<Props> {
 			this.props.dispatch(loginUser(login));
 		});
 	};
-
-	playVideo(songId) {
-		if (this.props.currentSong.invalidatedSong) {
-			// only reload video if its new
-			const videoId = this.props.getSongById(songId).metadata.youtube_id;
-			this.player.loadVideoById(videoId);
-		}
-		this.player.playVideo();
-	}
 
 	renderSongsList = () => {
 		if (_.isEmpty(this.props.songs)) {
@@ -188,70 +165,62 @@ class PlaylistPage extends React.Component<Props> {
 	};
 
 	render() {
-		// const { playlist } = this.props;
-		// const sort = this.props.sort.sort;
-		// const shuffle = this.props.sort.shuffle;
-		// var hotBtnClasses = cx('filter-btn', 'pointer', { active: sort === TOP });
-		// var newBtnClasses = cx('filter-btn', 'pointer', { active: sort === NEW });
-		// var shuffleBtnClasses = cx('pointer', 'fa', 'fa-random', { active: shuffle });
+		const { playlist } = this.props;
+		const sort = this.props.sort.sort;
+		const shuffle = this.props.sort.shuffle;
+		var hotBtnClasses = cx('filter-btn', 'pointer', { active: sort === TOP });
+		var newBtnClasses = cx('filter-btn', 'pointer', { active: sort === NEW });
+		var shuffleBtnClasses = cx('pointer', 'fa', 'fa-random', { active: shuffle });
 
-		// if (this.props.currentSong && this.props.currentSong.playing) {
-		// 	this.playVideo(this.props.currentSong.songId);
-		// } else if (this.props.currentSong && !this.props.currentSong.playing) {
-		// 	this.player.pauseVideo();
-		// }
+		const ret = (
+			<div className="row">
+				<div className="row">
+					<Header
+						onLogin={(login: any) => this.props.dispatch(loginUser(login))}
+						onRegister={this.handleRegister}
+					/>
+				</div>
 
-		// const ret = (
-		// 	<div className="row">
-		// 		<div className="row">
-		// 			<Header
-		// 				onLogin={(login: any) => this.props.dispatch(loginUser(login))}
-		// 				onRegister={this.handleRegister}
-		// 			/>
-		// 		</div>
+				{this.props.showFTUEHero && <FTUEHero />}
 
-		// 		{this.props.showFTUEHero && <FTUEHero />}
-
-		// 		<div className={this.props.showFTUEHero ? 'hidden' : 'row'}>
-		// 			<Youtube
-		// 				url={YOUTUBE_PREFIX}
-		// 				id={'video'}
-		// 				opts={opts}
-		// 				onEnd={this.handleOnEnd}
-		// 				onReady={this.handleOnReady}
-		// 				onPause={this.handleOnPause}
-		// 				onPlay={this.handleOnPlay}
-		// 			/>
-		// 		</div>
-		// 		<div className={'row'} id={'gradient_bar'}>
-		// 			<div className="col-xs-offset-4 cols-xs-1">
-		// 				<i
-		// 					className={shuffleBtnClasses}
-		// 					onClick={() => this.props.dispatch(shuffleSongs(playlist.id))}
-		// 				/>
-		// 			</div>
-		// 			<div className="btn-group col-xs-3" role="group">
-		// 				<div className={hotBtnClasses} onClick={() => this.props.dispatch(setSort(TOP))}>
-		// 					Hot
-		// 				</div>
-		// 				<div className={newBtnClasses} onClick={() => this.props.dispatch(setSort(NEW))}>
-		// 					New
-		// 				</div>
-		// 			</div>
-		// 			<div className="col-xs-4 col-xs-offset-1">
-		// 				<SearchBar handleSelection={_.throttle(this.handleSearchSelection, 100)} />
-		// 			</div>
-		// 		</div>
-		// 		<div className="row">
-		// 			<ul className="list-group">
-		// 				{this.renderSongsList()}
-		// 			</ul>
-		// 		</div>
-		// 	</div>
-		// );
-		// console.error(ret);
-		// return ret;
-		return <h1> hh</h1>;
+				<div className={this.props.showFTUEHero ? 'hidden' : 'row'}>
+					<Player
+						playing
+						url={`${YOUTUBE_PREFIX}${this.props.currentSong &&
+							this.props.getSongById(this.props.currentSong.songId).metadata.youtube_id}`}
+						youtubeConfig={opts}
+						onEnded={this.handleOnEnd}
+						onPause={this.handleOnPause}
+						onPlay={this.handleOnPlay}
+					/>
+				</div>
+				<div className={'row'} id={'gradient_bar'}>
+					<div className="col-xs-offset-4 cols-xs-1">
+						<i
+							className={shuffleBtnClasses}
+							onClick={() => this.props.dispatch(shuffleSongs(playlist.id))}
+						/>
+					</div>
+					<div className="btn-group col-xs-3" role="group">
+						<div className={hotBtnClasses} onClick={() => this.props.dispatch(setSort(TOP))}>
+							Hot
+						</div>
+						<div className={newBtnClasses} onClick={() => this.props.dispatch(setSort(NEW))}>
+							New
+						</div>
+					</div>
+					<div className="col-xs-4 col-xs-offset-1">
+						<SearchBar handleSelection={this.throttledSearchSelection} />
+					</div>
+				</div>
+				<div className="row">
+					<ul className="list-group">
+						{this.renderSongsList()}
+					</ul>
+				</div>
+			</div>
+		);
+		return ret;
 	}
 }
 

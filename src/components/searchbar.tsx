@@ -2,26 +2,25 @@ import * as React from 'react';
 import * as Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import * as cx from 'classnames';
+import * as _ from 'lodash';
 
-import { mapSpotifyItemToBop } from '../sdk';
+import { mapLastFmItemToBop } from '../sdk';
 
 const spotifyEndpoint = 'https://api.spotify.com/v1/search?type=track&limit=5';
+const lastFMEndpoint = `http://ws.audioscrobbler.com/2.0/?method=track.search&format=json&api_key=39e1ebe26072b1ee0c6b4b9c1ca22889&track=`;
 
-const mapResponseToOptions = (resp: any): Option[] => {
-	const tracks = resp.tracks.items.map(mapSpotifyItemToBop);
-	return tracks.map(track => ({ value: track, label: track.title }));
+const mapSongsToOptions = (songs: any): Option[] => {
+	return songs.map(track => ({ value: track, label: track.title }));
 };
 
-const loadOptions = async input => {
-	return fetch(`${spotifyEndpoint}&q=${input}`)
-		.then(response => {
-			return response.json();
-		})
-		.then(async json => {
-			const ret = { options: mapResponseToOptions(json) };
-			return ret;
-		});
+const getOptions = (input, cb) => {
+	window.sdk.searchForSong(input).then(async songs => {
+		const ret = { options: mapSongsToOptions(songs), cache: false };
+		console.error('found these fuckers', ret);
+		cb(undefined, ret);
+	});
 };
+const debouncedGetOptions = _.debounce(getOptions, 300);
 
 type Option = {
 	value: { thumbnail_url: string; artist: string; title: string };
@@ -74,9 +73,7 @@ export default class SearchBar extends React.Component<SearchBarProps> {
 	render() {
 		return (
 			<Select.Async
-				loadOptions={loadOptions}
-				name="form-field-name"
-				value="one"
+				loadOptions={debouncedGetOptions}
 				autoload={false}
 				optionComponent={TrackValue}
 				onValueClick={(option: any) => {
@@ -90,4 +87,3 @@ export default class SearchBar extends React.Component<SearchBarProps> {
 		);
 	}
 }
-// filterOption={() => true}

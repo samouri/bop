@@ -1,5 +1,5 @@
 import config from './config';
-import { isEmpty } from 'lodash';
+import * as _ from 'lodash';
 import * as fetch from 'isomorphic-fetch';
 import * as moment from 'moment';
 window.moment = moment;
@@ -25,12 +25,25 @@ export const mapSpotifyItemToBop = (song: any) => ({
 	popularity: song.popularity,
 });
 
-export const mapLastFmItemToBop = (song: any) => ({
-	artist: song.artist,
-	title: song.name,
-	album: song.album.name,
-	thumbnail_url: song.image[3]['#text'],
-});
+export const mapLastFmItemToBop = (song: any) => {
+	return _.pickBy({
+		artist: song.artist,
+		title: song.name,
+		album: '',
+		thumbnail_url: song.image[3]['#text'],
+		mbid: song.mbid, // musicbrainz id
+	});
+};
+
+export const mapMusicBrainzItemtoBop = (song: any) => {
+	return _.pickBy({
+		title: song.title,
+		album: song.releases[0].title,
+		artist: song['artist-credit'][0].artist.name,
+		mbid: song.id, // musicbrainz id
+		score: song.score,
+	});
+};
 
 export default class BopSdk {
 	getSongsInPlaylist = async ({ playlistId, offset = 0, limit = 200 }) => {
@@ -87,7 +100,7 @@ export default class BopSdk {
 		const resp = await getPlaylists(fetch, config.swaggerHost);
 		const matches = await resp.json();
 
-		if (isEmpty(matches)) {
+		if (_.isEmpty(matches)) {
 			throw new Error('No Playlist Matching Name: ' + playlistName);
 		}
 
@@ -101,28 +114,27 @@ export default class BopSdk {
 			metadataId: metaId,
 		};
 
+		// this API IS BULLSHIT
 		const resp = await api.SongsApiFp.songsPost({
-			body: song,
+			body: _.mapKeys(song as any, (v, k: any) => _.snakeCase(k)) as api.Songs,
 		})(fetch, config.swaggerHost);
 
 		return resp.json();
 	};
 
-	getSongMetadata = async ({ youtubeId }): Promise<api.Metadata> => {
+	getSongMetadata = async ({ youtubeId, title, artist }): Promise<api.Metadata> => {
 		const metadataParams: any = {};
-		// spotifyId && (metadataParams.spotify_id = `eq.${encodeURIComponent(spotifyId)}`);
-		youtubeId && (metadataParams.youtube_id = `eq.${encodeURIComponent(youtubeId)}`);
-		const getMetadata = api.MetadataApiFp.metadataGet({
-			youtubeId,
-		});
+
+		youtubeId && (metadataParams.youtube_id = `eq.${youtubeId}`);
+		title && (metadataParams.title = `eq.${title}`);
+		artist && (metadataParams.artist = `eq.${artist}`);
+
+		const getMetadata = api.MetadataApiFp.metadataGet(metadataParams);
 		const resp = await getMetadata(fetch, config.swaggerHost);
-		return resp.json();
+		return _.first(await resp.json()) as api.Metadata;
 	};
-	addSongMetadata = async ({ lastFmMeta, youtubeMeta }): Promise<api.Metadata> => {
-		const metadata: api.Metadata = {
-			...lastFmMeta,
-			...youtubeMeta,
-		};
+
+	addSongMetadata = async ({ metadata }): Promise<api.Metadata> => {
 		const addMeta = api.MetadataApiFp.metadataPost({
 			body: metadata,
 			prefer: 'return=representation',
@@ -138,7 +150,7 @@ export default class BopSdk {
 		const resp = await getU(fetch, config.swaggerHost);
 		const matches = await resp.json();
 
-		if (isEmpty(matches)) {
+		if (_.isEmpty(matches)) {
 			throw new Error('No User Matching Description');
 		}
 		return matches[0];
@@ -199,16 +211,51 @@ export default class BopSdk {
 		return { youtube_duration };
 	};
 
-	searchForSong = async query => {
+	searchForSongLastFm = async query => {
 		const encodedQuery = encodeURIComponent(query);
 		const endpoint = `http://ws.audioscrobbler.com/2.0/?method=track.search&track=${encodedQuery}&format=json&api_key=39e1ebe26072b1ee0c6b4b9c1ca22889`;
 		try {
 			const res: any = await fetch(endpoint);
-			return res.results.trackmatches.track.map(mapLastFmItemToBop);
+			const json = await res.json();
+			return _.map(json.results.trackmatches.track, mapLastFmItemToBop);
 		} catch (err) {
-			console.error('fuck, search didnt work', err);
+			console.error('fuck, lastfm search didnt work', err);
 			return [];
 		}
+	};
+	searchForSongMusicBrainz = async query => {
+		const encodedQuery = encodeURIComponent(query);
+		const endpoint = `http://musicbrainz.org/ws/2/recording/?fmt=json&dismax=true&query=${encodedQuery}`;
+		try {
+			const res: any = await fetch(endpoint);
+			const json = await res.json();
+			return _.map(json.recordings, mapMusicBrainzItemtoBop);
+		} catch (err) {
+			console.error('fuck, mb search didnt work', err);
+			return [];
+		}
+	};
+	// searchForSongMergedExperiment = async query => {
+	// 	const [mbData, lastFmData] = await Promise.all([
+	// 		this.searchForSongMusicBrainz(query),
+	// 		this.searchForSongLastFm(query),
+	// 	]);
+	// 	console.error('mbdata: ', mbData, 'lastFmData', lastFmData);
+	// 	const keyedMbData = _.mapKeys(
+	// 		mbData,
+	// 		(s: any) => s.artist.toUpperCase() + s.title.toUpperCase()
+	// 	);
+	// 	const keyedlastFmData = _.mapKeys(
+	// 		lastFmData,
+	// 		(s: any) => s.artist.toUpperCase() + s.title.toUpperCase()
+	// 	);
+	// 	const merged = _.merge({}, keyedMbData, keyedlastFmData);
+	// 	const sorted = _.sortBy(_.values(merged), 'score');
+	// 	return sorted;
+	// };
+	searchForSong = async query => {
+		const trackSearch = await this.searchForSongLastFm(query);
+		return trackSearch;
 	};
 }
 

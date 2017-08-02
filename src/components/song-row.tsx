@@ -17,7 +17,7 @@ type Song = {
 	id: number;
 	metadata: SongMetadata;
 	date_added: number;
-	votes: number;
+	votes: object[];
 	added_by: number;
 	user: { username: any };
 };
@@ -116,7 +116,7 @@ class SongRow extends React.Component<Props> {
 				<div className="vote-info pull-right col-xs-1">
 					<i className={upChevronClasses} onClick={this.handleUpvote} />
 					<span className="vote-count">
-						{votes + this.state.voteModifier}
+						{votes.length + this.state.voteModifier}
 					</span>
 				</div>
 			</div>

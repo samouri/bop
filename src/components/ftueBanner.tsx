@@ -9,14 +9,14 @@ const mapStateToProps = (state: any) => ({
 	firstSong: getSortedSongs(state)[0],
 });
 
-const FTUEHero = ({ playSong, firstSong }: { playSong: any; firstSong: object }) =>
+const FTUEHero = ({ playSong, firstSong }: { playSong: any; firstSong: any }) =>
 	<div id="ftue-hero" className="row">
 		<div>
 			<span id="ftue-hero-text">
 				Discover and share music <br /> with people around you.
 			</span>
 		</div>
-		<div id="ftue-play-button" onClick={() => playSong(firstSong)}>
+		<div id="ftue-play-button" onClick={() => playSong(firstSong.id)}>
 			<span id="ftue-play-button-text">Play</span>
 		</div>
 	</div>;
