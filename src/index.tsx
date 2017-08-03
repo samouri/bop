@@ -16,7 +16,7 @@ const Root = ({ store }: { store: any }) =>
 	<Provider store={store}>
 		<Router>
 			<div>
-				<Route path="/" component={PlaylistPage} />
+				<Route exact path="/" component={PlaylistPage} />
 				<Route path="/p/:playlistName" component={PlaylistPage} />
 			</div>
 		</Router>

@@ -19,7 +19,9 @@ type Song = {
 	date_added: number;
 	votes: object[];
 	user_added: number;
-	user: { username: any };
+	user: { username: string };
+	playlist_id: number;
+	playlists: { name: string };
 };
 type Props = {
 	song: Song;
@@ -78,10 +80,11 @@ class SongRow extends React.Component<Props> {
 				(this.props.isUpvoted && this.state.voteModifier !== -1) || this.state.voteModifier === 1,
 		});
 
-		let handlePausePlay = this.props.isPlaying
+		const handlePausePlay = this.props.isPlaying
 			? () => this.props.dispatch(pauseSong(songId))
 			: () => this.props.dispatch(playSong(songId));
 
+		const playlistName = this.props.song.playlists.name;
 		return (
 			<div className="song-div row-eq-height">
 				<div className={'col-xs-1'}>
@@ -104,7 +107,8 @@ class SongRow extends React.Component<Props> {
 						{artist}
 					</span>
 					<span className="posted-info">
-						posted {this.getAge()} by {this.props.song.user.username}
+						posted {this.getAge()} by {this.props.song.user.username} to{' '}
+						<a href={`/p/${playlistName}`}>{playlistName} </a>
 					</span>
 				</div>
 				<div className="play-info pull-right col-xs-1">

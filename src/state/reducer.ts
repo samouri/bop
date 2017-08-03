@@ -214,6 +214,8 @@ function getSongsInPlaylist(state: any, playlist: any) {
 	return songs;
 }
 
+export const getPlaylistById = (state: any, playlistId) => _.get(state.playlists, playlistId);
+
 export function getSongById(state: any, id: any) {
 	return state.songsById[id];
 }

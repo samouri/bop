@@ -59,7 +59,7 @@ export default class BopSdk {
 			playlistId: `eq.${playlistId}`,
 			offset: offset.toString(),
 			limit: limit.toString(),
-			select: '*,metadata{*},votes{*},user{id,username}',
+			select: '*,metadata{*},votes{*},user{id,username},playlists{id,name}',
 		});
 		const resp = await getSongs(fetch, config.swaggerHost);
 		return resp.json();
@@ -70,7 +70,7 @@ export default class BopSdk {
 		const getSongs = api.SongsApiFp.songsGet({
 			offset: offset.toString(),
 			limit: limit.toString(),
-			select: '*,metadata{*},votes{*},user{id,username}',
+			select: '*,metadata{*},votes{*},user{id,username},playlists{id,name}',
 		});
 		const resp = await getSongs(fetch, config.swaggerHost);
 		return resp.json();
