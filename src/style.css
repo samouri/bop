@@ -1,237 +1,240 @@
 #root {
 	max-width: 768px;
 	min-width: 768px;
-  margin: 0 auto;
+	margin: 0 auto;
 }
 
 #header {
-    height: 75px;
+	height: 75px;
 }
 #gear {
-    margin-top: 8px;
+	margin-top: 8px;
 }
 #about {
-    font-family: 'Roboto', sans-serif;
-    font-size: 26px;
-    font-weight: 100;
-    padding-right: 15px;
+	font-family: 'Roboto', sans-serif;
+	font-size: 26px;
+	font-weight: 100;
+	padding-right: 15px;
 }
 #header * {
-    display: block;
+	display: block;
 }
 #seattle_header {
-    font-family: 'Roboto', sans-serif;
-    font-size: 26px;
-    line-height: 36px;
-    margin-left: 10px;
+	font-family: 'Roboto', sans-serif;
+	font-size: 26px;
+	line-height: 36px;
+	margin-left: 10px;
 }
-#bop_header {
-    font-family: 'Roboto', sans-serif;
-    font-size: 55px;
-    font-weight: 300;
-    color: #A223BC;
-    margin: 0;
+#bop_header,
+#bop_header a {
+	font-family: 'Roboto', sans-serif;
+	font-size: 55px;
+	font-weight: 300;
+	color: #a223bc;
+	margin: 0;
+	text-decoration: none;
 }
 
 #gradient_bar {
-    background-image: -webkit-linear-gradient(90deg, #4E4E4E 0%, #000000 100%);
-    background-image: linear-gradient(0deg, #4E4E4E 0%, #000000 100%);
-    height: 68px;
-    margin-top: -6px;
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-align: center;
-    -webkit-align-items: center;
-        -ms-flex-align: center;
-            align-items: center;
+	background-image: -webkit-linear-gradient(90deg, #4e4e4e 0%, #000000 100%);
+	background-image: linear-gradient(0deg, #4e4e4e 0%, #000000 100%);
+	height: 68px;
+	margin-top: -6px;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-align: center;
+	-webkit-align-items: center;
+	-ms-flex-align: center;
+	align-items: center;
 }
 
 #gradient_bar i {
-  color: #FFFFFF;
+	color: #ffffff;
 }
 
 body {
-  margin: 0 auto;
-  padding-bottom: 100px;
+	margin: 0 auto;
+	padding-bottom: 100px;
 }
 
 #video {
-  width: 100%;
+	width: 100%;
 }
 
 .selected-purple {
-  color: purple;
+	color: purple;
 }
 
 #post_song {
-  color: #FFFFFF;
-  font-family: 'Roboto', sans-serif;
-  font-size: 20px;
-  font-weight: 100;
+	color: #ffffff;
+	font-family: 'Roboto', sans-serif;
+	font-size: 20px;
+	font-weight: 100;
 }
 
 .time-since {
-  font-size: 18px;
-  color: #A223BC;
-  line-height: 25px;
+	font-size: 18px;
+	color: #a223bc;
+	line-height: 25px;
 }
 
 .song-title {
-  font-family: 'Roboto', sans-serif;
-  font-weight: 300;
-  font-size: 30px;
-  color: #000000;
-  line-height: 41px;
-  max-height: 70px;
-  overflow: hidden;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	font-size: 30px;
+	color: #000000;
+	line-height: 41px;
+	max-height: 70px;
+	overflow: hidden;
 }
 
 .song-artist {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 100;
-    font-size: 20px;
-    color: #030303;
-    line-height: 27px;
-    margin: 0;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 100;
+	font-size: 20px;
+	color: #030303;
+	line-height: 27px;
+	margin: 0;
 }
 
 .vote-count {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 300;
-    font-size: 24px;
-    color: #464444;
-    line-height: 33px;
-    text-align: center;
-    padding-bottom: 35px;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+	font-size: 24px;
+	color: #464444;
+	line-height: 33px;
+	text-align: center;
+	padding-bottom: 35px;
 }
 
 .duration {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 100;
-    font-size: 18px;
-    color: #000000;
-    line-height: 25px;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 100;
+	font-size: 18px;
+	color: #000000;
+	line-height: 25px;
 }
 
 .song-div {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display:         flex;
-  height: 100px;
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	height: 100px;
 }
 
 .up-chevron-selected {
-  color: #F6AE0C;
+	color: #f6ae0c;
 }
 
 .song-div img {
-    height: 80px;
-    width: 80px;
+	height: 80px;
+	width: 80px;
 }
 
 #img-div {
-    -webkit-align-self: center;
-        -ms-flex-item-align: center;
-            align-self: center;
+	-webkit-align-self: center;
+	-ms-flex-item-align: center;
+	align-self: center;
 }
 
 .song-div i {
-    display: block;
-    text-align: center;
+	display: block;
+	text-align: center;
 }
 
-.song-info, .play-info, .vote-info {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-        -ms-flex-direction: column;
-            flex-direction: column;
-    -webkit-box-pack: center;
-    -webkit-justify-content: center;
-        -ms-flex-pack: center;
-            justify-content: center;
+.song-info,
+.play-info,
+.vote-info {
+	display: -webkit-box;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	-webkit-box-pack: center;
+	-webkit-justify-content: center;
+	-ms-flex-pack: center;
+	justify-content: center;
 }
 .song-info {
-    padding-top: 12px;
+	padding-top: 12px;
 }
 
 .age {
-    font-family: Roboto;
-    font-weight: 300;
-    font-size: 18px;
-    color: #A223BC;
-    line-height: 25px;
+	font-family: Roboto;
+	font-weight: 300;
+	font-size: 18px;
+	color: #a223bc;
+	line-height: 25px;
 }
 
 .duration {
-    font-family: Roboto;
-    font-weight: 100;
-    font-size: 18px;
-    line-height: 25px;
+	font-family: Roboto;
+	font-weight: 100;
+	font-size: 18px;
+	line-height: 25px;
 }
 
 .filter-btn {
-  font-family: Roboto;
-  font-weight: 300;
-  font-size: 20px;
-  border: 2px solid purple;
-  color: white;
-  float: left;
-  width: 84px;
-  height: 35px;
-  text-align: center;
+	font-family: Roboto;
+	font-weight: 300;
+	font-size: 20px;
+	border: 2px solid purple;
+	color: white;
+	float: left;
+	width: 84px;
+	height: 35px;
+	text-align: center;
 }
 
 .filter-btn.active {
-  background-color: purple;
+	background-color: purple;
 }
 #gradient_bar i.fa-random.active {
 	color: purple;
 }
 
-
 .pointer {
-  cursor: pointer;
+	cursor: pointer;
 }
 #ftue-hero {
-  background-image: url("./images/listening.png");
-  height: 365px;
-  background-position-y: -90px;
+	background-image: url("./images/listening.png");
+	height: 365px;
+	background-position-y: -90px;
 }
 #ftue-hero-text {
-  font-family: Roboto;
-  font-weight: 100;
-  display: block;
-  font-size: 50px;
-  color: #000000;
-  line-height: 68px;
-  padding-top: 20px;
-  margin-left: 20px;
+	font-family: Roboto;
+	font-weight: 100;
+	display: block;
+	font-size: 50px;
+	color: #000000;
+	line-height: 68px;
+	padding-top: 20px;
+	margin-left: 20px;
 }
 #ftue-play-button {
-  background: #464444;
-  border: 1px solid #979797;
-  border-radius: 8px;
-  width: 256px;
-  height: 78px;
-  margin-left: 85px;
-  margin-top: 20px;
+	background: #464444;
+	border: 1px solid #979797;
+	border-radius: 8px;
+	width: 256px;
+	height: 78px;
+	margin-left: 85px;
+	margin-top: 20px;
 }
 #ftue-play-button-text {
-  font-family: Roboto;
-  font-weight: 100;
-  font-size: 50px;
-  color: #FFFFFF;
-  line-height: 68px;
-  display: block;
-  text-align: center;
+	font-family: Roboto;
+	font-weight: 100;
+	font-size: 50px;
+	color: #ffffff;
+	line-height: 68px;
+	display: block;
+	text-align: center;
 }
 /*
  * Thank you: http://getbootstrap.com.vn/examples/equal-height-columns/
@@ -239,32 +242,33 @@ body {
  * --------------------------------------------------
  */
 .container {
-  padding-right: 15px;
-  padding-left: 15px;
+	padding-right: 15px;
+	padding-left: 15px;
 }
 
 /*
  * http://stackoverflow.com/questions/20198247/twitters-typeahead-js-suggestions-are-not-styled-have-no-border-transparent-b
 */
 
-.tt-input, /* UPDATE: newer versions use tt-input instead of tt-query */
+.tt-input,
+/* UPDATE: newer versions use tt-input instead of tt-query */
 .tt-hint {
-    height: 30px;
-    padding: 8px 12px;
-    font-family: Roboto;
-    font-weight: 100;
-    font-size: 17px;
-    line-height: 30px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    outline: none;
+	height: 30px;
+	padding: 8px 12px;
+	font-family: Roboto;
+	font-weight: 100;
+	font-size: 17px;
+	line-height: 30px;
+	border: 2px solid #ccc;
+	border-radius: 8px;
+	outline: none;
 }
 
 .search-result-thumbnail-wrapper img {
-    max-height: 45px;
-    padding-right: 10px;
+	max-height: 45px;
+	padding-right: 10px;
 }
 
 .search-result-thumbnail-wrapper.is-focused {
-    background-color: rgba(100,100,200,0.5);
+	background-color: rgba(100, 100, 200, 0.5);
 }

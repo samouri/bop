@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { logout } from '../state/actions';
 import { getUsername, getCurrentPlaylistName } from '../state/reducer';
+import { Link } from 'react-router-dom';
 
 type PassedProps = {
 	onLogin: any;
@@ -74,8 +75,8 @@ class Header extends React.Component<Props> {
 		return (
 			<div id="header" className="row">
 				<div className="col-xs-4">
-					{' '}<h1 id="bop_header" className="pull-left">
-						{' '}Bop{' '}
+					<h1 id="bop_header" className="pull-left">
+						<Link to="/"> Bop </Link>
 					</h1>
 					<h2 id="seattle_header" className="pull-left">
 						{' '}{this.props.playlist.substring(0, 10)}{' '}

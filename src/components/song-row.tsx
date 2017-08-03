@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import { connect } from 'react-redux';
 import { getCurrentSong, getSongById, getUser } from '../state/reducer';
+import { Link } from 'react-router-dom';
 
 import { playSong, pauseSong, deleteSong } from '../state/actions';
 
@@ -108,7 +109,7 @@ class SongRow extends React.Component<Props> {
 					</span>
 					<span className="posted-info">
 						posted {this.getAge()} by {this.props.song.user.username} to{' '}
-						<a href={`/p/${playlistName}`}>{playlistName} </a>
+						<Link to={`/p/${playlistName}`}>{playlistName} </Link>
 					</span>
 				</div>
 				<div className="play-info pull-right col-xs-1">

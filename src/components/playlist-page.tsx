@@ -88,8 +88,14 @@ class PlaylistPage extends React.Component<Props> {
 		200
 	);
 	componentWillReceiveProps(nextProps) {
+		const { match: { params }, dispatch } = nextProps;
 		if (_.isEmpty(nextProps.songs) && nextProps.playlist) {
 			this.fetchSongs(nextProps);
+		}
+		if (params.playlistName) {
+			dispatch(setPlaylistName(params.playlistName));
+		} else if (_.isEmpty(params)) {
+			dispatch(setPlaylistName('All'));
 		}
 	}
 
