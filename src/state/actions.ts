@@ -192,7 +192,7 @@ export const deleteSong = song => async dispatch => {
 
 	dispatch({
 		type: DELETE_SONG,
-		song,
+		songId: song.id,
 		payload: { playlist: { id: song.playlist_id } },
 	});
 };

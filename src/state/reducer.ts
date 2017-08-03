@@ -84,15 +84,9 @@ function songs(state = songsInitialState, action: any) {
 				songs: _.uniq([..._.map(action.songs, 'id'), ...state.songs]),
 			};
 		case DELETE_SONG:
-			console.error(
-				action.song.id,
-				state.songs,
-				_.without(state.songs, action.song.id),
-				_.filter(state.songs, id => id !== action.song.id)
-			);
 			return {
 				...state,
-				songs: _.without(state.songs, action.song.id),
+				songs: _.without(state.songs, action.songId),
 			};
 		case SHUFFLE_SONGS:
 			return {

@@ -16,6 +16,9 @@ declare global {
 	}
 }
 
+const apiBullshitTransform = (obj: any): any =>
+	_.mapKeys(obj as any, (v, k: any) => _.snakeCase(k));
+
 export const mapSpotifyItemToBop = (song: any) => ({
 	artist: song.artists[0].name,
 	title: song.name,
@@ -114,12 +117,11 @@ export default class BopSdk {
 			metadataId: metaId,
 		};
 
-		// this API IS BULLSHIT
 		const resp = await api.SongsApiFp.songsPost({
-			body: _.mapKeys(song as any, (v, k: any) => _.snakeCase(k)) as api.Songs,
+			body: apiBullshitTransform(song),
 		})(fetch, config.swaggerHost);
 
-		return resp.json();
+		return resp.ok;
 	};
 
 	getSongMetadata = async ({ youtubeId, title, artist }): Promise<api.Metadata> => {
@@ -168,24 +170,32 @@ export default class BopSdk {
 
 	vote = async ({ userId, songId }) => {
 		const resp = await api.VotesApiFp.votesPost({
-			body: { songId, userAdded: userId },
+			body: apiBullshitTransform({ songId, userAdded: userId }),
 		})(fetch, config.swaggerHost);
 		return resp.json();
 	};
 
 	unvote = async ({ userId, songId }) => {
 		const resp = await api.VotesApiFp.votesDelete({
-			userAdded: userId,
-			songId,
+			userAdded: `eq.${userId}`,
+			songId: `eq.${songId}`,
 		})(fetch, config.swaggerHost);
-		return resp.json();
+		return await resp.json();
 	};
 
 	deleteSong = async songId => {
-		const resp = await api.SongsApiFp.songsDelete({
-			id: songId,
-		})(fetch, config.swaggerHost);
-		return resp.json();
+		// fk constraint on votes
+		const deleteVotes = await api.VotesApiFp.votesDelete({ songId: `eq.${songId}` })(
+			fetch,
+			config.swaggerHost
+		);
+		const deleteSuccess = await deleteVotes;
+		if (deleteSuccess.ok) {
+			const resp = await api.SongsApiFp.songsDelete({
+				id: `eq.${songId}`,
+			})(fetch, config.swaggerHost);
+			return await resp;
+		}
 	};
 
 	searchYoutube = async ({ title, artist }) => {

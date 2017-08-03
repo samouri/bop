@@ -18,7 +18,7 @@ type Song = {
 	metadata: SongMetadata;
 	date_added: number;
 	votes: object[];
-	added_by: number;
+	user_added: number;
 	user: { username: any };
 };
 type Props = {
@@ -61,7 +61,7 @@ class SongRow extends React.Component<Props> {
 	};
 
 	handleDelete = () => {
-		this.props.dispatch(deleteSong(this.props.song.id));
+		this.props.dispatch(deleteSong(this.props.song));
 	};
 
 	render() {
@@ -85,7 +85,7 @@ class SongRow extends React.Component<Props> {
 		return (
 			<div className="song-div row-eq-height">
 				<div className={'col-xs-1'}>
-					{(!this.props.song.added_by || this.props.song.added_by === this.props.user.username) &&
+					{(!this.props.song.user_added || this.props.song.user_added === this.props.user.id) &&
 						<div
 							onClick={this.handleDelete}
 							style={{ cursor: 'pointer', paddingTop: '35px', color: 'red' }}
