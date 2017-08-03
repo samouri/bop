@@ -16,7 +16,7 @@ const FTUEHero = ({ playSong, firstSong }: { playSong: any; firstSong: any }) =>
 				Discover and share music <br /> with people around you.
 			</span>
 		</div>
-		<div id="ftue-play-button" onClick={() => playSong(firstSong.id)}>
+		<div id="ftue-play-button" onClick={() => playSong({ songId: firstSong.id })}>
 			<span id="ftue-play-button-text">Play</span>
 		</div>
 	</div>;

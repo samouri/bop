@@ -149,8 +149,8 @@ class BopSdk {
 			body: metadata,
 			prefer: 'return=representation',
 		});
-		const resp = await addMeta(fetch, config.swaggerHost);
-		return resp.json();
+		const resp = await (await addMeta(fetch, config.swaggerHost)).json();
+		return _.first(resp) as api.Metadata;
 	};
 
 	getUser = async (optionalUsername, optionalPassword): Promise<api.Users> => {
@@ -177,21 +177,28 @@ class BopSdk {
 	};
 
 	vote = async ({ userId, songId }) => {
-		const resp = await api.VotesApiFp.votesPost({
+		const voteReq = await api.VotesApiFp.votesPost({
 			body: apiBullshitTransform({ songId, userAdded: userId }),
 		})(fetch, config.swaggerHost);
-		return resp.json();
+
+		const voteResp = await voteReq.json();
+
+		return { userId, songId, voteResp };
 	};
 
 	unvote = async ({ userId, songId }) => {
-		const resp = await api.VotesApiFp.votesDelete({
+		const unvoteReq = await api.VotesApiFp.votesDelete({
 			userAdded: `eq.${userId}`,
 			songId: `eq.${songId}`,
 		})(fetch, config.swaggerHost);
-		return await resp.json();
+
+		const unvoteResp = await unvoteReq.json();
+
+		return { userId, songId, unvoteResp };
 	};
 
-	deleteSong = async songId => {
+	deleteSong = async song => {
+		const songId = song.id;
 		// fk constraint on votes
 		const deleteVotes = await api.VotesApiFp.votesDelete({ songId: `eq.${songId}` })(
 			fetch,
@@ -199,11 +206,12 @@ class BopSdk {
 		);
 		const deleteSuccess = await deleteVotes;
 		if (deleteSuccess.ok) {
-			const resp = await api.SongsApiFp.songsDelete({
-				id: `eq.${songId}`,
+			const deleteReq = await api.SongsApiFp.songsDelete({
+				id: `eq.${song.id}`,
 			})(fetch, config.swaggerHost);
-			return await resp;
+			const deleteResp = await deleteReq;
 		}
+		return { song };
 	};
 
 	searchYoutube = async ({ title, artist }) => {

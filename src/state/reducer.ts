@@ -75,7 +75,7 @@ function songs(state = songsInitialState, action: any) {
 		case DELETE_SONG:
 			return {
 				...state,
-				songs: _.without(state.songs, action.songId),
+				songs: _.without(state.songs, action.payload.song.id),
 			};
 		case SHUFFLE_SONGS:
 			return {
@@ -90,7 +90,8 @@ function songs(state = songsInitialState, action: any) {
 function playlists(state = {}, action: any) {
 	const { payload } = action;
 	const playlist = _.get(payload, 'playlist', {}) as any;
-	const playlistId = payload && (payload.playlistId || playlist.id);
+	const playlistId =
+		payload && (payload.playlistId || playlist.id || (payload.song && payload.song.playlist_id));
 
 	switch (action.type) {
 		case RECEIVE_PLAYLIST:
@@ -101,6 +102,7 @@ function playlists(state = {}, action: any) {
 		case FETCH_SONGS:
 		case SHUFFLE_SONGS:
 		case DELETE_SONG:
+			console.error('to the playlist!', playlistId, action);
 			return {
 				...state,
 				[playlistId]: songs(state[playlistId], action),
@@ -135,8 +137,8 @@ function currentSort(state = { sort: TOP, shuffle: false }, action: any) {
 
 function currentSong(state: any = null, action: any) {
 	if (action.type === PLAY_SONG) {
-		const invalidatedSong = !state || state.songId !== action.songId;
-		return { songId: action.songId, playing: true, invalidatedSong };
+		const invalidatedSong = !state || state.songId !== action.payload.songId;
+		return { songId: action.payload.songId, playing: true, invalidatedSong };
 	} else if (action.type === PAUSE_SONG) {
 		return { ...state, playing: false };
 	}

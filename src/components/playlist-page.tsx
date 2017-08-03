@@ -123,12 +123,11 @@ class PlaylistPage extends React.Component<Props> {
 	}
 
 	handleOnPause = () => {
-		this.props.dispatch(pauseSong(this.props.currentSong.songId));
+		this.props.dispatch(pauseSong({ songId: this.props.currentSong.songId }));
 	};
 
 	handleOnEnd = () => {
-		// play next song
-		this.props.dispatch(playSong(this.props.nextSong));
+		this.props.dispatch(playSong({ songId: this.props.nextSong }));
 	};
 
 	handleSearchSelection = async ({ title, artist, thumbnail_url }) => {
@@ -155,7 +154,7 @@ class PlaylistPage extends React.Component<Props> {
 	throttledSearchSelection = _.throttle(this.handleSearchSelection, 100);
 
 	handleOnPlay = (songId?) => {
-		this.props.dispatch(playSong(this.props.currentSong.songId));
+		this.props.dispatch(playSong({ songId: this.props.currentSong.songId }));
 	};
 
 	handleRegister = login => {
@@ -178,7 +177,8 @@ class PlaylistPage extends React.Component<Props> {
 	};
 
 	render() {
-		const { playlist } = this.props;
+		const { playlist, currentSong } = this.props;
+		console.error('currentSong', currentSong);
 		const sort = this.props.sort.sort;
 		const shuffle = this.props.sort.shuffle;
 		var hotBtnClasses = cx('filter-btn', 'pointer', { active: sort === TOP });
@@ -198,7 +198,7 @@ class PlaylistPage extends React.Component<Props> {
 
 				<div className={this.props.showFTUEHero ? 'hidden' : 'row'}>
 					<Player
-						playing={this.props.currentSong && this.props.currentSong.playing}
+						playing={currentSong && currentSong.playing}
 						url={`${YOUTUBE_PREFIX}${this.props.currentSong &&
 							this.props.getSongById(this.props.currentSong.songId).metadata.youtube_id}`}
 						width={828}
