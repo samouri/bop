@@ -5,12 +5,13 @@ import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import logger from 'redux-logger';
 import thunk from 'redux-thunk';
+import * as promise from 'redux-promise';
 import PlaylistPage from './components/playlist-page';
 import './style.css';
 
 import bopApp from './state/reducer';
 
-let store = createStore(bopApp, applyMiddleware(thunk, logger));
+let store = createStore(bopApp, applyMiddleware(thunk, promise, logger));
 
 const Root = ({ store }: { store: any }) =>
 	<Provider store={store}>

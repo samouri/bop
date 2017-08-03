@@ -1,8 +1,8 @@
-/* action types */
-export const FETCH_SONGS_REQUEST = 'FETCH_SONGS_REQUEST';
-export const FETCH_SONGS_SUCCESS = 'FETCH_SONGS_SUCCESS';
-export const FETCH_SONGS_FAILURE = 'FETCH_SONGS_FAILURE';
+import { createAction } from 'redux-actions';
+import sdk from '../sdk';
 
+/* action types */
+export const FETCH_SONGS = 'FETCH_SONGS';
 export const ADD_SONG_TO_PLAYLIST = 'ADD_SONG_TO_PLAYLIST';
 
 export const LOGIN_USER_REQUEST = 'USER_LOGIN_REQUEST';
@@ -19,143 +19,54 @@ export const RECEIVE_PLAYLIST = 'RECEIVE_PLAYLIST';
 export const SET_PLAYLIST_NAME = 'SET_PLAYLIST_NAME';
 
 /* action creators */
-function requestSongs(playlistId: string) {
-	return {
-		type: FETCH_SONGS_REQUEST,
-		payload: {
-			playlist: { id: playlistId },
-		},
-	};
-}
+export type Action = { type: string };
+export type SongIdPayload = { songId: number };
+export type PlaylistIdPayload = { playlistId: number };
+// type NoPayload = undefined;
+export type UserPayload = { user };
+export type SetPlaylistNamePayload = { playlistName };
+export const setPlaylistName = createAction<SetPlaylistNamePayload>(SET_PLAYLIST_NAME);
 
-export const setPlaylistName = (playlistName: string) => ({
-	type: SET_PLAYLIST_NAME,
-	payload: {
-		name: playlistName,
-	},
-});
+export const requestLogin = createAction<UserPayload>(LOGIN_USER_REQUEST);
+export const logout = createAction(LOGOUT_USER);
 
-export function fetchSongsSuccess(playlistId: string, songs: any) {
-	return {
-		type: FETCH_SONGS_SUCCESS,
-		payload: {
-			playlist: { id: playlistId },
-		},
-		songs,
-	};
-}
+export type LoginUserSuccessPayload = { username; upvotedSongs; id };
+export const loginUserSuccess = createAction<LoginUserSuccessPayload>(LOGIN_USER_SUCCESS);
 
-function fetchSongsFailure(playlistId) {
-	return {
-		type: FETCH_SONGS_FAILURE,
-		playlistId,
-	};
-}
+export const playSong = createAction<SongIdPayload>(PLAY_SONG);
+export const pauseSong = createAction<SongIdPayload>(PAUSE_SONG);
 
-export function requestLogin(user) {
-	return {
-		type: LOGIN_USER_REQUEST,
-		user,
-	};
-}
+export type SetSortPayload = { sort };
+export const setSort = createAction<SetSortPayload>(SET_SORT);
+export const shuffleSongs = createAction<PlaylistIdPayload>(SHUFFLE_SONGS);
+export const loginUserFailure = createAction<UserPayload>(LOGIN_USER_FAILURE);
 
-export function logout() {
-	return {
-		type: LOGOUT_USER,
-	};
-}
-
-export function loginUserSuccess(username, upvotedSongs, id) {
-	return {
-		type: LOGIN_USER_SUCCESS,
-		username,
-		upvotedSongs,
-		id,
-	};
-}
-
-export function playSong(songId) {
-	return {
-		type: PLAY_SONG,
-		songId,
-	};
-}
-
-export function pauseSong(songId) {
-	return {
-		type: PAUSE_SONG,
-		songId,
-	};
-}
-
-export function setSort(sort) {
-	return {
-		type: SET_SORT,
-		sort,
-	};
-}
-
-export function shuffleSongs(playlistId) {
-	return {
-		type: SHUFFLE_SONGS,
-		payload: {
-			playlist: { id: playlistId },
-		},
-	};
-}
-
-export function loginUserFailure(user) {
-	return {
-		type: LOGIN_USER_FAILURE,
-		user,
-	};
-}
-
-export function addSongToPlaylist(song, playlistId) {
-	return {
-		type: ADD_SONG_TO_PLAYLIST,
-		playlistId,
-	};
-}
-
-export const receivePlaylist = playlist => ({
-	type: RECEIVE_PLAYLIST,
-	payload: { playlist },
-});
+export type PlaylistPayload = { playlist };
+export const receivePlaylist = createAction<PlaylistPayload>(RECEIVE_PLAYLIST);
 
 /* Thunk Async Actions */
 
-export const requestPlaylist = (playlistName: any) => async dispatch => {
-	const sdk = window.sdk;
+export const requestPlaylist = ({ playlistName, userId }) => async dispatch => {
 	try {
 		const playlist = await sdk.getPlaylistForName(playlistName);
-		dispatch(receivePlaylist(playlist));
+		dispatch(receivePlaylist({ playlist }));
 	} catch (err) {
 		// TODO this is a hack for now to add the playlist if it doens't exist
-		await sdk.createPlaylist({ playlistName });
+		await sdk.createPlaylist({ playlistName, userId });
 		const playlist = await sdk.getPlaylistForName(playlistName);
-		dispatch(receivePlaylist(playlist));
+		dispatch(receivePlaylist({ playlist }));
 		console.error(err);
 	}
 };
 
-export const fetchSongs = (playlistId: any) => async (dispatch: any) => {
-	const sdk = window.sdk;
-	dispatch(requestSongs(playlistId));
-	try {
-		const songs = await sdk.getSongsInPlaylist({ playlistId, offset: 0, limit: 200 });
-		dispatch(fetchSongsSuccess(playlistId, songs));
-	} catch (err) {
-		dispatch(fetchSongsFailure(err));
-	}
-};
+export const fetchSongs = createAction(FETCH_SONGS, sdk.getSongsInPlaylist);
 
 export const loginUser = (login: any) => async (dispatch: any) => {
 	const sdk = window.sdk;
-	dispatch(requestLogin(login.username));
+	dispatch(requestLogin({ user: login.username }));
 	try {
 		const user = await sdk.getUser(login.username);
-		dispatch(loginUserSuccess(user.username, [], user.id));
+		dispatch(loginUserSuccess({ username: user.username, upvotedSongs: [], id: user.id }));
 		localStorage.setItem('login', JSON.stringify(login));
 	} catch (error) {
 		console.error(error, error.stack);

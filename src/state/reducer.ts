@@ -22,14 +22,13 @@
 
 import * as _ from 'lodash';
 import { combineReducers } from 'redux';
+import { Action } from 'redux-actions';
 
 const TOP = 'top';
 const NEW = 'new';
 
 import {
-	FETCH_SONGS_REQUEST,
-	FETCH_SONGS_SUCCESS,
-	FETCH_SONGS_FAILURE,
+	FETCH_SONGS,
 	LOGIN_USER_REQUEST,
 	LOGIN_USER_SUCCESS,
 	LOGIN_USER_FAILURE,
@@ -42,6 +41,7 @@ import {
 	DELETE_SONG,
 	RECEIVE_PLAYLIST,
 	SET_PLAYLIST_NAME,
+	SetPlaylistNamePayload,
 } from './actions';
 
 const songsInitialState = {
@@ -51,9 +51,9 @@ const songsInitialState = {
 	songs: [],
 };
 
-function songsById(state = {}, action: any) {
-	if (action.type === FETCH_SONGS_SUCCESS) {
-		const fetchedSongs = _.mapKeys(action.songs, 'id');
+function songsById(state = {}, action: Action<any>) {
+	if (action.type === FETCH_SONGS) {
+		const fetchedSongs = _.mapKeys(action.payload.songs, 'id');
 
 		return {
 			...state,
@@ -65,23 +65,12 @@ function songsById(state = {}, action: any) {
 
 function songs(state = songsInitialState, action: any) {
 	switch (action.type) {
-		case FETCH_SONGS_REQUEST:
-			return {
-				...state,
-				isFetching: true,
-			};
-		case FETCH_SONGS_FAILURE:
-			return {
-				...state,
-				isFetching: false,
-				didInvalidate: true,
-			};
-		case FETCH_SONGS_SUCCESS:
+		case FETCH_SONGS:
 			return {
 				...state,
 				isFetching: false,
 				didInvalidate: false,
-				songs: _.uniq([..._.map(action.songs, 'id'), ...state.songs]),
+				songs: _.uniq([..._.map(action.payload.songs, 'id'), ...state.songs]),
 			};
 		case DELETE_SONG:
 			return {
@@ -99,31 +88,31 @@ function songs(state = songsInitialState, action: any) {
 }
 
 function playlists(state = {}, action: any) {
-	const playlist = action.payload && action.payload.playlist;
+	const { payload } = action;
+	const playlist = _.get(payload, 'playlist', {}) as any;
+	const playlistId = payload && (payload.playlistId || playlist.id);
+
 	switch (action.type) {
 		case RECEIVE_PLAYLIST:
 			return {
 				...state,
-				[playlist.id]: Object.assign({}, state[playlist.id], playlist, songs(undefined, action)),
+				[playlistId]: Object.assign({}, state[playlistId], playlist, songs(undefined, action)),
 			};
-		case FETCH_SONGS_REQUEST:
-		case FETCH_SONGS_SUCCESS:
-		case FETCH_SONGS_FAILURE:
+		case FETCH_SONGS:
 		case SHUFFLE_SONGS:
 		case DELETE_SONG:
 			return {
 				...state,
-				[playlist.id]: songs(state[playlist.id], action),
-				[17]: songs(state[17], action),
+				[playlistId]: songs(state[playlistId], action),
 			};
 		default:
 			return state;
 	}
 }
 
-function currentPlaylistName(state = 'All', action: any) {
+function currentPlaylistName(state = 'All', action: Action<SetPlaylistNamePayload>) {
 	if (action.type === SET_PLAYLIST_NAME) {
-		return action.payload.name;
+		return action.payload && action.payload.playlistName;
 	}
 	return state;
 }
@@ -132,7 +121,7 @@ function currentSort(state = { sort: TOP, shuffle: false }, action: any) {
 	if (action.type === SET_SORT) {
 		return {
 			...state,
-			sort: action.sort,
+			sort: action.payload.sort,
 		};
 	} else if (action.type === SHUFFLE_SONGS) {
 		return {
@@ -165,9 +154,9 @@ function user(state: any = {}, action: any) {
 			return {
 				...state,
 				isFetching: false,
-				upvotedSongs: action.upvotedSongs,
-				username: action.username,
-				id: action.id,
+				upvotedSongs: action.payload.upvotedSongs,
+				username: action.payload.username,
+				id: action.payload.id,
 			};
 		case VOTE_SONG:
 			// if already upvoted, then remove.  if not upvoted, then keep

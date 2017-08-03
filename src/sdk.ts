@@ -48,7 +48,7 @@ export const mapMusicBrainzItemtoBop = (song: any) => {
 	});
 };
 
-export default class BopSdk {
+class BopSdk {
 	getSongsInPlaylist = async ({ playlistId, offset = 0, limit = 200 }) => {
 		// hardcoded all playlist
 		if (playlistId === 17) {
@@ -61,19 +61,19 @@ export default class BopSdk {
 			limit: limit.toString(),
 			select: '*,metadata{*},votes{*},user{id,username},playlists{id,name}',
 		});
-		const resp = await getSongs(fetch, config.swaggerHost);
-		return resp.json();
+		const songs = await (await getSongs(fetch, config.swaggerHost)).json();
+		return { songs, playlistId };
 	};
 
 	//todo need better system
-	getSongsInAllPlaylist = async ({ offset, limit }): Promise<api.Songs> => {
+	getSongsInAllPlaylist = async ({ offset, limit }): Promise<any> => {
 		const getSongs = api.SongsApiFp.songsGet({
 			offset: offset.toString(),
 			limit: limit.toString(),
 			select: '*,metadata{*},votes{*},user{id,username},playlists{id,name}',
 		});
-		const resp = await getSongs(fetch, config.swaggerHost);
-		return resp.json();
+		const songs = await (await getSongs(fetch, config.swaggerHost)).json();
+		return { songs, playlistId: 17 };
 	};
 
 	getSongsAddedByUser = async ({ userId, limit = 200, offset = 0 }) => {
@@ -124,7 +124,15 @@ export default class BopSdk {
 		return resp.ok;
 	};
 
-	getSongMetadata = async ({ youtubeId, title, artist }): Promise<api.Metadata> => {
+	getSongMetadata = async ({
+		youtubeId,
+		title,
+		artist,
+	}: {
+		youtubeId?;
+		title?;
+		artist?;
+	}): Promise<api.Metadata> => {
 		const metadataParams: any = {};
 
 		youtubeId && (metadataParams.youtube_id = `eq.${youtubeId}`);
@@ -271,3 +279,6 @@ export default class BopSdk {
 
 window.api = api;
 window.sdk = new BopSdk();
+
+const sdk = new BopSdk();
+export default sdk;

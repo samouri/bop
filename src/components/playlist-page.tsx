@@ -8,8 +8,8 @@ import Header from './header';
 import SearchBar from './searchbar';
 import FTUEHero from './ftueBanner';
 import SongRow from './song-row';
+import sdk from '../sdk';
 
-import BopSdk from '../sdk';
 import {
 	fetchSongs,
 	loginUser,
@@ -32,8 +32,6 @@ import {
 	getUser,
 	getCurrentPlaylist,
 } from '../state/reducer';
-
-let sdk: any;
 
 const YOUTUBE_PREFIX = 'https://www.youtube.com/watch?v=';
 const TOP = 'top';
@@ -74,34 +72,44 @@ class PlaylistPage extends React.Component<Props> {
 		sort: TOP,
 		upvotes: {},
 		userInfo: {},
-		sdk: null,
 	};
 
 	componentWillMount() {
 		const { match: { params }, dispatch } = this.props;
 		if (params.playlistName) {
-			dispatch(setPlaylistName(params.playlistName));
+			dispatch(setPlaylistName({ playlistName: params.playlistName }));
 		}
 	}
 	fetchSongs = _.throttle(
-		(props = this.props) => props.dispatch(fetchSongs(props.playlist.id)),
+		(props = this.props) => props.dispatch(fetchSongs({ playlistId: props.playlist.id })),
 		200
 	);
 	componentWillReceiveProps(nextProps) {
 		const { match: { params }, dispatch } = nextProps;
+
 		if (_.isEmpty(nextProps.songs) && nextProps.playlist) {
 			this.fetchSongs(nextProps);
 		}
 		if (params.playlistName) {
-			dispatch(setPlaylistName(params.playlistName));
+			dispatch(setPlaylistName({ playlistName: params.playlistName }));
 		} else if (_.isEmpty(params)) {
-			dispatch(setPlaylistName('All'));
+			dispatch(setPlaylistName({ playlistName: 'All' }));
+		}
+
+		if (nextProps.currentPlaylistName && !nextProps.playlist) {
+			dispatch(
+				requestPlaylist({
+					playlistName: nextProps.currentPlaylistName,
+					userId: nextProps.user.id,
+				})
+			);
 		}
 	}
 
 	async componentDidMount() {
-		sdk = window.sdk = await new BopSdk();
-		this.props.dispatch(requestPlaylist(this.props.currentPlaylistName));
+		this.props.dispatch(
+			requestPlaylist({ playlistName: this.props.currentPlaylistName, userId: this.props.user.id })
+		);
 
 		try {
 			let login = localStorage.getItem('login');
@@ -129,11 +137,11 @@ class PlaylistPage extends React.Component<Props> {
 		let songMeta = await sdk.getSongMetadata({ title, artist });
 		// if we don't have the meta for it yet, create it
 		if (!songMeta) {
-			const youtubeMeta = await sdk.searchYoutube({ title, artist });
-			const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeMeta.youtube_id);
-			youtubeMeta.youtube_duration = youtubeDuration.youtube_duration;
+			const youtubeSearchMeta = await sdk.searchYoutube({ title, artist });
+			const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeSearchMeta.youtube_id);
+			const youtubeMeta = { ...youtubeSearchMeta, ...youtubeDuration };
 			songMeta = await sdk.addSongMetadata({
-				metadata: { ...songMeta, title, artist, thumbnail_url, ...youtubeDuration, ...youtubeMeta },
+				metadata: { title, artist, thumbnail_url, ...youtubeDuration, ...youtubeMeta },
 			});
 		}
 
@@ -208,10 +216,16 @@ class PlaylistPage extends React.Component<Props> {
 						/>
 					</div>
 					<div className="btn-group col-xs-3" role="group">
-						<div className={hotBtnClasses} onClick={() => this.props.dispatch(setSort(TOP))}>
+						<div
+							className={hotBtnClasses}
+							onClick={() => this.props.dispatch(setSort({ sort: TOP }))}
+						>
 							Hot
 						</div>
-						<div className={newBtnClasses} onClick={() => this.props.dispatch(setSort(NEW))}>
+						<div
+							className={newBtnClasses}
+							onClick={() => this.props.dispatch(setSort({ sort: NEW }))}
+						>
 							New
 						</div>
 					</div>

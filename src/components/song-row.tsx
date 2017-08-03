@@ -68,7 +68,7 @@ class SongRow extends React.Component<Props> {
 	};
 
 	render() {
-		const { title, artist, thumbnail_url } = this.props.song.metadata;
+		const { title, artist, thumbnail_url } = _.get(this.props.song, 'metadata') || ({} as any);
 		const { id: songId, votes } = this.props.song;
 		var playOrPauseClasses = cx('fa', 'fa-3x', 'pointer', {
 			'fa-pause': this.props.isPlaying,
@@ -82,8 +82,8 @@ class SongRow extends React.Component<Props> {
 		});
 
 		const handlePausePlay = this.props.isPlaying
-			? () => this.props.dispatch(pauseSong(songId))
-			: () => this.props.dispatch(playSong(songId));
+			? () => this.props.dispatch(pauseSong({ songId }))
+			: () => this.props.dispatch(playSong({ songId }));
 
 		const playlistName = this.props.song.playlists.name;
 		return (
