@@ -119,7 +119,7 @@ function currentPlaylistName(state = 'All', action: Action<SetPlaylistNamePayloa
 	return state;
 }
 
-function currentSort(state = { sort: TOP, shuffle: false }, action: any) {
+function currentSort(state = { sort: NEW, shuffle: false }, action: any) {
 	if (action.type === SET_SORT) {
 		return {
 			...state,
