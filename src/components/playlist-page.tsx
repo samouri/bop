@@ -174,62 +174,64 @@ class PlaylistPage extends React.Component<Props> {
 
 	render() {
 		const { playlist, currentSong } = this.props;
-		console.error('currentSong', currentSong);
 		const sort = this.props.sort.sort;
 		const shuffle = this.props.sort.shuffle;
-		var hotBtnClasses = cx('filter-btn', 'pointer', { active: sort === TOP });
-		var newBtnClasses = cx('filter-btn', 'pointer', { active: sort === NEW });
+		var hotBtnClasses = cx('pointer', 'playlist-page__title-area-sort ', { active: sort === TOP });
+		var newBtnClasses = cx('pointer', 'playlist-page__title-area-sort', { active: sort === NEW });
 		var shuffleBtnClasses = cx('pointer', 'fa', 'fa-random', { active: shuffle });
 
 		const ret = (
-			<div className="row">
-				<div className="row">
-					<Header
-						onLogin={(login: any) => this.props.dispatch(loginUser(login))}
-						onRegister={this.handleRegister}
-					/>
+			<div>
+				<Header
+					onLogin={(login: any) => this.props.dispatch(loginUser(login))}
+					onRegister={this.handleRegister}
+				/>
+				<div className="playlist-page__titlestats">
+					<div className="playlist-page__title-area">
+						<span className="playlist-page__title">
+							{this.props.currentPlaylistName}
+							{/* <i
+							className={shuffleBtnClasses}
+							onClick={() => this.props.dispatch(shuffleSongs(playlist.id))}
+						/> */}
+						</span>
+						<span
+							className={newBtnClasses}
+							onClick={() => this.props.dispatch(setSort({ sort: NEW }))}
+						>
+							New
+						</span>
+						<span
+							className={hotBtnClasses}
+							onClick={() => this.props.dispatch(setSort({ sort: TOP }))}
+						>
+							Hot
+						</span>
+					</div>
+					{/* <div className="stats-area">Stats Area</div> */}
 				</div>
 
+				<div className="playlist-page__search-bar">
+					<i className="fa fa-search" />
+					<div style={{ display: 'block' }}>
+						<SearchBar handleSelection={this.throttledSearchSelection} />
+					</div>
+				</div>
 				{this.props.showFTUEHero && <FTUEHero />}
 
-				<div className={this.props.showFTUEHero ? 'hidden' : 'row'}>
+				<div className={this.props.showFTUEHero ? 'hidden' : ''}>
 					<Player
 						playing={currentSong && currentSong.playing}
 						url={`${YOUTUBE_PREFIX}${this.props.currentSong &&
 							this.props.getSongById(this.props.currentSong.songId).metadata.youtube_id}`}
-						width={828}
+						width={768}
 						youtubeConfig={opts}
 						onEnded={this.handleOnEnd}
 						onPause={this.handleOnPause}
 						onPlay={this.handleOnPlay}
 					/>
 				</div>
-				<div className={'row'} id={'gradient_bar'}>
-					<div className="col-xs-offset-4 cols-xs-1">
-						<i
-							className={shuffleBtnClasses}
-							onClick={() => this.props.dispatch(shuffleSongs(playlist.id))}
-						/>
-					</div>
-					<div className="btn-group col-xs-3" role="group">
-						<div
-							className={hotBtnClasses}
-							onClick={() => this.props.dispatch(setSort({ sort: TOP }))}
-						>
-							Hot
-						</div>
-						<div
-							className={newBtnClasses}
-							onClick={() => this.props.dispatch(setSort({ sort: NEW }))}
-						>
-							New
-						</div>
-					</div>
-					<div className="col-xs-4 col-xs-offset-1">
-						<SearchBar handleSelection={this.throttledSearchSelection} />
-					</div>
-				</div>
-				<div className="row">
+				<div className="">
 					<div className="header-row">
 						<span className="play-info" />
 						<span className="vote-info">VOTES</span>

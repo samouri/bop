@@ -10,7 +10,7 @@ const mapStateToProps = (state: any) => ({
 });
 
 const FTUEHero = ({ playSong, firstSong }: { playSong: any; firstSong: any }) =>
-	<div id="ftue-hero" className="row">
+	<div id="ftue-hero">
 		<div>
 			<span id="ftue-hero-text">
 				Discover and share music <br /> with people around you.
