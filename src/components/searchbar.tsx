@@ -3,6 +3,7 @@ import * as Select from 'react-select';
 import 'react-select/dist/react-select.css';
 import * as cx from 'classnames';
 import * as _ from 'lodash';
+import sdk from '../sdk';
 
 import { mapLastFmItemToBop } from '../sdk';
 
@@ -14,8 +15,8 @@ const mapSongsToOptions = (songs: any): Option[] => {
 };
 
 const getOptions = (input, cb) => {
-	window.sdk.searchForSong(input).then(async songs => {
-		const ret = { options: mapSongsToOptions(songs), cache: false };
+	sdk.searchForSong(input).then(async songs => {
+		const ret = { options: mapSongsToOptions(songs) }; //cache: false };
 		console.error('found these fuckers', ret);
 		cb(undefined, ret);
 	});

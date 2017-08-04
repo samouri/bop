@@ -5,6 +5,7 @@ import * as moment from 'moment';
 import { connect } from 'react-redux';
 import { getCurrentSong, getSongById, getUser } from '../state/reducer';
 import { Link } from 'react-router-dom';
+import sdk from '../sdk';
 
 import { playSong, pauseSong, deleteSong } from '../state/actions';
 
@@ -52,7 +53,6 @@ class SongRow extends React.Component<Props> {
 
 	handleUpvote = () => {
 		const { isUpvoted } = this.props;
-		const sdk = window.sdk;
 		const vote = isUpvoted ? -1 : 1;
 		const voteModifier = this.state.voteModifier !== 0 ? 0 : vote;
 
