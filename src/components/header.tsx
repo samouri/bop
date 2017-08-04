@@ -88,37 +88,33 @@ class Header extends React.Component<Props> {
 					</h3>
 					{this.state.showLoginForm &&
 						!this.props.username &&
-						<div className="dropdown-menu" style={{ padding: '17px' }}>
-							<form>
-								<input
-									type="text"
-									placeholder="username"
-									value={this.state.username}
-									onChange={this.handleUsernameChange}
-								/>
-								<input
-									type="password"
-									placeholder="password"
-									value={this.state.password}
-									onChange={this.handlePasswordChange}
-								/>
-								<div style={{ display: 'flex' }}>
-									<a onClick={this.handleRegister} className="header__logintext">
-										new account
-									</a>
-									<a onClick={this.handleLogin} className="header__logintext">
-										<span className="glyphicon glyphicon-log-in" /> Log in
-									</a>
-								</div>
-								<input type="submit" style={{ display: 'none' }} onClick={this.handleLogin} />
-							</form>
-						</div>}
+						<form>
+							<input
+								type="text"
+								placeholder="username"
+								value={this.state.username}
+								onChange={this.handleUsernameChange}
+							/>
+							<input
+								type="password"
+								placeholder="password"
+								value={this.state.password}
+								onChange={this.handlePasswordChange}
+							/>
+							<div style={{ display: 'flex' }}>
+								<a onClick={this.handleRegister} className="header__logintext">
+									new account
+								</a>
+								<a onClick={this.handleLogin} className="header__logintext">
+									<span className="glyphicon glyphicon-log-in" /> Log in
+								</a>
+							</div>
+							<input type="submit" style={{ display: 'none' }} onClick={this.handleLogin} />
+						</form>}
 					{this.state.showLogoutForm &&
-						<div className="dropdown-menu" style={{ marginLeft: '120px' }}>
-							<a onClick={this.handleLogout} className="btn btn-info btn-lg">
-								<span className="glyphicon glyphicon-log-out" /> Log out
-							</a>
-						</div>}
+						<a onClick={this.handleLogout} className="btn btn-info btn-lg">
+							<span className="glyphicon glyphicon-log-out" /> Log out
+						</a>}
 				</div>
 			</div>
 		);
