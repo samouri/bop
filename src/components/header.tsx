@@ -1,11 +1,24 @@
-import React from 'react';
-import _ from 'lodash';
+import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { logout } from '../app/actions';
-import { getUsername, getCurrentPlaylistName } from '../app/reducer';
+import { logout } from '../state/actions';
+import { getUsername, getCurrentPlaylistName } from '../state/reducer';
+import { Link } from 'react-router-dom';
 
-class Header extends React.Component {
+type PassedProps = {
+	onLogin: any;
+	onRegister: any;
+};
+type StateProps = {
+	username: any;
+	playlist: any;
+};
+type DispatchProps = {
+	handleLogout: any;
+};
+type Props = PassedProps & StateProps & DispatchProps;
+
+class Header extends React.Component<Props> {
 	state = {
 		showLogoutForm: false,
 		showLoginForm: false,
@@ -62,13 +75,17 @@ class Header extends React.Component {
 		return (
 			<div id="header" className="row">
 				<div className="col-xs-4">
-					{' '}<h1 id="bop_header" className="pull-left"> Bop </h1>
+					<h1 id="bop_header" className="pull-left">
+						<Link to="/"> Bop </Link>
+					</h1>
 					<h2 id="seattle_header" className="pull-left">
 						{' '}{this.props.playlist.substring(0, 10)}{' '}
 					</h2>
 				</div>
 				<div className="col-xs-3 col-xs-offset-5">
-					<h3 className="pull-right pointer" onClick={this.handleClick}> {loginText} </h3>
+					<h3 className="pull-right pointer" onClick={this.handleClick}>
+						{' '}{loginText}{' '}
+					</h3>
 					{this.state.showLoginForm &&
 						!this.props.username &&
 						<div className="dropdown-menu" style={{ padding: '17px' }}>
@@ -119,4 +136,6 @@ function mapDispatchToProps(dispatch) {
 	return { handleLogout };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default connect<StateProps, DispatchProps, PassedProps>(mapStateToProps, mapDispatchToProps)(
+	Header
+);

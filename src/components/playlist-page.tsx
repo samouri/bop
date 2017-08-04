@@ -1,15 +1,15 @@
-import _ from 'lodash';
-import React from 'react';
+import * as _ from 'lodash';
+import * as React from 'react';
 import { connect } from 'react-redux';
-import Youtube from 'react-youtube';
-import cx from 'classnames';
+import Player from 'react-player';
+import * as cx from 'classnames';
 
 import Header from './header';
 import SearchBar from './searchbar';
 import FTUEHero from './ftueBanner';
 import SongRow from './song-row';
+import sdk from '../sdk';
 
-import BopSdk from '../sdk';
 import {
 	fetchSongs,
 	loginUser,
@@ -19,7 +19,7 @@ import {
 	shuffleSongs,
 	requestPlaylist,
 	setPlaylistName,
-} from '../app/actions';
+} from '../state/actions';
 import {
 	getCurrentSort,
 	getCurrentPlaylistName,
@@ -31,9 +31,7 @@ import {
 	getNextSong,
 	getUser,
 	getCurrentPlaylist,
-} from '../app/reducer';
-
-let sdk;
+} from '../state/reducer';
 
 const YOUTUBE_PREFIX = 'https://www.youtube.com/watch?v=';
 const TOP = 'top';
@@ -48,89 +46,102 @@ const opts = {
 		modestbranding: 1,
 		playsinline: 1,
 	},
+	preload: true,
 };
 
-class Landing extends React.Component {
+type Props = {
+	match: { params: any };
+	dispatch: any;
+	playlist: any;
+	nextSong: any;
+	songs: any;
+	currentPlaylistName: any;
+	player: any;
+	currentSong: any;
+	getSongById: any;
+	user: any;
+	sort: any;
+	showFTUEHero: boolean;
+};
+class PlaylistPage extends React.Component<Props> {
+	player: any = false;
 	state = {
 		selectedVideoId: null,
-		playing: false,
 		songs: [],
 		page: 0,
 		sort: TOP,
 		upvotes: {},
 		userInfo: {},
-		sdk: null,
 	};
 
 	componentWillMount() {
-		const { params, dispatch } = this.props;
+		const { match: { params }, dispatch } = this.props;
 		if (params.playlistName) {
-			dispatch(setPlaylistName(params.playlistName));
+			dispatch(setPlaylistName({ playlistName: params.playlistName }));
 		}
 	}
 	fetchSongs = _.throttle(
-		(props = this.props) => props.dispatch(fetchSongs(props.playlist.id)),
+		(props = this.props) => props.dispatch(fetchSongs({ playlistId: props.playlist.id })),
 		200
 	);
 	componentWillReceiveProps(nextProps) {
-		console.error(nextProps);
+		const { match: { params }, dispatch } = nextProps;
+
 		if (_.isEmpty(nextProps.songs) && nextProps.playlist) {
 			this.fetchSongs(nextProps);
+		}
+		if (params.playlistName) {
+			dispatch(setPlaylistName({ playlistName: params.playlistName }));
+		} else if (_.isEmpty(params)) {
+			dispatch(setPlaylistName({ playlistName: 'All' }));
+		}
+
+		if (nextProps.currentPlaylistName && !nextProps.playlist) {
+			dispatch(
+				requestPlaylist({
+					playlistName: nextProps.currentPlaylistName,
+					userId: nextProps.user.id,
+				})
+			);
 		}
 	}
 
 	async componentDidMount() {
-		sdk = window.sdk = await new BopSdk();
-		this.props.dispatch(requestPlaylist(this.props.currentPlaylistName));
+		this.props.dispatch(
+			requestPlaylist({ playlistName: this.props.currentPlaylistName, userId: this.props.user.id })
+		);
 
 		try {
 			let login = localStorage.getItem('login');
 			if (login) {
 				login = JSON.parse(login);
-				this.props.dispatch(loginUser(login, sdk));
+				this.props.dispatch(loginUser(login));
 			}
 		} catch (err) {
 			console.error(err, err.stack);
 		}
 	}
 
-	handleOnPause = event => {
-		this.props.dispatch(pauseSong(this.props.currentSong.songId));
+	handleOnPause = () => {
+		this.props.dispatch(pauseSong({ songId: this.props.currentSong.songId }));
 	};
 
 	handleOnEnd = () => {
-		// play next song
-		this.props.dispatch(playSong(this.props.nextSong));
+		this.props.dispatch(playSong({ songId: this.props.nextSong }));
 	};
 
-	handleOnReady = e => {
-		// set player
-		this.player = e.target;
-
-		if (this.props.songs.length > 0) {
-			let selectedVideoId = this.props.songs[0].metadata.youtube_id;
-
-			this.player.cueVideoById({ videoId: selectedVideoId });
-			this.setState({ selectedVideoId });
-		}
-	};
-
-	handleSearchSelection = async spotifyMeta => {
+	handleSearchSelection = async ({ title, artist, thumbnail_url }) => {
 		const { playlist, user } = this.props;
-		let songMeta = await sdk.getSongMetadata({ spotifyId: spotifyMeta.spotify_id });
+		console.error(title, artist);
+		let songMeta = await sdk.getSongMetadata({ title, artist });
 		// if we don't have the meta for it yet, create it
 		if (!songMeta) {
-			const youtubeMeta = await sdk.searchYoutube({
-				title: spotifyMeta.title,
-				artist: spotifyMeta.artist,
+			const youtubeSearchMeta = await sdk.searchYoutube({ title, artist });
+			const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeSearchMeta.youtube_id);
+			const youtubeMeta = { ...youtubeSearchMeta, ...youtubeDuration };
+			songMeta = await sdk.addSongMetadata({
+				metadata: { title, artist, thumbnail_url, ...youtubeDuration, ...youtubeMeta },
 			});
-			// maybe its multiple tracks that correspond to the same song
-			songMeta = await sdk.getSongMetadata({ youtubeId: youtubeMeta.youtube_id });
-			if (!songMeta) {
-				const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeMeta.youtube_id);
-				youtubeMeta.youtube_duration = youtubeDuration.youtube_duration;
-				songMeta = await sdk.addSongMetadata({ youtubeMeta, spotifyMeta });
-			}
 		}
 
 		sdk
@@ -140,58 +151,45 @@ class Landing extends React.Component {
 				console.error('seems like we couldnt add a song', err, err.stack);
 			});
 	};
+	throttledSearchSelection = _.throttle(this.handleSearchSelection, 100);
 
-	handleOnPlay = songId => {
-		this.props.dispatch(playSong(this.props.currentSong.songId));
+	handleOnPlay = (songId?) => {
+		this.props.dispatch(playSong({ songId: this.props.currentSong.songId }));
 	};
 
 	handleRegister = login => {
 		console.log('attempting to create user');
 		sdk.putUser(login.username, login.password).then(resp => {
-			this.props.dispatch(loginUser(login, sdk));
+			this.props.dispatch(loginUser(login));
 		});
 	};
-
-	playVideo(songId) {
-		if (this.props.currentSong.invalidatedSong) {
-			// only reload video if its new
-			const videoId = this.props.getSongById(songId).metadata.youtube_id;
-			this.player.loadVideoById(videoId);
-		}
-		this.player.playVideo();
-	}
 
 	renderSongsList = () => {
 		if (_.isEmpty(this.props.songs)) {
 			return <p> Theres a first for everything </p>;
 		} else {
-			return _.map(this.props.songs, song => (
+			return _.map(this.props.songs, (song: any) =>
 				<li className="list-group-item" key={`song-${song.id}`}>
 					<SongRow songId={song.id} />
 				</li>
-			));
+			);
 		}
 	};
 
 	render() {
-		const { playlist } = this.props;
+		const { playlist, currentSong } = this.props;
+		console.error('currentSong', currentSong);
 		const sort = this.props.sort.sort;
 		const shuffle = this.props.sort.shuffle;
 		var hotBtnClasses = cx('filter-btn', 'pointer', { active: sort === TOP });
 		var newBtnClasses = cx('filter-btn', 'pointer', { active: sort === NEW });
 		var shuffleBtnClasses = cx('pointer', 'fa', 'fa-random', { active: shuffle });
 
-		if (this.props.currentSong && this.props.currentSong.playing) {
-			this.playVideo(this.props.currentSong.songId);
-		} else if (this.props.currentSong && !this.props.currentSong.playing) {
-			this.player.pauseVideo();
-		}
-
-		return (
+		const ret = (
 			<div className="row">
 				<div className="row">
 					<Header
-						onLogin={login => this.props.dispatch(loginUser(login, sdk))}
+						onLogin={(login: any) => this.props.dispatch(loginUser(login))}
 						onRegister={this.handleRegister}
 					/>
 				</div>
@@ -199,12 +197,13 @@ class Landing extends React.Component {
 				{this.props.showFTUEHero && <FTUEHero />}
 
 				<div className={this.props.showFTUEHero ? 'hidden' : 'row'}>
-					<Youtube
-						url={YOUTUBE_PREFIX}
-						id={'video'}
-						opts={opts}
-						onEnd={this.handleOnEnd}
-						onReady={this.handleOnReady}
+					<Player
+						playing={currentSong && currentSong.playing}
+						url={`${YOUTUBE_PREFIX}${this.props.currentSong &&
+							this.props.getSongById(this.props.currentSong.songId).metadata.youtube_id}`}
+						width={828}
+						youtubeConfig={opts}
+						onEnded={this.handleOnEnd}
 						onPause={this.handleOnPause}
 						onPlay={this.handleOnPlay}
 					/>
@@ -217,17 +216,21 @@ class Landing extends React.Component {
 						/>
 					</div>
 					<div className="btn-group col-xs-3" role="group">
-						<div className={hotBtnClasses} onClick={() => this.props.dispatch(setSort(TOP))}>
+						<div
+							className={hotBtnClasses}
+							onClick={() => this.props.dispatch(setSort({ sort: TOP }))}
+						>
 							Hot
 						</div>
-						<div className={newBtnClasses} onClick={() => this.props.dispatch(setSort(NEW))}>
+						<div
+							className={newBtnClasses}
+							onClick={() => this.props.dispatch(setSort({ sort: NEW }))}
+						>
 							New
 						</div>
 					</div>
 					<div className="col-xs-4 col-xs-offset-1">
-						{' '}
-						<SearchBar handleSelection={_.throttle(this.handleSearchSelection, 100)} sdk={sdk} />
-						{' '}
+						<SearchBar handleSelection={this.throttledSearchSelection} />
 					</div>
 				</div>
 				<div className="row">
@@ -237,6 +240,7 @@ class Landing extends React.Component {
 				</div>
 			</div>
 		);
+		return ret;
 	}
 }
 
@@ -256,4 +260,4 @@ function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps)(Landing);
+export default connect<{}, {}, Props>(mapStateToProps)(PlaylistPage);

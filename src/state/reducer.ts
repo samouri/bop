@@ -20,27 +20,15 @@
 	}
  */
 
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { combineReducers } from 'redux';
+import { Action } from 'redux-actions';
 
 const TOP = 'top';
 const NEW = 'new';
 
-// taken from redux docs
-// function createReducer(initialState, handlers) {
-// 	return function reducer(state = initialState, action) {
-// 		if (handlers.hasOwnProperty(action.type)) {
-// 			return handlers[action.type](state, action);
-// 		} else {
-// 			return state;
-// 		}
-// 	};
-// }
-
 import {
-	FETCH_SONGS_REQUEST,
-	FETCH_SONGS_SUCCESS,
-	FETCH_SONGS_FAILURE,
+	FETCH_SONGS,
 	LOGIN_USER_REQUEST,
 	LOGIN_USER_SUCCESS,
 	LOGIN_USER_FAILURE,
@@ -53,6 +41,7 @@ import {
 	DELETE_SONG,
 	RECEIVE_PLAYLIST,
 	SET_PLAYLIST_NAME,
+	SetPlaylistNamePayload,
 } from './actions';
 
 const songsInitialState = {
@@ -62,9 +51,9 @@ const songsInitialState = {
 	songs: [],
 };
 
-function songsById(state = {}, action) {
-	if (action.type === FETCH_SONGS_SUCCESS) {
-		const fetchedSongs = _.mapKeys(action.songs, 'id');
+function songsById(state = {}, action: Action<any>) {
+	if (action.type === FETCH_SONGS) {
+		const fetchedSongs = _.mapKeys(action.payload.songs, 'id');
 
 		return {
 			...state,
@@ -74,36 +63,19 @@ function songsById(state = {}, action) {
 	return state;
 }
 
-function songs(state = songsInitialState, action) {
+function songs(state = songsInitialState, action: any) {
 	switch (action.type) {
-		case FETCH_SONGS_REQUEST:
-			return {
-				...state,
-				isFetching: true,
-			};
-		case FETCH_SONGS_FAILURE:
-			return {
-				...state,
-				isFetching: false,
-				didInvalidate: true,
-			};
-		case FETCH_SONGS_SUCCESS:
+		case FETCH_SONGS:
 			return {
 				...state,
 				isFetching: false,
 				didInvalidate: false,
-				songs: _.uniq([..._.map(action.songs, 'id'), ...state.songs]),
+				songs: _.uniq([..._.map(action.payload.songs, 'id'), ...state.songs]),
 			};
 		case DELETE_SONG:
-			console.error(
-				action.song.id,
-				state.songs,
-				_.without(state.songs, action.song.id),
-				_.filter(state.songs, id => id !== action.song.id)
-			);
 			return {
 				...state,
-				songs: _.without(state.songs, action.song.id),
+				songs: _.without(state.songs, action.payload.song.id),
 			};
 		case SHUFFLE_SONGS:
 			return {
@@ -115,41 +87,43 @@ function songs(state = songsInitialState, action) {
 	}
 }
 
-function playlists(state = {}, action) {
-	const playlist = action.payload && action.payload.playlist;
+function playlists(state = {}, action: any) {
+	const { payload } = action;
+	const playlist = _.get(payload, 'playlist', {}) as any;
+	const playlistId =
+		payload && (payload.playlistId || playlist.id || (payload.song && payload.song.playlist_id));
+
 	switch (action.type) {
 		case RECEIVE_PLAYLIST:
 			return {
 				...state,
-				[playlist.id]: Object.assign({}, state[playlist.id], playlist, songs(undefined, action)),
+				[playlistId]: Object.assign({}, state[playlistId], playlist, songs(undefined, action)),
 			};
-		case FETCH_SONGS_REQUEST:
-		case FETCH_SONGS_SUCCESS:
-		case FETCH_SONGS_FAILURE:
+		case FETCH_SONGS:
 		case SHUFFLE_SONGS:
 		case DELETE_SONG:
+			console.error('to the playlist!', playlistId, action);
 			return {
 				...state,
-				[playlist.id]: songs(state[playlist.id], action),
-				[17]: songs(state[17], action),
+				[playlistId]: songs(state[playlistId], action),
 			};
 		default:
 			return state;
 	}
 }
 
-function currentPlaylistName(state = 'All', action) {
+function currentPlaylistName(state = 'All', action: Action<SetPlaylistNamePayload>) {
 	if (action.type === SET_PLAYLIST_NAME) {
-		return action.payload.name;
+		return action.payload && action.payload.playlistName;
 	}
 	return state;
 }
 
-function currentSort(state = { sort: TOP, shuffle: false }, action) {
+function currentSort(state = { sort: NEW, shuffle: false }, action: any) {
 	if (action.type === SET_SORT) {
 		return {
 			...state,
-			sort: action.sort,
+			sort: action.payload.sort,
 		};
 	} else if (action.type === SHUFFLE_SONGS) {
 		return {
@@ -161,10 +135,10 @@ function currentSort(state = { sort: TOP, shuffle: false }, action) {
 	return state;
 }
 
-function currentSong(state = null, action) {
+function currentSong(state: any = null, action: any) {
 	if (action.type === PLAY_SONG) {
-		const invalidatedSong = !state || state.songId !== action.songId;
-		return { songId: action.songId, playing: true, invalidatedSong };
+		const invalidatedSong = !state || state.songId !== action.payload.songId;
+		return { songId: action.payload.songId, playing: true, invalidatedSong };
 	} else if (action.type === PAUSE_SONG) {
 		return { ...state, playing: false };
 	}
@@ -172,7 +146,7 @@ function currentSong(state = null, action) {
 	return state;
 }
 
-function user(state = {}, action) {
+function user(state: any = {}, action: any) {
 	switch (action.type) {
 		case LOGIN_USER_REQUEST:
 			return { ...state, isFetching: true };
@@ -182,9 +156,9 @@ function user(state = {}, action) {
 			return {
 				...state,
 				isFetching: false,
-				upvotedSongs: action.upvotedSongs,
-				username: action.username,
-				id: action.id,
+				upvotedSongs: action.payload.upvotedSongs,
+				username: action.payload.username,
+				id: action.payload.id,
 			};
 		case VOTE_SONG:
 			// if already upvoted, then remove.  if not upvoted, then keep
@@ -221,56 +195,58 @@ export default BopApp;
 
 // Selectors
 
-function getSongsInPlaylist(state, playlist) {
+function getSongsInPlaylist(state: any, playlist: any) {
 	if (!playlist) {
 		return [];
 	}
 
 	const songIds = playlist.songs;
-	const songs = _.map(songIds, songId => state.songsById[songId]);
+	const songs = _.map(songIds, (songId: number) => state.songsById[songId]);
 	return songs;
 }
 
-export function getSongById(state, id) {
+export const getPlaylistById = (state: any, playlistId) => _.get(state.playlists, playlistId);
+
+export function getSongById(state: any, id: any) {
 	return state.songsById[id];
 }
 
-export function getUpvotedSongs(state) {
+export function getUpvotedSongs(state: any) {
 	if (state.user && state.user.upvotedSongs) {
 		return state.user.upvotedSongs;
 	}
 	return [];
 }
 
-export function getUsername(state) {
+export function getUsername(state: any) {
 	if (state.user && state.user.username) {
 		return state.user.username;
 	}
 	return null;
 }
 
-export const getUser = state => state.user;
+export const getUser = (state: any) => state.user;
 
-export function getCurrentPlaylistName(state) {
+export function getCurrentPlaylistName(state: any) {
 	return state.currentPlaylistName;
 }
 
-export function getCurrentSong(state) {
+export function getCurrentSong(state: any) {
 	return state.currentSong;
 }
 
-export function getCurrentSort(state) {
+export function getCurrentSort(state: any) {
 	return state.currentSort;
 }
 
-export const getCurrentPlaylist = state =>
+export const getCurrentPlaylist: any = (state: any) =>
 	_.find(state.playlists, { name: getCurrentPlaylistName(state) });
 
-export function getSongs(state) {
+export function getSongs(state: any) {
 	return getSongsInPlaylist(state, getCurrentPlaylist(state));
 }
 
-export function getShuffledSongsInPlaylist(state, playlistId) {
+export function getShuffledSongsInPlaylist(state: any, playlistId: string) {
 	const playlist = state.playlists[playlistId];
 
 	if (playlist) {
@@ -279,7 +255,7 @@ export function getShuffledSongsInPlaylist(state, playlistId) {
 	return [];
 }
 
-export function getSortedSongs(state) {
+export function getSortedSongs(state: any): any {
 	const songs = getSongs(state);
 	const sort = getCurrentSort(state).sort;
 
@@ -290,7 +266,7 @@ export function getSortedSongs(state) {
 	}
 }
 
-export function getNextSong(state) {
+export function getNextSong(state: any) {
 	const currentSong = getCurrentSong(state);
 	let songs = _.map(getSortedSongs(state), 'id');
 	if (getCurrentSort(state).shuffle) {
