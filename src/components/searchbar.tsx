@@ -4,6 +4,7 @@ import 'react-select/dist/react-select.css';
 import * as cx from 'classnames';
 import * as _ from 'lodash';
 import sdk from '../sdk';
+import * as fuzzysearch from 'fuzzysearch';
 
 import { mapLastFmItemToBop } from '../sdk';
 
@@ -23,7 +24,7 @@ const getOptions = (input, cb) => {
 };
 const debouncedGetOptions = _.debounce(getOptions, 300);
 
-type Option = {
+type Option = Select.Option & {
 	value: { thumbnail_url: string; artist: string; title: string };
 };
 type TrackValueProps = {
@@ -83,6 +84,15 @@ export default class SearchBar extends React.Component<SearchBarProps> {
 				}}
 				onChange={(option: any) => {
 					option && this.props.handleSelection(option.value);
+				}}
+				filterOption={(option: Option, filter: string): any => {
+					const { title, artist } = _.mapValues(option.value, _.toLower);
+					return (
+						fuzzysearch(filter, title) ||
+						fuzzysearch(filter, artist) ||
+						fuzzysearch(filter, artist + title) ||
+						fuzzysearch(filter, title + artist)
+					);
 				}}
 			/>
 		);
