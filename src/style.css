@@ -4,22 +4,7 @@
 	margin: 0 auto;
 }
 
-#header {
-	height: 75px;
-}
-#gear {
-	margin-top: 8px;
-}
-#about {
-	font-family: 'Roboto', sans-serif;
-	font-size: 26px;
-	font-weight: 100;
-	padding-right: 15px;
-}
-#header * {
-	display: block;
-}
-#seattle_header {
+.top-header {
 	font-family: 'Roboto', sans-serif;
 	font-size: 26px;
 	line-height: 36px;
@@ -54,15 +39,6 @@
 	color: #ffffff;
 }
 
-body {
-	margin: 0 auto;
-	padding-bottom: 100px;
-}
-
-#video {
-	width: 100%;
-}
-
 .selected-purple {
 	color: purple;
 }
@@ -70,33 +46,66 @@ body {
 #post_song {
 	color: #ffffff;
 	font-family: 'Roboto', sans-serif;
-	font-size: 20px;
-	font-weight: 100;
-}
-
-.time-since {
 	font-size: 18px;
-	color: #a223bc;
-	line-height: 25px;
+	font-weight: 100;
 }
 
 .song-title {
-	font-family: 'Roboto', sans-serif;
-	font-weight: 300;
-	font-size: 30px;
-	color: #000000;
-	line-height: 41px;
-	max-height: 70px;
-	overflow: hidden;
+	max-width: 150px;
+	width: 150px;
+}
+.vote-info {
+	max-width: 50px;
+	width: 50px;
+}
+.song-artist {
+	max-width: 100px;
+	width: 100px;
+}
+.song-postee {
+	max-width: 100px;
+	width: 100px;
+}
+.play-info {
+	width: 30px;
+	max-width: 30px;
+}
+.song-playlist {
+	max-width: 100px;
+	width: 100px;
+	color: purple;
+}
+.song-date {
+	width: 75px;
+	max-width: 75px;
+}
+.song-duration {
+	width: 40px;
+	max-width: 40px;
+}
+.header-row {
+	justify-content: space-around;
+	display: flex;
+	padding-bottom: 10px;
+	padding-top: 10px;
+	border-bottom: 1px solid lightgray;
+}
+.header-row .song-duration {
+	display: flex;
+	justify-content: center;
+	padding-top: 3px;
 }
 
-.song-artist {
+.song-div {
 	font-family: 'Roboto', sans-serif;
-	font-weight: 100;
-	font-size: 20px;
-	color: #030303;
-	line-height: 27px;
-	margin: 0;
+	font-weight: 300;
+	font-size: 18px;
+	line-height: 41px;
+	max-height: 70px;
+}
+.song-div span {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .vote-count {
@@ -104,9 +113,8 @@ body {
 	font-weight: 300;
 	font-size: 24px;
 	color: #464444;
-	line-height: 33px;
-	text-align: center;
-	padding-bottom: 35px;
+	padding-left: 1.5px;
+	margin-top: -5px;
 }
 
 .duration {
@@ -118,11 +126,12 @@ body {
 }
 
 .song-div {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
 	display: flex;
-	height: 100px;
+	height: 50px;
+	justify-content: space-around;
+}
+.song-div:hover {
+	background-color: lightgray;
 }
 
 .up-chevron-selected {
@@ -134,51 +143,15 @@ body {
 	width: 80px;
 }
 
-#img-div {
-	-webkit-align-self: center;
-	-ms-flex-item-align: center;
-	align-self: center;
-}
-
-.song-div i {
-	display: block;
-	text-align: center;
-}
-
-.song-info,
-.play-info,
-.vote-info {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
+.play-info i {
+	padding-top: 6px;
 	display: flex;
-	-webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	-webkit-flex-direction: column;
-	-ms-flex-direction: column;
+}
+
+.vote-info {
 	flex-direction: column;
-	-webkit-box-pack: center;
-	-webkit-justify-content: center;
-	-ms-flex-pack: center;
-	justify-content: center;
-}
-.song-info {
-	padding-top: 12px;
-}
-
-.age {
-	font-family: Roboto;
-	font-weight: 300;
-	font-size: 18px;
-	color: #a223bc;
-	line-height: 25px;
-}
-
-.duration {
-	font-family: Roboto;
-	font-weight: 100;
-	font-size: 18px;
-	line-height: 25px;
+	display: flex;
+	text-align: center;
 }
 
 .filter-btn {
@@ -244,24 +217,6 @@ body {
 .container {
 	padding-right: 15px;
 	padding-left: 15px;
-}
-
-/*
- * http://stackoverflow.com/questions/20198247/twitters-typeahead-js-suggestions-are-not-styled-have-no-border-transparent-b
-*/
-
-.tt-input,
-/* UPDATE: newer versions use tt-input instead of tt-query */
-.tt-hint {
-	height: 30px;
-	padding: 8px 12px;
-	font-family: Roboto;
-	font-weight: 100;
-	font-size: 17px;
-	line-height: 30px;
-	border: 2px solid #ccc;
-	border-radius: 8px;
-	outline: none;
 }
 
 .search-result-thumbnail-wrapper img {

@@ -5,28 +5,13 @@ import * as moment from 'moment';
 import { connect } from 'react-redux';
 import { getCurrentSong, getSongById, getUser } from '../state/reducer';
 import { Link } from 'react-router-dom';
-import sdk from '../sdk';
+import sdk, { ApiSongData } from '../sdk';
+import * as momentTwitter from 'moment-twitter';
 
 import { playSong, pauseSong, deleteSong } from '../state/actions';
 
-type SongMetadata = {
-	youtube_duration: number;
-	thumbnail_url: string;
-	title: string;
-	artist: string;
-};
-type Song = {
-	id: number;
-	metadata: SongMetadata;
-	date_added: number;
-	votes: object[];
-	user_added: number;
-	user: { username: string };
-	playlist_id: number;
-	playlists: { name: string };
-};
 type Props = {
-	song: Song;
+	song: ApiSongData;
 	isUpvoted: boolean;
 	isSelected: boolean;
 	isPlaying: boolean;
@@ -37,6 +22,7 @@ type Props = {
 class SongRow extends React.Component<Props> {
 	state = {
 		voteModifier: 0,
+		hovered: false,
 	};
 
 	durationToString() {
@@ -49,7 +35,7 @@ class SongRow extends React.Component<Props> {
 		return duration_minutes + ':' + duration_seconds;
 	}
 
-	getAge = () => moment.utc(this.props.song.date_added).fromNow();
+	getAge = () => momentTwitter.utc(this.props.song.date_added).twitterLong();
 
 	handleUpvote = () => {
 		const { isUpvoted } = this.props;
@@ -57,73 +43,79 @@ class SongRow extends React.Component<Props> {
 		const voteModifier = this.state.voteModifier !== 0 ? 0 : vote;
 
 		this.setState({ voteModifier });
-		const voteRequest = isUpvoted ? sdk.unvote : sdk.vote;
-		voteRequest({ songId: this.props.song.id, userId: this.props.user.id }).catch(error => {
-			console.error(error, error.stack);
-		});
+
+		const voteParams = { songId: this.props.song.id, userId: this.props.user.id };
+		isUpvoted ? sdk.unvote(voteParams) : sdk.vote(voteParams);
 	};
 
-	handleDelete = () => {
-		this.props.dispatch(deleteSong(this.props.song));
-	};
+	handleDelete = () => this.props.dispatch(deleteSong(this.props.song));
+	handleMouseOver = () => this.setState({ hovered: true });
+	handleMouseOut = e => this.setState({ hovered: false });
 
 	render() {
 		const { title, artist, thumbnail_url } = _.get(this.props.song, 'metadata') || ({} as any);
 		const { id: songId, votes } = this.props.song;
-		var playOrPauseClasses = cx('fa', 'fa-3x', 'pointer', {
+		var playOrPauseClasses = cx('fa', 'fa-2x', {
 			'fa-pause': this.props.isPlaying,
 			'fa-play': !this.props.isPlaying,
 			'selected-purple': this.props.isSelected,
 		});
 
-		var upChevronClasses = cx('fa fa-chevron-up fa-2x pointer', {
+		var upChevronClasses = cx('fa fa-chevron-up pointer', {
 			'up-chevron-selected':
 				(this.props.isUpvoted && this.state.voteModifier !== -1) || this.state.voteModifier === 1,
 		});
 
 		const handlePausePlay = this.props.isPlaying
-			? () => this.props.dispatch(pauseSong({ songId }))
+			? () => this.props.dispatch(pauseSong())
 			: () => this.props.dispatch(playSong({ songId }));
 
 		const playlistName = this.props.song.playlists.name;
 		return (
-			<div className="song-div row-eq-height">
-				<div className={'col-xs-1'}>
+			<div
+				className="song-div row-eq-height"
+				onMouseEnter={this.handleMouseOver}
+				onMouseLeave={this.handleMouseOut}
+				onDoubleClick={handlePausePlay}
+			>
+				<span className="play-info">
+					{this.state.hovered && <i className={playOrPauseClasses} onClick={handlePausePlay} />}
+				</span>
+				<span className="vote-info">
+					<i className={upChevronClasses} onClick={this.handleUpvote} />
+					<span className="vote-count">
+						{votes.length + this.state.voteModifier}
+					</span>
+				</span>
+				<span className="song-title">
+					{title}
+				</span>
+				<span className="song-artist">
+					{artist}
+				</span>
+				<span className="song-playlist">
+					<Link to={`/p/${playlistName}`}>
+						{playlistName}
+					</Link>
+				</span>
+				<span className="song-date">
+					{this.getAge()}
+				</span>
+				<span className="song-postee">
+					{this.props.song.user.username}
+				</span>
+				<span className="song-duration">
+					{this.durationToString()}
+				</span>
+				{/* <div>
 					{(!this.props.song.user_added || this.props.song.user_added === this.props.user.id) &&
 						<div
 							onClick={this.handleDelete}
 							style={{ cursor: 'pointer', paddingTop: '35px', color: 'red' }}
 						>
-							{' '}X{' '}
+							X
 						</div>}
-				</div>
-				<div className="pull-left col-xs-2" id="img-div">
-					<img alt="artist thumbnail" className="img-circle" src={thumbnail_url} />
-				</div>
-				<div className="song-info pull-left col-xs-6">
-					<span className="song-title">
-						{title}
-					</span>
-					<span className="song-artist">
-						{artist}
-					</span>
-					<span className="posted-info">
-						posted {this.getAge()} by {this.props.song.user.username} to{' '}
-						<Link to={`/p/${playlistName}`}>{playlistName} </Link>
-					</span>
-				</div>
-				<div className="play-info pull-right col-xs-1">
-					<i className={playOrPauseClasses} onClick={handlePausePlay} />
-					<span className="duration">
-						{this.durationToString()}
-					</span>
-				</div>
-				<div className="vote-info pull-right col-xs-1">
-					<i className={upChevronClasses} onClick={this.handleUpvote} />
-					<span className="vote-count">
-						{votes.length + this.state.voteModifier}
-					</span>
-				</div>
+				</div> */}
 			</div>
 		);
 	}

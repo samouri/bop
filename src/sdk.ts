@@ -87,8 +87,8 @@ class BopSdk {
 		return resp.json();
 	};
 
-	createPlaylist = async ({ playlistName, userId }) => {
-		const playlist: api.Playlists = { name: playlistName, userAdded: userId };
+	createPlaylist = async ({ playlistName, userId }: { playlistName: string; userId: number }) => {
+		const playlist: api.Playlists = { name: playlistName, user_added: userId };
 		const resp = await api.PlaylistsApiFp.playlistsPost({
 			body: playlist,
 		})(fetch, config.swaggerHost);
@@ -112,13 +112,13 @@ class BopSdk {
 
 	addSongToPlaylist = async ({ playlistId, userId, metaId }) => {
 		const song: api.Songs = {
-			playlistId,
-			userAdded: userId,
-			metadataId: metaId,
+			playlist_id: playlistId,
+			user_added: userId,
+			metadata_id: metaId,
 		};
 
 		const resp = await api.SongsApiFp.songsPost({
-			body: apiBullshitTransform(song),
+			body: song,
 		})(fetch, config.swaggerHost);
 
 		return resp.ok;
@@ -176,9 +176,9 @@ class BopSdk {
 		return resp.json();
 	};
 
-	vote = async ({ userId, songId }) => {
+	vote = async ({ userId, songId }: any) => {
 		const voteReq = await api.VotesApiFp.votesPost({
-			body: apiBullshitTransform({ songId, userAdded: userId }),
+			body: { song_id: songId, user_added: userId },
 		})(fetch, config.swaggerHost);
 
 		const voteResp = await voteReq.json();
@@ -290,3 +290,13 @@ window.sdk = new BopSdk();
 
 const sdk = new BopSdk();
 export default sdk;
+
+export type ApiSongs = api.Songs;
+export type ApiMetadata = api.Metadata;
+export type ApiUser = api.Users;
+export type ApiVotes = api.Votes;
+export type ApiPlaylists = api.Playlists;
+
+export type ApiSongData = ApiSongs & { metadata: ApiMetadata } & { votes: ApiVotes[] } & {
+		user: ApiUser;
+	} & { playlists: ApiPlaylists };

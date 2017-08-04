@@ -123,7 +123,7 @@ class PlaylistPage extends React.Component<Props> {
 	}
 
 	handleOnPause = () => {
-		this.props.dispatch(pauseSong({ songId: this.props.currentSong.songId }));
+		this.props.dispatch(pauseSong());
 	};
 
 	handleOnEnd = () => {
@@ -168,11 +168,7 @@ class PlaylistPage extends React.Component<Props> {
 		if (_.isEmpty(this.props.songs)) {
 			return <p> Theres a first for everything </p>;
 		} else {
-			return _.map(this.props.songs, (song: any) =>
-				<li className="list-group-item" key={`song-${song.id}`}>
-					<SongRow songId={song.id} />
-				</li>
-			);
+			return _.map(this.props.songs, (song: any) => <SongRow songId={song.id} />);
 		}
 	};
 
@@ -234,9 +230,20 @@ class PlaylistPage extends React.Component<Props> {
 					</div>
 				</div>
 				<div className="row">
-					<ul className="list-group">
-						{this.renderSongsList()}
-					</ul>
+					<div className="header-row">
+						<span className="play-info" />
+						<span className="vote-info">VOTES</span>
+						<span className="song-title">TITLE</span>
+						<span className="song-artist">ARIST</span>
+						<span className="song-artist">PLAYLIST</span>
+						<span className="song-date">POSTED</span>
+						<span className="song-postee">USER</span>
+						<span className="song-duration">
+							<i className="fa fa-lg fa-clock-o" />
+						</span>
+					</div>
+
+					{this.renderSongsList()}
 				</div>
 			</div>
 		);

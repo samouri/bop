@@ -18,7 +18,7 @@ export const SET_PLAYLIST_NAME = 'SET_PLAYLIST_NAME';
 
 /* action creators */
 export type Action = { type: string };
-export type SongIdPayload = { songId: number };
+export type SongIdPayload = { songId?: number };
 export type PlaylistIdPayload = { playlistId: number };
 // type NoPayload = undefined;
 export type UserPayload = { user };
@@ -32,7 +32,7 @@ export type LoginUserSuccessPayload = { username; upvotedSongs; id };
 export const loginUserSuccess = createAction<LoginUserSuccessPayload>(LOGIN_USER_SUCCESS);
 
 export const playSong = createAction<SongIdPayload>(PLAY_SONG);
-export const pauseSong = createAction<SongIdPayload>(PAUSE_SONG);
+export const pauseSong = createAction(PAUSE_SONG);
 
 export type SetSortPayload = { sort };
 export const setSort = createAction<SetSortPayload>(SET_SORT);
