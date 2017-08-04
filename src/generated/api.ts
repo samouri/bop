@@ -50,29 +50,29 @@ export class BaseAPI {
 
 export interface Metadata {
 	'id'?: number;
-	'youtubeId'?: string;
-	'youtubeTitle'?: string;
+	'youtube_id'?: string;
+	'youtube_title'?: string;
 	'title'?: string;
 	'artist'?: string;
-	'thumbnailUrl'?: string;
+	'thumbnail_url'?: string;
 	'album'?: string;
-	'youtubeDuration'?: string;
-	'dateAdded'?: string;
+	'youtube_duration'?: string;
+	'date_added'?: string;
 }
 
 export interface Playlists {
 	'id'?: number;
 	'name'?: string;
-	'userAdded'?: number;
-	'dateAdded'?: string;
+	'user_added'?: number;
+	'date_added'?: string;
 }
 
 export interface Songs {
 	'id'?: number;
-	'playlistId'?: number;
-	'metadataId'?: number;
-	'userAdded'?: number;
-	'dateAdded'?: string;
+	'playlist_id'?: number;
+	'metadata_id'?: number;
+	'user_added'?: number;
+	'date_added'?: string;
 }
 
 export interface Users {
@@ -83,9 +83,9 @@ export interface Users {
 
 export interface Votes {
 	'id'?: number;
-	'dateAdded'?: string;
-	'userAdded'?: number;
-	'songId'?: number;
+	'user_added'?: number;
+	'date_added'?: string;
+	'song_id'?: number;
 }
 
 /**

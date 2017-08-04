@@ -70,7 +70,7 @@ body {
 #post_song {
 	color: #ffffff;
 	font-family: 'Roboto', sans-serif;
-	font-size: 20px;
+	font-size: 18px;
 	font-weight: 100;
 }
 
@@ -81,23 +81,61 @@ body {
 }
 
 .song-title {
+	max-width: 150px;
+	width: 150px;
+}
+.vote-count {
+	max-width: 50px;
+	width: 50px;
+}
+.song-artist {
+	max-width: 100px;
+	width: 100px;
+}
+.song-postee {
+	max-width: 100px;
+	width: 100px;
+}
+.play-info {
+	width: 30px;
+	max-width: 30px;
+}
+.song-playlist {
+	max-width: 100px;
+	width: 100px;
+	color: purple;
+}
+.song-date {
+}
+.header-row {
+	justify-content: space-between;
+	display: flex;
+	padding-bottom: 20px;
+	border-bottom: 1px solid line;
+}
+.header-row span {
+	text-align: left;
+}
+
+.song-div,
+.song-div a {
 	font-family: 'Roboto', sans-serif;
 	font-weight: 300;
-	font-size: 30px;
-	color: #000000;
+	font-size: 18px;
 	line-height: 41px;
 	max-height: 70px;
 	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
-.song-artist {
+/* .song-artist {
 	font-family: 'Roboto', sans-serif;
 	font-weight: 100;
-	font-size: 20px;
+	font-size: 18px;
 	color: #030303;
 	line-height: 27px;
 	margin: 0;
-}
+} */
 
 .vote-count {
 	font-family: 'Roboto', sans-serif;
@@ -105,8 +143,6 @@ body {
 	font-size: 24px;
 	color: #464444;
 	line-height: 33px;
-	text-align: center;
-	padding-bottom: 35px;
 }
 
 .duration {
@@ -118,11 +154,12 @@ body {
 }
 
 .song-div {
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
 	display: flex;
-	height: 100px;
+	height: 50px;
+	justify-content: space-between;
+}
+.song-div:hover {
+	background-color: lightgray;
 }
 
 .up-chevron-selected {
@@ -140,9 +177,8 @@ body {
 	align-self: center;
 }
 
-.song-div i {
-	display: block;
-	text-align: center;
+.play-info i {
+	display: flex;
 }
 
 .song-info,
@@ -161,6 +197,8 @@ body {
 	-webkit-justify-content: center;
 	-ms-flex-pack: center;
 	justify-content: center;
+	width: 50px;
+	max-width: 50px;
 }
 .song-info {
 	padding-top: 12px;
@@ -244,24 +282,6 @@ body {
 .container {
 	padding-right: 15px;
 	padding-left: 15px;
-}
-
-/*
- * http://stackoverflow.com/questions/20198247/twitters-typeahead-js-suggestions-are-not-styled-have-no-border-transparent-b
-*/
-
-.tt-input,
-/* UPDATE: newer versions use tt-input instead of tt-query */
-.tt-hint {
-	height: 30px;
-	padding: 8px 12px;
-	font-family: Roboto;
-	font-weight: 100;
-	font-size: 17px;
-	line-height: 30px;
-	border: 2px solid #ccc;
-	border-radius: 8px;
-	outline: none;
 }
 
 .search-result-thumbnail-wrapper img {
