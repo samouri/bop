@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { getCurrentSong, getSongById, getUser } from '../state/reducer';
 import { Link } from 'react-router-dom';
 import sdk, { ApiSongData } from '../sdk';
+import * as momentTwitter from 'moment-twitter';
 
 import { playSong, pauseSong, deleteSong } from '../state/actions';
 
@@ -34,7 +35,7 @@ class SongRow extends React.Component<Props> {
 		return duration_minutes + ':' + duration_seconds;
 	}
 
-	getAge = () => moment.utc(this.props.song.date_added).fromNow();
+	getAge = () => momentTwitter.utc(this.props.song.date_added).twitterLong();
 
 	handleUpvote = () => {
 		const { isUpvoted } = this.props;
@@ -77,24 +78,26 @@ class SongRow extends React.Component<Props> {
 				onMouseLeave={this.handleMouseOut}
 				onDoubleClick={handlePausePlay}
 			>
-				<div className="play-info">
+				<span className="play-info">
 					{this.state.hovered && <i className={playOrPauseClasses} onClick={handlePausePlay} />}
-				</div>
-				<div className="vote-info">
+				</span>
+				<span className="vote-info">
 					<i className={upChevronClasses} onClick={this.handleUpvote} />
 					<span className="vote-count">
 						{votes.length + this.state.voteModifier}
 					</span>
-				</div>
+				</span>
 				<span className="song-title">
 					{title}
 				</span>
 				<span className="song-artist">
 					{artist}
 				</span>
-				<Link to={`/p/${playlistName}`} className="song-playlist">
-					{playlistName}{' '}
-				</Link>
+				<span className="song-playlist">
+					<Link to={`/p/${playlistName}`}>
+						{playlistName}
+					</Link>
+				</span>
 				<span className="song-date">
 					{this.getAge()}
 				</span>

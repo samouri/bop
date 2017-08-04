@@ -230,7 +230,7 @@ class PlaylistPage extends React.Component<Props> {
 					</div>
 				</div>
 				<div className="row">
-					<div className="row header-row">
+					<div className="header-row">
 						<span className="play-info" />
 						<span className="vote-info">VOTES</span>
 						<span className="song-title">TITLE</span>
@@ -238,7 +238,9 @@ class PlaylistPage extends React.Component<Props> {
 						<span className="song-artist">PLAYLIST</span>
 						<span className="song-date">POSTED</span>
 						<span className="song-postee">USER</span>
-						<span className="song-duration">TIME</span>
+						<span className="song-duration">
+							<i className="fa fa-lg fa-clock-o" />
+						</span>
 					</div>
 
 					{this.renderSongsList()}

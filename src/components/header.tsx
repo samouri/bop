@@ -78,7 +78,7 @@ class Header extends React.Component<Props> {
 					<h1 id="bop_header" className="pull-left">
 						<Link to="/"> Bop </Link>
 					</h1>
-					<h2 id="seattle_header" className="pull-left">
+					<h2 className="pull-left top-header">
 						{' '}{this.props.playlist.substring(0, 10)}{' '}
 					</h2>
 				</div>
