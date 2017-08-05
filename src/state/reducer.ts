@@ -1,25 +1,3 @@
-/*
- State Shape:
-
-	App: {
-    selectedPlayist: 'Seattle',
-		songsById: { id1: song1, ... },
-		playlists: {
-			Seatle: {
-        isFetching: true,
-        didInvalidate: false,
-        page?: false,
-        songIds: [ array of songIds ],
-      }
-			...
-		},
-		user: {
-			upvoted: [ array of songIds ]
-			name: username
-		}
-	}
- */
-
 import * as _ from 'lodash';
 import { combineReducers } from 'redux';
 import { Action } from 'redux-actions';
@@ -44,6 +22,131 @@ import {
 	SORT,
 } from './actions';
 import { ApiSongData } from '../sdk';
+
+// Selectors first
+const getSongsInPlaylist = (state: any, playlist: any) => {
+	if (!playlist || !playlist.songs) {
+		return null;
+	}
+
+	const songIds = playlist.songs;
+	const songs = _.map(songIds, (songId: number) => state.songsById[songId]);
+	return songs;
+};
+
+export const getPlaylistById = (state: any, playlistId) => _.get(state.playlists, playlistId);
+
+export function getSongById(state: any, id: any) {
+	return state.songsById[id];
+}
+
+export function getUpvotedSongs(state: any) {
+	if (state.user && state.user.upvotedSongs) {
+		return state.user.upvotedSongs;
+	}
+	return [];
+}
+
+export function getUsername(state: any) {
+	if (state.user && state.user.username) {
+		return state.user.username;
+	}
+	return null;
+}
+
+export const getUser = (state: any) => state.user;
+
+export function getCurrentPlaylistName(state: any) {
+	return state.currentPlaylistName;
+}
+
+type CurrentSongState = { songId: number; isPlaying: boolean };
+export function getCurrentSong(state: any): CurrentSongState {
+	const song = state.currentSong === null ? null : getSongById(state, state.currentSong.songId);
+	return { ...state.currentSong, song };
+}
+
+export function getCurrentSort(state: any) {
+	return state.currentSort;
+}
+
+export const getCurrentPlaylist: any = (state: any) =>
+	_.find(state.playlists, { name: getCurrentPlaylistName(state) });
+
+export function getSongsInCurrentPlaylist(state: any): null | ApiSongData[] {
+	return getSongsInPlaylist(state, getCurrentPlaylist(state));
+}
+
+export function getShuffledSongsInPlaylist(state: any, playlistId: string) {
+	const playlist = state.playlists[playlistId];
+
+	if (playlist && playlist.shuffledSongs) {
+		return playlist.shuffledSongs;
+	}
+	return [];
+}
+export const getContributorsInCurrentPlaylist = state => {
+	const songs = getSongsInCurrentPlaylist(state);
+	const contribs = _.map(songs, s => s.user.username);
+	const counts = _.countBy(contribs);
+	const sortedContribs = _.uniq(_.sortBy(contribs, (c: string) => counts[c]));
+	return _.take(sortedContribs, 2);
+};
+
+export function getSortedSongs(state: any): any {
+	const songs = getSongsInCurrentPlaylist(state);
+	if (!songs) {
+		return null;
+	}
+
+	const sort: SORT = getCurrentSort(state).sort;
+
+	switch (sort) {
+		case 'votes':
+			return _.reverse(_.sortBy(songs, song => song.votes.length));
+		case 'date':
+			return _.reverse(_.sortBy(songs, song => song.date_added));
+		case 'duration':
+			return _.sortBy(songs, song => moment.duration(song.metadata.youtube_duration).asSeconds());
+		case 'title':
+			return _.sortBy(songs, song => song.metadata.title);
+		case 'artist':
+			return _.sortBy(songs, song => song.metadata.artist);
+		case 'playlist':
+			return _.sortBy(songs, song => song.playlists.name);
+		case 'user':
+			return _.sortBy(songs, song => song.user.username);
+	}
+}
+
+export const getPlayQueue = (state: any) => {
+	const songs = getCurrentSort(state).shuffle
+		? getShuffledSongsInPlaylist(state, getCurrentPlaylist(state).id)
+		: _.map(getSortedSongs(state), 'id');
+	return songs;
+};
+
+export function getNextSong(state: any) {
+	const songs = getPlayQueue(state);
+	const currentSong = getCurrentSong(state);
+	const currIndex = songs.indexOf(currentSong.songId);
+
+	if (currentSong === null) {
+		return songs[0];
+	}
+	return songs[currIndex + 1];
+}
+
+export function getPrevSong(state: any) {
+	const songs = getPlayQueue(state);
+	const currentSong = getCurrentSong(state);
+	const currIndex = songs.indexOf(currentSong.songId);
+
+	if (currentSong === null || currIndex === 0) {
+		return songs[songs.length - 1];
+	}
+	return songs[currIndex - 1];
+}
 
 const songsInitialState = {
 	isFetching: false,
@@ -91,6 +194,7 @@ function songs(state = songsInitialState, action: any) {
 function playlists(state = {}, action: any) {
 	const { payload } = action;
 	const playlist = _.get(payload, 'playlist', {}) as any;
+	const currentPlaylist = getCurrentPlaylist(state);
 	const playlistId =
 		payload && (payload.playlistId || playlist.id || (payload.song && payload.song.playlist_id));
 
@@ -103,7 +207,6 @@ function playlists(state = {}, action: any) {
 		case FETCH_SONGS:
 		case SHUFFLE_SONGS:
 		case DELETE_SONG:
-			console.error('to the playlist!', playlistId, action);
 			return {
 				...state,
 				[playlistId]: songs(state[playlistId], action),
@@ -203,114 +306,3 @@ const BopApp = combineReducers({
 
 // App Reducer
 export default BopApp;
-
-// Selectors
-
-const getSongsInPlaylist = (state: any, playlist: any) => {
-	if (!playlist || !playlist.songs) {
-		return null;
-	}
-
-	const songIds = playlist.songs;
-	const songs = _.map(songIds, (songId: number) => state.songsById[songId]);
-	return songs;
-};
-
-export const getPlaylistById = (state: any, playlistId) => _.get(state.playlists, playlistId);
-
-export function getSongById(state: any, id: any) {
-	return state.songsById[id];
-}
-
-export function getUpvotedSongs(state: any) {
-	if (state.user && state.user.upvotedSongs) {
-		return state.user.upvotedSongs;
-	}
-	return [];
-}
-
-export function getUsername(state: any) {
-	if (state.user && state.user.username) {
-		return state.user.username;
-	}
-	return null;
-}
-
-export const getUser = (state: any) => state.user;
-
-export function getCurrentPlaylistName(state: any) {
-	return state.currentPlaylistName;
-}
-
-type CurrentSongState = { songId: number; isPlaying: boolean };
-export function getCurrentSong(state: any): CurrentSongState {
-	return state.currentSong;
-}
-
-export function getCurrentSort(state: any) {
-	return state.currentSort;
-}
-
-export const getCurrentPlaylist: any = (state: any) =>
-	_.find(state.playlists, { name: getCurrentPlaylistName(state) });
-
-export function getSongsInCurrentPlaylist(state: any): null | ApiSongData[] {
-	return getSongsInPlaylist(state, getCurrentPlaylist(state));
-}
-
-export function getShuffledSongsInPlaylist(state: any, playlistId: string) {
-	const playlist = state.playlists[playlistId];
-
-	if (playlist) {
-		return playlist.shuffledSongs;
-	}
-	return [];
-}
-export const getContributorsInCurrentPlaylist = state => {
-	const songs = getSongsInCurrentPlaylist(state);
-	const contribs = _.map(songs, s => s.user.username);
-	const counts = _.countBy(contribs);
-	const sortedContribs = _.uniq(_.sortBy(contribs, (c: string) => counts[c]));
-	return _.take(sortedContribs, 2);
-};
-
-export function getSortedSongs(state: any): any {
-	const songs = getSongsInCurrentPlaylist(state);
-	if (!songs) {
-		return null;
-	}
-
-	const sort: SORT = getCurrentSort(state).sort;
-
-	switch (sort) {
-		case 'votes':
-			return _.reverse(_.sortBy(songs, song => song.votes.length));
-		case 'date':
-			return _.reverse(_.sortBy(songs, song => song.date_added));
-		case 'duration':
-			return _.sortBy(songs, song => moment.duration(song.metadata.youtube_duration).asSeconds());
-		case 'title':
-			return _.sortBy(songs, song => song.metadata.title);
-		case 'artist':
-			return _.sortBy(songs, song => song.metadata.artist);
-		case 'playlist':
-			return _.sortBy(songs, song => song.playlists.name);
-		case 'user':
-			return _.sortBy(songs, song => song.user.username);
-	}
-}
-
-export function getNextSong(state: any) {
-	const currentSong = getCurrentSong(state);
-	let songs = _.map(getSortedSongs(state), 'id');
-	if (getCurrentSort(state).shuffle) {
-		songs = getShuffledSongsInPlaylist(state, getCurrentPlaylist(state).id);
-	}
-
-	if (currentSong === null) {
-		return null;
-	}
-
-	var currIndex = songs.indexOf(currentSong.songId);
-	return songs[currIndex + 1];
-}
