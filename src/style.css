@@ -4,6 +4,11 @@
 	margin: 0 auto;
 }
 
+/* getting rid of scrollbar until i learn to make bottom playbar ignore it */
+::-webkit-scrollbar {
+	display: none;
+}
+
 .playlist-page__titlestats {
 	display: flex;
 	flex-direction: row;
@@ -240,6 +245,35 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: space-around;
+}
+
+.playing-bar {
+	display: flex;
+	position: fixed;
+	bottom: 0;
+	height: 70;
+	width: 100%;
+	left: 0;
+	background-color: #333333;
+	color: lightgray;
+	justify-content: center;
+}
+.playing-bar__width-wrapper {
+	width: 768px;
+	display: flex;
+}
+.playing-bar__play-controls {
+	display: flex;
+	width: 250px;
+	height: 100%;
+	align-items: flex-end;
+	justify-content: space-around;
+	padding-bottom: 20px;
+}
+.playing-bar__player {
+	display: flex;
+	padding-bottom: 10px;
+	padding-top: 10px;
 }
 /*
  * Thank you: http://getbootstrap.com.vn/examples/equal-height-columns/

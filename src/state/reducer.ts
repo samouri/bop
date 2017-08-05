@@ -148,7 +148,8 @@ function currentSort(
 function currentSong(state: any = null, action: any) {
 	if (action.type === PLAY_SONG) {
 		const invalidatedSong = !state || state.songId !== action.payload.songId;
-		return { songId: action.payload.songId, playing: true, invalidatedSong };
+		const songId = action.payload.songId ? action.payload.songId : state.songId;
+		return { songId, playing: true, invalidatedSong };
 	} else if (action.type === PAUSE_SONG) {
 		return { ...state, playing: false };
 	}
@@ -241,7 +242,8 @@ export function getCurrentPlaylistName(state: any) {
 	return state.currentPlaylistName;
 }
 
-export function getCurrentSong(state: any) {
+type CurrentSongState = { songId: number; isPlaying: boolean };
+export function getCurrentSong(state: any): CurrentSongState {
 	return state.currentSong;
 }
 

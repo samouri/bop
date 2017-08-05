@@ -7,6 +7,7 @@ import logger from 'redux-logger';
 import thunk from 'redux-thunk';
 import * as promise from 'redux-promise';
 import PlaylistPage from './components/playlist-page';
+import PlayingBar from './components/playing-bar';
 import './style.css';
 
 import bopApp from './state/reducer';
@@ -19,6 +20,7 @@ const Root = ({ store }: { store: any }) =>
 			<div>
 				<Route exact path="/" component={PlaylistPage} />
 				<Route path="/p/:playlistName" component={PlaylistPage} />
+				<Route path="" component={PlayingBar} />
 			</div>
 		</Router>
 	</Provider>;

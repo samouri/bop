@@ -19,7 +19,7 @@ export const SET_PLAYLIST_NAME = 'SET_PLAYLIST_NAME';
 /* action creators */
 export type Action = { type: string };
 export type SongIdPayload = { songId?: number };
-export type PlaylistIdPayload = { playlistId: number };
+export type PlaylistIdPayload = { playlistId?: number };
 // type NoPayload = undefined;
 export type UserPayload = { user };
 export type SetPlaylistNamePayload = { playlistName };

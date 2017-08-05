@@ -1,12 +1,10 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Player from 'react-player';
 import * as cx from 'classnames';
 
 import Header from './header';
 import SearchBar from './searchbar';
-import FTUEHero from './ftueBanner';
 import SongRow from './song-row';
 import TopContributors from './top-contributors';
 import sdk from '../sdk';
@@ -35,20 +33,6 @@ import {
 	getCurrentPlaylist,
 } from '../state/reducer';
 
-const YOUTUBE_PREFIX = 'https://www.youtube.com/watch?v=';
-
-const opts = {
-	playerVars: {
-		// https://developers.google.com/youtube/player_parameters
-		autoplay: 0,
-		controls: 1,
-		enablejsapi: 1,
-		modestbranding: 1,
-		playsinline: 1,
-	},
-	preload: true,
-};
-
 type Props = {
 	match: { params: any };
 	dispatch: any;
@@ -61,7 +45,6 @@ type Props = {
 	getSongById: any;
 	user: any;
 	sort: any;
-	showFTUEHero: boolean;
 };
 class PlaylistPage extends React.Component<Props> {
 	player: any = false;
@@ -128,14 +111,6 @@ class PlaylistPage extends React.Component<Props> {
 		}
 	}
 
-	handleOnPause = () => {
-		this.props.dispatch(pauseSong());
-	};
-
-	handleOnEnd = () => {
-		this.props.dispatch(playSong({ songId: this.props.nextSong }));
-	};
-
 	handleSearchSelection = async ({ title, artist, thumbnail_url }) => {
 		const { playlist, user } = this.props;
 		console.error(title, artist);
@@ -160,10 +135,6 @@ class PlaylistPage extends React.Component<Props> {
 	};
 	throttledSearchSelection = _.throttle(this.handleSearchSelection, 100);
 
-	handleOnPlay = (songId?) => {
-		this.props.dispatch(playSong({ songId: this.props.currentSong.songId }));
-	};
-
 	handleRegister = login => {
 		console.log('attempting to create user');
 		sdk.putUser(login.username, login.password).then(resp => {
@@ -187,8 +158,6 @@ class PlaylistPage extends React.Component<Props> {
 	render() {
 		const { playlist, currentSong, dispatch } = this.props;
 		const sort = this.props.sort.sort;
-		const shuffle = this.props.sort.shuffle;
-		var shuffleBtnClasses = cx('pointer', 'fa', 'fa-random', { active: shuffle });
 
 		const ret = (
 			<div>
@@ -201,10 +170,6 @@ class PlaylistPage extends React.Component<Props> {
 						<span>
 							{this.props.currentPlaylistName}{' '}
 						</span>
-						{/* <i
-							className={shuffleBtnClasses}
-							onClick={() => this.props.dispatch(shuffleSongs(playlist.id))}
-						/> */}
 						{this.props.playlist &&
 							<span className="playlist-page__title-createdby">
 								created by @{this.props.playlist.users.username}
@@ -220,19 +185,6 @@ class PlaylistPage extends React.Component<Props> {
 					<div style={{ display: 'block' }}>
 						<SearchBar handleSelection={this.throttledSearchSelection} />
 					</div>
-				</div>
-
-				<div className={this.props.showFTUEHero ? 'hidden' : ''}>
-					<Player
-						playing={currentSong && currentSong.playing}
-						url={`${YOUTUBE_PREFIX}${this.props.currentSong &&
-							this.props.getSongById(this.props.currentSong.songId).metadata.youtube_id}`}
-						width={768}
-						youtubeConfig={opts}
-						onEnded={this.handleOnEnd}
-						onPause={this.handleOnPause}
-						onPlay={this.handleOnPlay}
-					/>
 				</div>
 				<div className="">
 					<div className="header-row">
@@ -298,7 +250,6 @@ function mapStateToProps(state) {
 		currentSong: getCurrentSong(state),
 		currentPlaylistName: getCurrentPlaylistName(state),
 		playlist: getCurrentPlaylist(state),
-		showFTUEHero: getCurrentSong(state) === null,
 		getSongById: _.partial(getSongById, state),
 		sort: getCurrentSort(state),
 		nextSong: getNextSong(state),
