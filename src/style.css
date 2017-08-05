@@ -235,6 +235,12 @@
 	display: flex;
 	flex-direction: column;
 }
+
+.topcontributors__list {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
 /*
  * Thank you: http://getbootstrap.com.vn/examples/equal-height-columns/
  * Row with equal height columns

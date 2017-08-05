@@ -23,9 +23,7 @@
 import * as _ from 'lodash';
 import { combineReducers } from 'redux';
 import { Action } from 'redux-actions';
-
-const TOP = 'top';
-const NEW = 'new';
+import * as moment from 'moment';
 
 import {
 	FETCH_SONGS,
@@ -42,6 +40,8 @@ import {
 	RECEIVE_PLAYLIST,
 	SET_PLAYLIST_NAME,
 	SetPlaylistNamePayload,
+	SetSortPayload,
+	SORT,
 } from './actions';
 import { ApiSongData } from '../sdk';
 
@@ -120,7 +120,16 @@ function currentPlaylistName(state = 'All', action: Action<SetPlaylistNamePayloa
 	return state;
 }
 
-function currentSort(state = { sort: NEW, shuffle: false }, action: any) {
+function currentSort(
+	state: { sort: SORT; shuffle: boolean } = { sort: 'date', shuffle: false },
+	action: Action<SetSortPayload>
+) {
+	const { sort, shuffle } = state;
+
+	if (!action.payload) {
+		return state;
+	}
+
 	if (action.type === SET_SORT) {
 		return {
 			...state,
@@ -260,7 +269,7 @@ export const getContributorsInCurrentPlaylist = state => {
 	const contribs = _.map(songs, s => s.user.username);
 	const counts = _.countBy(contribs);
 	const sortedContribs = _.uniq(_.sortBy(contribs, (c: string) => counts[c]));
-	return _.take(sortedContribs, 5);
+	return _.take(sortedContribs, 2);
 };
 
 export function getSortedSongs(state: any): any {
@@ -269,12 +278,23 @@ export function getSortedSongs(state: any): any {
 		return null;
 	}
 
-	const sort = getCurrentSort(state).sort;
+	const sort: SORT = getCurrentSort(state).sort;
 
-	if (sort === TOP) {
-		return _.reverse(_.sortBy(songs, song => song.votes.length));
-	} else if (sort === NEW) {
-		return _.reverse(_.sortBy(songs, song => song.date_added));
+	switch (sort) {
+		case 'votes':
+			return _.reverse(_.sortBy(songs, song => song.votes.length));
+		case 'date':
+			return _.reverse(_.sortBy(songs, song => song.date_added));
+		case 'duration':
+			return _.sortBy(songs, song => moment.duration(song.metadata.youtube_duration).asSeconds());
+		case 'title':
+			return _.sortBy(songs, song => song.metadata.title);
+		case 'artist':
+			return _.sortBy(songs, song => song.metadata.artist);
+		case 'playlist':
+			return _.sortBy(songs, song => song.playlists.name);
+		case 'user':
+			return _.sortBy(songs, song => song.user.username);
 	}
 }
 

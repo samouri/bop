@@ -20,6 +20,7 @@ import {
 	shuffleSongs,
 	requestPlaylist,
 	setPlaylistName,
+	SORT,
 } from '../state/actions';
 import {
 	getCurrentSort,
@@ -35,8 +36,6 @@ import {
 } from '../state/reducer';
 
 const YOUTUBE_PREFIX = 'https://www.youtube.com/watch?v=';
-const TOP = 'top';
-const NEW = 'new';
 
 const opts = {
 	playerVars: {
@@ -70,7 +69,6 @@ class PlaylistPage extends React.Component<Props> {
 		selectedVideoId: null,
 		songs: [],
 		page: 0,
-		sort: TOP,
 		upvotes: {},
 		userInfo: {},
 	};
@@ -182,16 +180,14 @@ class PlaylistPage extends React.Component<Props> {
 		}
 	};
 
+	setSortHandler = (sort: SORT) => () => {
+		this.props.dispatch(setSort({ sort }));
+	};
+
 	render() {
 		const { playlist, currentSong, dispatch } = this.props;
 		const sort = this.props.sort.sort;
 		const shuffle = this.props.sort.shuffle;
-		var hotBtnClasses = cx('pointer', 'vote-info', {
-			active: sort === TOP,
-		});
-		var newBtnClasses = cx('pointer', 'song-date', {
-			active: sort === NEW,
-		});
 		var shuffleBtnClasses = cx('pointer', 'fa', 'fa-random', { active: shuffle });
 
 		const ret = (
@@ -225,6 +221,7 @@ class PlaylistPage extends React.Component<Props> {
 						<SearchBar handleSelection={this.throttledSearchSelection} />
 					</div>
 				</div>
+
 				<div className={this.props.showFTUEHero ? 'hidden' : ''}>
 					<Player
 						playing={currentSong && currentSong.playing}
@@ -240,17 +237,46 @@ class PlaylistPage extends React.Component<Props> {
 				<div className="">
 					<div className="header-row">
 						<span className="play-info" />
-						<span className={hotBtnClasses} onClick={() => dispatch(setSort({ sort: TOP }))}>
+						<span
+							className={cx('pointer vote-info', { active: sort === 'votes' })}
+							onClick={this.setSortHandler('votes')}
+						>
 							VOTES
 						</span>
-						<span className="song-title">TITLE</span>
-						<span className="song-artist">ARIST</span>
-						<span className="song-artist">PLAYLIST</span>
-						<span className={newBtnClasses} onClick={() => dispatch(setSort({ sort: NEW }))}>
+						<span
+							className={cx('song-title, pointer', { active: sort === 'title' })}
+							onClick={this.setSortHandler('title')}
+						>
+							TITLE
+						</span>
+						<span
+							className={cx('song-artist, pointer', { active: sort === 'artist' })}
+							onClick={this.setSortHandler('artist')}
+						>
+							ARIST
+						</span>
+						<span
+							className={cx('song-artist, pointer', { active: sort === 'playlist' })}
+							onClick={this.setSortHandler('playlist')}
+						>
+							PLAYLIST
+						</span>
+						<span
+							className={cx('song-date, pointer', { active: sort === 'date' })}
+							onClick={this.setSortHandler('date')}
+						>
 							POSTED
 						</span>
-						<span className="song-postee">USER</span>
-						<span className="song-duration">
+						<span
+							className={cx('song-postee, pointer', { active: sort === 'user' })}
+							onClick={this.setSortHandler('user')}
+						>
+							USER
+						</span>
+						<span
+							className={cx('song-duration, pointer', { active: sort === 'duration' })}
+							onClick={this.setSortHandler('duration')}
+						>
 							<i className="fa fa-lg fa-clock-o" />
 						</span>
 					</div>

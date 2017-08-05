@@ -34,7 +34,8 @@ export const loginUserSuccess = createAction<LoginUserSuccessPayload>(LOGIN_USER
 export const playSong = createAction<SongIdPayload>(PLAY_SONG);
 export const pauseSong = createAction(PAUSE_SONG);
 
-export type SetSortPayload = { sort };
+export type SORT = 'votes' | 'title' | 'artist' | 'playlist' | 'user' | 'duration' | 'date';
+export type SetSortPayload = { sort: SORT };
 export const setSort = createAction<SetSortPayload>(SET_SORT);
 export const shuffleSongs = createAction<PlaylistIdPayload>(SHUFFLE_SONGS);
 export const loginUserFailure = createAction<UserPayload>(LOGIN_USER_FAILURE);

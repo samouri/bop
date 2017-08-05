@@ -20,7 +20,9 @@ class TopContributors extends React.Component<Props> {
 		return (
 			<div className="topcontributors">
 				<span> Top Contributors</span>
-				{contribs}
+				<span className="topcontributors__list">
+					{contribs}
+				</span>
 			</div>
 		);
 	}
