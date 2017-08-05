@@ -5,9 +5,12 @@ import { connect } from 'react-redux';
 import { playSong } from '../state/actions';
 import { getSortedSongs } from '../state/reducer';
 
-const mapStateToProps = (state: any) => ({
-	firstSong: getSortedSongs(state)[0],
-});
+const mapStateToProps = (state: any) => {
+	const songs = getSortedSongs(state);
+	const firstSong = songs ? songs[0] : null;
+
+	return { firstSong };
+};
 
 const FTUEHero = ({ playSong, firstSong }: { playSong: any; firstSong: any }) =>
 	<div id="ftue-hero">

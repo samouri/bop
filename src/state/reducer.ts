@@ -49,7 +49,7 @@ const songsInitialState = {
 	isFetching: false,
 	didInvalidate: false,
 	page: 0,
-	songs: [],
+	songs: null,
 };
 
 function songsById(state = {}, action: Action<any>) {
@@ -71,7 +71,7 @@ function songs(state = songsInitialState, action: any) {
 				...state,
 				isFetching: false,
 				didInvalidate: false,
-				songs: _.uniq([..._.map(action.payload.songs, 'id'), ...state.songs]),
+				songs: _.uniq([..._.map(action.payload.songs, 'id'), ...(state.songs || [])]),
 			};
 		case DELETE_SONG:
 			return {
@@ -197,8 +197,8 @@ export default BopApp;
 // Selectors
 
 const getSongsInPlaylist = (state: any, playlist: any) => {
-	if (!playlist) {
-		return [];
+	if (!playlist || !playlist.songs) {
+		return null;
 	}
 
 	const songIds = playlist.songs;
@@ -243,7 +243,7 @@ export function getCurrentSort(state: any) {
 export const getCurrentPlaylist: any = (state: any) =>
 	_.find(state.playlists, { name: getCurrentPlaylistName(state) });
 
-export function getSongsInCurrentPlaylist(state: any): ApiSongData[] {
+export function getSongsInCurrentPlaylist(state: any): null | ApiSongData[] {
 	return getSongsInPlaylist(state, getCurrentPlaylist(state));
 }
 
@@ -259,12 +259,16 @@ export const getContributorsInCurrentPlaylist = state => {
 	const songs = getSongsInCurrentPlaylist(state);
 	const contribs = _.map(songs, s => s.user.username);
 	const counts = _.countBy(contribs);
-	const sortedContribs = _.sortBy(contribs, (c: string) => counts[c]);
+	const sortedContribs = _.uniq(_.sortBy(contribs, (c: string) => counts[c]));
 	return _.take(sortedContribs, 5);
 };
 
 export function getSortedSongs(state: any): any {
 	const songs = getSongsInCurrentPlaylist(state);
+	if (!songs) {
+		return null;
+	}
+
 	const sort = getCurrentSort(state).sort;
 
 	if (sort === TOP) {

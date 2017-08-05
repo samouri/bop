@@ -8,6 +8,7 @@ import Header from './header';
 import SearchBar from './searchbar';
 import FTUEHero from './ftueBanner';
 import SongRow from './song-row';
+import TopContributors from './top-contributors';
 import sdk from '../sdk';
 
 import {
@@ -74,22 +75,29 @@ class PlaylistPage extends React.Component<Props> {
 		userInfo: {},
 	};
 
+	fetchSongs = _.throttle(
+		(props = this.props) => props.dispatch(fetchSongs({ playlistId: props.playlist.id })),
+		200
+	);
+
 	componentWillMount() {
 		const { match: { params }, dispatch } = this.props;
 		if (params.playlistName) {
 			dispatch(setPlaylistName({ playlistName: params.playlistName }));
 		}
 	}
-	fetchSongs = _.throttle(
-		(props = this.props) => props.dispatch(fetchSongs({ playlistId: props.playlist.id })),
-		200
-	);
 	componentWillReceiveProps(nextProps) {
 		const { match: { params }, dispatch } = nextProps;
 
-		if (_.isEmpty(nextProps.songs) && nextProps.playlist) {
+		console.error(nextProps.songs);
+		if (
+			nextProps.songs === null &&
+			nextProps.playlist &&
+			nextProps.playlist !== this.props.playlist
+		) {
 			this.fetchSongs(nextProps);
 		}
+
 		if (params.playlistName) {
 			dispatch(setPlaylistName({ playlistName: params.playlistName }));
 		} else if (_.isEmpty(params)) {
@@ -144,6 +152,7 @@ class PlaylistPage extends React.Component<Props> {
 			});
 		}
 
+		console.error(user, playlist, songMeta);
 		sdk
 			.addSongToPlaylist({ userId: user.id, playlistId: playlist.id, metaId: songMeta.id })
 			.then(() => this.fetchSongs())
@@ -192,16 +201,22 @@ class PlaylistPage extends React.Component<Props> {
 					onRegister={this.handleRegister}
 				/>
 				<div className="playlist-page__titlestats">
-					<div className="playlist-page__title-area">
-						<span className="playlist-page__title">
-							{this.props.currentPlaylistName}
-							{/* <i
+					<span className="playlist-page__title">
+						<span>
+							{this.props.currentPlaylistName}{' '}
+						</span>
+						{/* <i
 							className={shuffleBtnClasses}
 							onClick={() => this.props.dispatch(shuffleSongs(playlist.id))}
 						/> */}
-						</span>
+						{this.props.playlist &&
+							<span className="playlist-page__title-createdby">
+								created by @{this.props.playlist.users.username}
+							</span>}
+					</span>
+					<div className="playlist-page__top-contribs">
+						<TopContributors />
 					</div>
-					{/* <div className="stats-area">Stats Area</div> */}
 				</div>
 
 				<div className="playlist-page__search-bar">
@@ -210,8 +225,6 @@ class PlaylistPage extends React.Component<Props> {
 						<SearchBar handleSelection={this.throttledSearchSelection} />
 					</div>
 				</div>
-				{this.props.showFTUEHero && <FTUEHero />}
-
 				<div className={this.props.showFTUEHero ? 'hidden' : ''}>
 					<Player
 						playing={currentSong && currentSong.playing}

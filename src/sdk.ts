@@ -99,6 +99,7 @@ class BopSdk {
 	getPlaylistForName = async (playlistName: string): Promise<api.Playlists> => {
 		const getPlaylists = api.PlaylistsApiFp.playlistsGet({
 			name: `eq.${encodeURIComponent(playlistName)}`,
+			select: '*,users{id,username}',
 		});
 		const resp = await getPlaylists(fetch, config.swaggerHost);
 		const matches = await resp.json();

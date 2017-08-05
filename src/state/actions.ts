@@ -50,9 +50,11 @@ export const requestPlaylist = ({ playlistName, userId }) => async dispatch => {
 		dispatch(receivePlaylist({ playlist }));
 	} catch (err) {
 		// TODO this is a hack for now to add the playlist if it doens't exist
-		await sdk.createPlaylist({ playlistName, userId });
-		const playlist = await sdk.getPlaylistForName(playlistName);
-		dispatch(receivePlaylist({ playlist }));
+		if (userId) {
+			await sdk.createPlaylist({ playlistName, userId });
+			const playlist = await sdk.getPlaylistForName(playlistName);
+			dispatch(receivePlaylist({ playlist }));
+		}
 		console.error(err);
 	}
 };

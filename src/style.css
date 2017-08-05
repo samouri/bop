@@ -8,22 +8,24 @@
 	display: flex;
 	flex-direction: row;
 	justify-content: center;
-	padding-bottom: 50px;
+	padding-bottom: 20px;
 }
-/* .stats-area {
-	width: 200px;
-	height: 150;
-	display: flex;
-} */
-.playlist-page__title-area {
-	display: flex;
-	flex-direction: row;
-	justify-content: center;
-}
+
 .playlist-page__title {
 	font-family: 'Roboto', sans-serif;
 	font-size: 32px;
+	margin-left: auto;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
 }
+.playlist-page__title-createdby {
+	font-size: 18px;
+}
+.playlist-page__top-contribs {
+	margin-left: auto;
+}
+
 .playlist-page__search-bar {
 	display: flex;
 	flex-direction: row;
@@ -147,8 +149,8 @@
 	font-weight: 300;
 	font-size: 24px;
 	color: #464444;
-	padding-left: 1.5px;
-	margin-top: -5px;
+	padding-left: 0.5px;
+	margin-top: -10px;
 }
 
 .duration {
@@ -227,6 +229,11 @@
 	line-height: 68px;
 	display: block;
 	text-align: center;
+}
+
+.topcontributors {
+	display: flex;
+	flex-direction: column;
 }
 /*
  * Thank you: http://getbootstrap.com.vn/examples/equal-height-columns/
