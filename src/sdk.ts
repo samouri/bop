@@ -136,10 +136,11 @@ class BopSdk {
 	}): Promise<api.Metadata> => {
 		const metadataParams: any = {};
 
-		youtubeId && (metadataParams.youtube_id = `eq.${youtubeId}`);
+		youtubeId && (metadataParams.youtubeId = `eq.${youtubeId}`);
 		title && (metadataParams.title = `eq.${title}`);
 		artist && (metadataParams.artist = `eq.${artist}`);
 
+		console.error('parmas', metadataParams);
 		const getMetadata = api.MetadataApiFp.metadataGet(metadataParams);
 		const resp = await getMetadata(fetch, config.swaggerHost);
 		return _.first(await resp.json()) as api.Metadata;

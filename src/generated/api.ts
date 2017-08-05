@@ -519,7 +519,7 @@ export const MetadataApiFp = {
 			order?: string;
 			prefer?: string;
 			id?: string;
-			youtubeId?: string;
+			youtube_id?: string;
 			youtubeTitle?: string;
 			title?: string;
 			artist?: string;

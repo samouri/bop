@@ -112,11 +112,12 @@ class PlaylistPage extends React.Component<Props> {
 
 	handleSearchSelection = async ({ title, artist, thumbnail_url }) => {
 		const { playlist, user } = this.props;
-		console.error(title, artist);
-		let songMeta = await sdk.getSongMetadata({ title, artist });
+
+		const youtubeSearchMeta = await sdk.searchYoutube({ title, artist });
+		let songMeta = await sdk.getSongMetadata({ youtubeId: youtubeSearchMeta.youtube_id });
+
 		// if we don't have the meta for it yet, create it
 		if (!songMeta) {
-			const youtubeSearchMeta = await sdk.searchYoutube({ title, artist });
 			const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeSearchMeta.youtube_id);
 			const youtubeMeta = { ...youtubeSearchMeta, ...youtubeDuration };
 			songMeta = await sdk.addSongMetadata({
@@ -124,7 +125,7 @@ class PlaylistPage extends React.Component<Props> {
 			});
 		}
 
-		console.error(user, playlist, songMeta);
+		console.error(songMeta, user, playlist);
 		sdk
 			.addSongToPlaylist({ userId: user.id, playlistId: playlist.id, metaId: songMeta.id })
 			.then(() => this.fetchSongs())
