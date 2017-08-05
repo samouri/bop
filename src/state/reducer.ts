@@ -43,6 +43,7 @@ import {
 	SET_PLAYLIST_NAME,
 	SetPlaylistNamePayload,
 } from './actions';
+import { ApiSongData } from '../sdk';
 
 const songsInitialState = {
 	isFetching: false,
@@ -195,7 +196,7 @@ export default BopApp;
 
 // Selectors
 
-function getSongsInPlaylist(state: any, playlist: any) {
+const getSongsInPlaylist = (state: any, playlist: any) => {
 	if (!playlist) {
 		return [];
 	}
@@ -203,7 +204,7 @@ function getSongsInPlaylist(state: any, playlist: any) {
 	const songIds = playlist.songs;
 	const songs = _.map(songIds, (songId: number) => state.songsById[songId]);
 	return songs;
-}
+};
 
 export const getPlaylistById = (state: any, playlistId) => _.get(state.playlists, playlistId);
 
@@ -242,7 +243,7 @@ export function getCurrentSort(state: any) {
 export const getCurrentPlaylist: any = (state: any) =>
 	_.find(state.playlists, { name: getCurrentPlaylistName(state) });
 
-export function getSongs(state: any) {
+export function getSongsInCurrentPlaylist(state: any): ApiSongData[] {
 	return getSongsInPlaylist(state, getCurrentPlaylist(state));
 }
 
@@ -254,9 +255,16 @@ export function getShuffledSongsInPlaylist(state: any, playlistId: string) {
 	}
 	return [];
 }
+export const getContributorsInCurrentPlaylist = state => {
+	const songs = getSongsInCurrentPlaylist(state);
+	const contribs = _.map(songs, s => s.user.username);
+	const counts = _.countBy(contribs);
+	const sortedContribs = _.sortBy(contribs, (c: string) => counts[c]);
+	return _.take(sortedContribs, 5);
+};
 
 export function getSortedSongs(state: any): any {
-	const songs = getSongs(state);
+	const songs = getSongsInCurrentPlaylist(state);
 	const sort = getCurrentSort(state).sort;
 
 	if (sort === TOP) {

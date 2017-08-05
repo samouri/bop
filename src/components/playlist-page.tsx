@@ -165,19 +165,24 @@ class PlaylistPage extends React.Component<Props> {
 	};
 
 	renderSongsList = () => {
-		if (_.isEmpty(this.props.songs)) {
+		const { songs } = this.props;
+		if (_.isEmpty(songs)) {
 			return <p> Theres a first for everything </p>;
 		} else {
-			return _.map(this.props.songs, (song: any) => <SongRow songId={song.id} />);
+			return _.map(songs, (song: any) => <SongRow key={song.id} songId={song.id} />);
 		}
 	};
 
 	render() {
-		const { playlist, currentSong } = this.props;
+		const { playlist, currentSong, dispatch } = this.props;
 		const sort = this.props.sort.sort;
 		const shuffle = this.props.sort.shuffle;
-		var hotBtnClasses = cx('pointer', 'playlist-page__title-area-sort ', { active: sort === TOP });
-		var newBtnClasses = cx('pointer', 'playlist-page__title-area-sort', { active: sort === NEW });
+		var hotBtnClasses = cx('pointer', 'vote-info', {
+			active: sort === TOP,
+		});
+		var newBtnClasses = cx('pointer', 'song-date', {
+			active: sort === NEW,
+		});
 		var shuffleBtnClasses = cx('pointer', 'fa', 'fa-random', { active: shuffle });
 
 		const ret = (
@@ -194,18 +199,6 @@ class PlaylistPage extends React.Component<Props> {
 							className={shuffleBtnClasses}
 							onClick={() => this.props.dispatch(shuffleSongs(playlist.id))}
 						/> */}
-						</span>
-						<span
-							className={newBtnClasses}
-							onClick={() => this.props.dispatch(setSort({ sort: NEW }))}
-						>
-							New
-						</span>
-						<span
-							className={hotBtnClasses}
-							onClick={() => this.props.dispatch(setSort({ sort: TOP }))}
-						>
-							Hot
 						</span>
 					</div>
 					{/* <div className="stats-area">Stats Area</div> */}
@@ -234,11 +227,15 @@ class PlaylistPage extends React.Component<Props> {
 				<div className="">
 					<div className="header-row">
 						<span className="play-info" />
-						<span className="vote-info">VOTES</span>
+						<span className={hotBtnClasses} onClick={() => dispatch(setSort({ sort: TOP }))}>
+							VOTES
+						</span>
 						<span className="song-title">TITLE</span>
 						<span className="song-artist">ARIST</span>
 						<span className="song-artist">PLAYLIST</span>
-						<span className="song-date">POSTED</span>
+						<span className={newBtnClasses} onClick={() => dispatch(setSort({ sort: NEW }))}>
+							POSTED
+						</span>
 						<span className="song-postee">USER</span>
 						<span className="song-duration">
 							<i className="fa fa-lg fa-clock-o" />
