@@ -195,37 +195,37 @@ class PlaylistPage extends React.Component<Props> {
 							VOTES
 						</span>
 						<span
-							className={cx('song-title, pointer', { active: sort === 'title' })}
+							className={cx('song-title pointer', { active: sort === 'title' })}
 							onClick={this.setSortHandler('title')}
 						>
 							TITLE
 						</span>
 						<span
-							className={cx('song-artist, pointer', { active: sort === 'artist' })}
+							className={cx('song-artist pointer', { active: sort === 'artist' })}
 							onClick={this.setSortHandler('artist')}
 						>
 							ARIST
 						</span>
 						<span
-							className={cx('song-artist, pointer', { active: sort === 'playlist' })}
+							className={cx('song-artist pointer', { active: sort === 'playlist' })}
 							onClick={this.setSortHandler('playlist')}
 						>
 							PLAYLIST
 						</span>
 						<span
-							className={cx('song-date, pointer', { active: sort === 'date' })}
+							className={cx('song-date pointer', { active: sort === 'date' })}
 							onClick={this.setSortHandler('date')}
 						>
 							POSTED
 						</span>
 						<span
-							className={cx('song-postee, pointer', { active: sort === 'user' })}
+							className={cx('song-postee pointer', { active: sort === 'user' })}
 							onClick={this.setSortHandler('user')}
 						>
 							USER
 						</span>
 						<span
-							className={cx('song-duration, pointer', { active: sort === 'duration' })}
+							className={cx('song-duration pointer', { active: sort === 'duration' })}
 							onClick={this.setSortHandler('duration')}
 						>
 							<i className="fa fa-lg fa-clock-o" />
