@@ -55,9 +55,10 @@ class SongRow extends React.Component<Props> {
 	render() {
 		const { title, artist, thumbnail_url } = _.get(this.props.song, 'metadata') || ({} as any);
 		const { id: songId, votes } = this.props.song;
+		const { isPlaying } = this.props;
 		var playOrPauseClasses = cx('fa', 'fa-2x', {
-			'fa-pause': this.props.isPlaying,
-			'fa-play': !this.props.isPlaying,
+			'fa-pause': isPlaying,
+			'fa-play': !isPlaying,
 			'selected-purple': this.props.isSelected,
 		});
 
@@ -66,20 +67,23 @@ class SongRow extends React.Component<Props> {
 				(this.props.isUpvoted && this.state.voteModifier !== -1) || this.state.voteModifier === 1,
 		});
 
-		const handlePausePlay = this.props.isPlaying
+		const handlePausePlay = isPlaying
 			? () => this.props.dispatch(pauseSong())
 			: () => this.props.dispatch(playSong({ songId }));
 
 		const playlistName = this.props.song.playlists.name;
+		const backgroundColor = isPlaying || this.state.hovered ? 'lightgray' : '';
 		return (
 			<div
 				className="song-div row-eq-height"
 				onMouseEnter={this.handleMouseOver}
 				onMouseLeave={this.handleMouseOut}
 				onDoubleClick={handlePausePlay}
+				style={{ backgroundColor }}
 			>
 				<span className="play-info">
-					{this.state.hovered && <i className={playOrPauseClasses} onClick={handlePausePlay} />}
+					{(isPlaying || this.state.hovered) &&
+						<i className={playOrPauseClasses} onClick={handlePausePlay} />}
 				</span>
 				<span className="vote-info">
 					<i className={upChevronClasses} onClick={this.handleUpvote} />

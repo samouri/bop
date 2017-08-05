@@ -70,37 +70,35 @@ class Header extends React.Component<Props> {
 	};
 
 	render() {
-		let loginText = this.props.username || 'Login';
+		const { username } = this.props;
+		let loginText = username ? `@${username}` : 'Login';
 
 		return (
-			<div id="header" className="row">
-				<div className="col-xs-4">
-					<h1 id="bop_header" className="pull-left">
+			<div>
+				<div className="header">
+					<h1 className="header__bop pointer">
 						<Link to="/"> Bop </Link>
 					</h1>
-					<h2 className="pull-left top-header">
-						{' '}{this.props.playlist.substring(0, 10)}{' '}
-					</h2>
-				</div>
-				<div className="col-xs-3 col-xs-offset-5">
-					<h3 className="pull-right pointer" onClick={this.handleClick}>
-						{' '}{loginText}{' '}
+					<h3 className="header__login pointer" onClick={this.handleClick}>
+						{loginText} <i className="fa fa-caret-down" />
 					</h3>
+				</div>
+				<div className="header__login-form">
 					{this.state.showLoginForm &&
 						!this.props.username &&
-						<form>
+						<form className="header__login-form-dropdown">
 							<input
 								type="text"
 								placeholder="username"
 								value={this.state.username}
 								onChange={this.handleUsernameChange}
 							/>
-							<input
+							{/* <input
 								type="password"
 								placeholder="password"
 								value={this.state.password}
 								onChange={this.handlePasswordChange}
-							/>
+							/> */}
 							<div style={{ display: 'flex' }}>
 								<a onClick={this.handleRegister} className="header__logintext">
 									new account
@@ -111,8 +109,9 @@ class Header extends React.Component<Props> {
 							</div>
 							<input type="submit" style={{ display: 'none' }} onClick={this.handleLogin} />
 						</form>}
+
 					{this.state.showLogoutForm &&
-						<a onClick={this.handleLogout} className="btn btn-info btn-lg">
+						<a onClick={this.handleLogout} className="header__login-form-dropdown">
 							<span className="glyphicon glyphicon-log-out" /> Log out
 						</a>}
 				</div>

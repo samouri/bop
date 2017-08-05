@@ -4,39 +4,80 @@
 	margin: 0 auto;
 }
 
-.top-header {
-	font-family: 'Roboto', sans-serif;
-	font-size: 26px;
-	line-height: 36px;
-	margin-left: 10px;
+/* getting rid of scrollbar until i learn to make bottom playbar ignore it */
+::-webkit-scrollbar {
+	display: none;
 }
-#bop_header,
-#bop_header a {
+
+.playlist-page__titlestats {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+	padding-bottom: 20px;
+}
+
+.playlist-page__title {
 	font-family: 'Roboto', sans-serif;
-	font-size: 55px;
+	font-size: 32px;
+	margin-left: auto;
+	display: flex;
+	flex-direction: column;
+	text-align: center;
+}
+.playlist-page__title-createdby {
+	font-size: 18px;
+}
+.playlist-page__top-contribs {
+	margin-left: auto;
+}
+
+.playlist-page__search-bar {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+}
+.playlist-page__search-bar i {
+	padding-top: 10px;
+	z-index: 99;
+}
+.playlist-page__search-bar div {
+	width: 250px;
+}
+
+.Select-arrow-zone {
+	display: none;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	height: 45px;
+	padding-top: 5px;
+}
+
+.header__bop,
+.header__bop a {
+	font-family: 'Roboto', sans-serif;
+	font-size: 40px;
 	font-weight: 300;
 	color: #a223bc;
 	margin: 0;
 	text-decoration: none;
 }
-
-#gradient_bar {
-	background-image: -webkit-linear-gradient(90deg, #4e4e4e 0%, #000000 100%);
-	background-image: linear-gradient(0deg, #4e4e4e 0%, #000000 100%);
-	height: 68px;
-	margin-top: -6px;
-	display: -webkit-box;
-	display: -webkit-flex;
-	display: -ms-flexbox;
-	display: flex;
-	-webkit-box-align: center;
-	-webkit-align-items: center;
-	-ms-flex-align: center;
-	align-items: center;
+.header__login {
+	margin: 0;
+	align-self: middle;
 }
-
-#gradient_bar i {
-	color: #ffffff;
+.header__login-form {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
+	position: relative;
+}
+.header__login-form-dropdown {
+	position: absolute;
+	right: 0;
+	z-index: 69;
 }
 
 .selected-purple {
@@ -106,6 +147,7 @@
 .song-div span {
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .vote-count {
@@ -113,8 +155,8 @@
 	font-weight: 300;
 	font-size: 24px;
 	color: #464444;
-	padding-left: 1.5px;
-	margin-top: -5px;
+	padding-left: 0.5px;
+	margin-top: -10px;
 }
 
 .duration {
@@ -154,25 +196,9 @@
 	text-align: center;
 }
 
-.filter-btn {
-	font-family: Roboto;
-	font-weight: 300;
-	font-size: 20px;
-	border: 2px solid purple;
-	color: white;
-	float: left;
-	width: 84px;
-	height: 35px;
-	text-align: center;
-}
-
-.filter-btn.active {
-	background-color: purple;
-}
-#gradient_bar i.fa-random.active {
+.active {
 	color: purple;
 }
-
 .pointer {
 	cursor: pointer;
 }
@@ -180,6 +206,7 @@
 	background-image: url("./images/listening.png");
 	height: 365px;
 	background-position-y: -90px;
+	clear: both;
 }
 #ftue-hero-text {
 	font-family: Roboto;
@@ -209,6 +236,75 @@
 	display: block;
 	text-align: center;
 }
+
+.topcontributors {
+	display: flex;
+	flex-direction: column;
+}
+
+.topcontributors__list {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+
+.playing-bar {
+	display: flex;
+	position: fixed;
+	bottom: 0;
+	height: 70;
+	width: 100%;
+	left: 0;
+	background-color: #333333;
+	color: lightgray;
+	justify-content: center;
+}
+.playing-bar__width-wrapper {
+	width: 768px;
+	display: flex;
+}
+.playing-bar__play-controls {
+	display: flex;
+	width: 250px;
+	height: 100%;
+	align-items: flex-end;
+	justify-content: space-around;
+	padding-bottom: 20px;
+}
+.playing-bar__player {
+	display: flex;
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+.playing-bar__play-info {
+	display: flex;
+	width: 250px;
+}
+.playing-bar__thumb,
+.playing-bar__arttit {
+	max-height: 60px;
+	padding-bottom: 10px;
+	align-self: flex-end;
+	display: flex;
+	flex-direction: column;
+	padding-left: 10px;
+}
+.playing-bar__thumb {
+	max-width: 60px;
+}
+.playing-bar__arttit {
+	width: 190px;
+}
+.playing-bar__title {
+	font-size: 20px;
+}
+.playing-bar__artist,
+.playing-bar__title {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
 /*
  * Thank you: http://getbootstrap.com.vn/examples/equal-height-columns/
  * Row with equal height columns

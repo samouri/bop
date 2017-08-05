@@ -19,7 +19,7 @@ export const SET_PLAYLIST_NAME = 'SET_PLAYLIST_NAME';
 /* action creators */
 export type Action = { type: string };
 export type SongIdPayload = { songId?: number };
-export type PlaylistIdPayload = { playlistId: number };
+export type PlaylistIdPayload = { playlistId?: number };
 // type NoPayload = undefined;
 export type UserPayload = { user };
 export type SetPlaylistNamePayload = { playlistName };
@@ -34,7 +34,8 @@ export const loginUserSuccess = createAction<LoginUserSuccessPayload>(LOGIN_USER
 export const playSong = createAction<SongIdPayload>(PLAY_SONG);
 export const pauseSong = createAction(PAUSE_SONG);
 
-export type SetSortPayload = { sort };
+export type SORT = 'votes' | 'title' | 'artist' | 'playlist' | 'user' | 'duration' | 'date';
+export type SetSortPayload = { sort: SORT };
 export const setSort = createAction<SetSortPayload>(SET_SORT);
 export const shuffleSongs = createAction<PlaylistIdPayload>(SHUFFLE_SONGS);
 export const loginUserFailure = createAction<UserPayload>(LOGIN_USER_FAILURE);
@@ -50,9 +51,11 @@ export const requestPlaylist = ({ playlistName, userId }) => async dispatch => {
 		dispatch(receivePlaylist({ playlist }));
 	} catch (err) {
 		// TODO this is a hack for now to add the playlist if it doens't exist
-		await sdk.createPlaylist({ playlistName, userId });
-		const playlist = await sdk.getPlaylistForName(playlistName);
-		dispatch(receivePlaylist({ playlist }));
+		if (userId) {
+			await sdk.createPlaylist({ playlistName, userId });
+			const playlist = await sdk.getPlaylistForName(playlistName);
+			dispatch(receivePlaylist({ playlist }));
+		}
 		console.error(err);
 	}
 };

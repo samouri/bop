@@ -1,13 +1,12 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import Player from 'react-player';
 import * as cx from 'classnames';
 
 import Header from './header';
 import SearchBar from './searchbar';
-import FTUEHero from './ftueBanner';
 import SongRow from './song-row';
+import TopContributors from './top-contributors';
 import sdk from '../sdk';
 
 import {
@@ -19,6 +18,7 @@ import {
 	shuffleSongs,
 	requestPlaylist,
 	setPlaylistName,
+	SORT,
 } from '../state/actions';
 import {
 	getCurrentSort,
@@ -33,22 +33,6 @@ import {
 	getCurrentPlaylist,
 } from '../state/reducer';
 
-const YOUTUBE_PREFIX = 'https://www.youtube.com/watch?v=';
-const TOP = 'top';
-const NEW = 'new';
-
-const opts = {
-	playerVars: {
-		// https://developers.google.com/youtube/player_parameters
-		autoplay: 0,
-		controls: 1,
-		enablejsapi: 1,
-		modestbranding: 1,
-		playsinline: 1,
-	},
-	preload: true,
-};
-
 type Props = {
 	match: { params: any };
 	dispatch: any;
@@ -61,7 +45,6 @@ type Props = {
 	getSongById: any;
 	user: any;
 	sort: any;
-	showFTUEHero: boolean;
 };
 class PlaylistPage extends React.Component<Props> {
 	player: any = false;
@@ -69,10 +52,14 @@ class PlaylistPage extends React.Component<Props> {
 		selectedVideoId: null,
 		songs: [],
 		page: 0,
-		sort: TOP,
 		upvotes: {},
 		userInfo: {},
 	};
+
+	fetchSongs = _.throttle(
+		(props = this.props) => props.dispatch(fetchSongs({ playlistId: props.playlist.id })),
+		200
+	);
 
 	componentWillMount() {
 		const { match: { params }, dispatch } = this.props;
@@ -80,16 +67,17 @@ class PlaylistPage extends React.Component<Props> {
 			dispatch(setPlaylistName({ playlistName: params.playlistName }));
 		}
 	}
-	fetchSongs = _.throttle(
-		(props = this.props) => props.dispatch(fetchSongs({ playlistId: props.playlist.id })),
-		200
-	);
 	componentWillReceiveProps(nextProps) {
 		const { match: { params }, dispatch } = nextProps;
 
-		if (_.isEmpty(nextProps.songs) && nextProps.playlist) {
+		if (
+			nextProps.songs === null &&
+			nextProps.playlist &&
+			nextProps.playlist !== this.props.playlist
+		) {
 			this.fetchSongs(nextProps);
 		}
+
 		if (params.playlistName) {
 			dispatch(setPlaylistName({ playlistName: params.playlistName }));
 		} else if (_.isEmpty(params)) {
@@ -122,14 +110,6 @@ class PlaylistPage extends React.Component<Props> {
 		}
 	}
 
-	handleOnPause = () => {
-		this.props.dispatch(pauseSong());
-	};
-
-	handleOnEnd = () => {
-		this.props.dispatch(playSong({ songId: this.props.nextSong }));
-	};
-
 	handleSearchSelection = async ({ title, artist, thumbnail_url }) => {
 		const { playlist, user } = this.props;
 		console.error(title, artist);
@@ -144,6 +124,7 @@ class PlaylistPage extends React.Component<Props> {
 			});
 		}
 
+		console.error(user, playlist, songMeta);
 		sdk
 			.addSongToPlaylist({ userId: user.id, playlistId: playlist.id, metaId: songMeta.id })
 			.then(() => this.fetchSongs())
@@ -153,10 +134,6 @@ class PlaylistPage extends React.Component<Props> {
 	};
 	throttledSearchSelection = _.throttle(this.handleSearchSelection, 100);
 
-	handleOnPlay = (songId?) => {
-		this.props.dispatch(playSong({ songId: this.props.currentSong.songId }));
-	};
-
 	handleRegister = login => {
 		console.log('attempting to create user');
 		sdk.putUser(login.username, login.password).then(resp => {
@@ -165,80 +142,92 @@ class PlaylistPage extends React.Component<Props> {
 	};
 
 	renderSongsList = () => {
-		if (_.isEmpty(this.props.songs)) {
+		const { songs } = this.props;
+		if (_.isEmpty(songs)) {
 			return <p> Theres a first for everything </p>;
 		} else {
-			return _.map(this.props.songs, (song: any) => <SongRow songId={song.id} />);
+			return _.map(songs, (song: any) => <SongRow key={song.id} songId={song.id} />);
 		}
 	};
 
+	setSortHandler = (sort: SORT) => () => {
+		this.props.dispatch(setSort({ sort }));
+	};
+
 	render() {
-		const { playlist, currentSong } = this.props;
-		console.error('currentSong', currentSong);
+		const { playlist, currentSong, dispatch } = this.props;
 		const sort = this.props.sort.sort;
-		const shuffle = this.props.sort.shuffle;
-		var hotBtnClasses = cx('filter-btn', 'pointer', { active: sort === TOP });
-		var newBtnClasses = cx('filter-btn', 'pointer', { active: sort === NEW });
-		var shuffleBtnClasses = cx('pointer', 'fa', 'fa-random', { active: shuffle });
 
 		const ret = (
-			<div className="row">
-				<div className="row">
-					<Header
-						onLogin={(login: any) => this.props.dispatch(loginUser(login))}
-						onRegister={this.handleRegister}
-					/>
+			<div>
+				<Header
+					onLogin={(login: any) => this.props.dispatch(loginUser(login))}
+					onRegister={this.handleRegister}
+				/>
+				<div className="playlist-page__titlestats">
+					<span className="playlist-page__title">
+						<span>
+							{this.props.currentPlaylistName}{' '}
+						</span>
+						{this.props.playlist &&
+							<span className="playlist-page__title-createdby">
+								created by @{this.props.playlist.users.username}
+							</span>}
+					</span>
+					<div className="playlist-page__top-contribs">
+						<TopContributors />
+					</div>
 				</div>
 
-				{this.props.showFTUEHero && <FTUEHero />}
-
-				<div className={this.props.showFTUEHero ? 'hidden' : 'row'}>
-					<Player
-						playing={currentSong && currentSong.playing}
-						url={`${YOUTUBE_PREFIX}${this.props.currentSong &&
-							this.props.getSongById(this.props.currentSong.songId).metadata.youtube_id}`}
-						width={828}
-						youtubeConfig={opts}
-						onEnded={this.handleOnEnd}
-						onPause={this.handleOnPause}
-						onPlay={this.handleOnPlay}
-					/>
-				</div>
-				<div className={'row'} id={'gradient_bar'}>
-					<div className="col-xs-offset-4 cols-xs-1">
-						<i
-							className={shuffleBtnClasses}
-							onClick={() => this.props.dispatch(shuffleSongs(playlist.id))}
-						/>
-					</div>
-					<div className="btn-group col-xs-3" role="group">
-						<div
-							className={hotBtnClasses}
-							onClick={() => this.props.dispatch(setSort({ sort: TOP }))}
-						>
-							Hot
-						</div>
-						<div
-							className={newBtnClasses}
-							onClick={() => this.props.dispatch(setSort({ sort: NEW }))}
-						>
-							New
-						</div>
-					</div>
-					<div className="col-xs-4 col-xs-offset-1">
+				<div className="playlist-page__search-bar">
+					<i className="fa fa-search" />
+					<div style={{ display: 'block' }}>
 						<SearchBar handleSelection={this.throttledSearchSelection} />
 					</div>
 				</div>
-				<div className="row">
+				<div className="">
 					<div className="header-row">
 						<span className="play-info" />
-						<span className="vote-info">VOTES</span>
-						<span className="song-title">TITLE</span>
-						<span className="song-artist">ARIST</span>
-						<span className="song-artist">PLAYLIST</span>
-						<span className="song-date">POSTED</span>
-						<span className="song-postee">USER</span>
-						<span className="song-duration">
+						<span
+							className={cx('pointer vote-info', { active: sort === 'votes' })}
+							onClick={this.setSortHandler('votes')}
+						>
+							VOTES
+						</span>
+						<span
+							className={cx('song-title, pointer', { active: sort === 'title' })}
+							onClick={this.setSortHandler('title')}
+						>
+							TITLE
+						</span>
+						<span
+							className={cx('song-artist, pointer', { active: sort === 'artist' })}
+							onClick={this.setSortHandler('artist')}
+						>
+							ARIST
+						</span>
+						<span
+							className={cx('song-artist, pointer', { active: sort === 'playlist' })}
+							onClick={this.setSortHandler('playlist')}
+						>
+							PLAYLIST
+						</span>
+						<span
+							className={cx('song-date, pointer', { active: sort === 'date' })}
+							onClick={this.setSortHandler('date')}
+						>
+							POSTED
+						</span>
+						<span
+							className={cx('song-postee, pointer', { active: sort === 'user' })}
+							onClick={this.setSortHandler('user')}
+						>
+							USER
+						</span>
+						<span
+							className={cx('song-duration, pointer', { active: sort === 'duration' })}
+							onClick={this.setSortHandler('duration')}
+						>
 							<i className="fa fa-lg fa-clock-o" />
 						</span>
 					</div>
@@ -260,7 +249,6 @@ function mapStateToProps(state) {
 		currentSong: getCurrentSong(state),
 		currentPlaylistName: getCurrentPlaylistName(state),
 		playlist: getCurrentPlaylist(state),
-		showFTUEHero: getCurrentSong(state) === null,
 		getSongById: _.partial(getSongById, state),
 		sort: getCurrentSort(state),
 		nextSong: getNextSong(state),

@@ -16,8 +16,11 @@ const mapSongsToOptions = (songs: any): Option[] => {
 };
 
 const getOptions = (input, cb) => {
+	if (_.isEmpty(input)) {
+		return cb(undefined, { options: [] });
+	}
 	sdk.searchForSong(input).then(async songs => {
-		const ret = { options: mapSongsToOptions(songs) }; //cache: false };
+		const ret = { options: mapSongsToOptions(songs), cache: false };
 		console.error('found these fuckers', ret);
 		cb(undefined, ret);
 	});
@@ -78,6 +81,7 @@ export default class SearchBar extends React.Component<SearchBarProps> {
 				loadOptions={debouncedGetOptions}
 				autoload={false}
 				optionComponent={TrackValue}
+				placeholder={'add a song'}
 				onValueClick={(option: any) => {
 					console.error(option);
 					this.props.handleSelection(option.value);

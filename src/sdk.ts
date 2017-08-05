@@ -99,6 +99,7 @@ class BopSdk {
 	getPlaylistForName = async (playlistName: string): Promise<api.Playlists> => {
 		const getPlaylists = api.PlaylistsApiFp.playlistsGet({
 			name: `eq.${encodeURIComponent(playlistName)}`,
+			select: '*,users{id,username}',
 		});
 		const resp = await getPlaylists(fetch, config.swaggerHost);
 		const matches = await resp.json();
@@ -167,7 +168,7 @@ class BopSdk {
 	};
 
 	putUser = async (username, password): Promise<api.Users> => {
-		const user: api.Users = { username, password };
+		const user: api.Users = { username, password: 'todo' };
 		const resp = await api.UsersApiFp.usersPost({ body: user, prefer: 'return=representation' })(
 			fetch,
 			config.swaggerHost
