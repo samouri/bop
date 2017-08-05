@@ -147,6 +147,7 @@
 .song-div span {
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .vote-count {
