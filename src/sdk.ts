@@ -157,6 +157,10 @@ class BopSdk {
 	};
 
 	putUser = async (username, password): Promise<api.Users> => {
+		if (username === '') {
+			return Promise.reject('fuck you make a username');
+		}
+
 		const user: api.Users = { username, password: 'todo' };
 		const resp = await api.UsersApiFp.usersPost({ body: user, prefer: 'return=representation' })(
 			fetch,
