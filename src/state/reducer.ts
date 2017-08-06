@@ -194,7 +194,6 @@ function songs(state = songsInitialState, action: any) {
 function playlists(state = {}, action: any) {
 	const { payload } = action;
 	const playlist = _.get(payload, 'playlist', {}) as any;
-	const currentPlaylist = getCurrentPlaylist(state);
 	const playlistId =
 		payload && (payload.playlistId || playlist.id || (payload.song && payload.song.playlist_id));
 
@@ -227,8 +226,6 @@ function currentSort(
 	state: { sort: SORT; shuffle: boolean } = { sort: 'date', shuffle: false },
 	action: Action<SetSortPayload>
 ) {
-	const { sort, shuffle } = state;
-
 	if (!action.payload) {
 		return state;
 	}

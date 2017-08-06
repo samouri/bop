@@ -298,6 +298,10 @@
 .playing-bar__title {
 	font-size: 20px;
 }
+.playing-bar__artist {
+	color: #a5a3a3;
+}
+
 .playing-bar__artist,
 .playing-bar__title {
 	white-space: nowrap;

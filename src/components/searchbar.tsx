@@ -6,11 +6,6 @@ import * as _ from 'lodash';
 import sdk from '../sdk';
 import * as fuzzysearch from 'fuzzysearch';
 
-import { mapLastFmItemToBop } from '../sdk';
-
-const spotifyEndpoint = 'https://api.spotify.com/v1/search?type=track&limit=5';
-const lastFMEndpoint = `http://ws.audioscrobbler.com/2.0/?method=track.search&format=json&api_key=39e1ebe26072b1ee0c6b4b9c1ca22889&track=`;
-
 const mapSongsToOptions = (songs: any): Option[] => {
 	return songs.map(track => ({ value: track, label: track.title }));
 };

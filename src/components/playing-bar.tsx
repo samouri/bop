@@ -13,7 +13,6 @@ import {
 	getCurrentPlaylist,
 } from '../state/reducer';
 import { playSong, pauseSong, shuffleSongs } from '../state/actions';
-import { ApiSongData } from '../sdk';
 
 type StateProps = {
 	currentSong: any;

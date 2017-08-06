@@ -53,7 +53,7 @@ class SongRow extends React.Component<Props> {
 	handleMouseOut = e => this.setState({ hovered: false });
 
 	render() {
-		const { title, artist, thumbnail_url } = _.get(this.props.song, 'metadata') || ({} as any);
+		const { title, artist } = _.get(this.props.song, 'metadata') || ({} as any);
 		const { id: songId, votes } = this.props.song;
 		const { isPlaying } = this.props;
 		var playOrPauseClasses = cx('fa', 'fa-2x', {
