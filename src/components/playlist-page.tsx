@@ -122,13 +122,6 @@ class PlaylistPage extends React.Component<Props> {
 	};
 	throttledSearchSelection = _.throttle(this.handleSearchSelection, 100);
 
-	handleRegister = login => {
-		console.log('attempting to create user');
-		sdk.putUser(login.username, login.password).then(resp => {
-			this.props.dispatch(loginUser(login));
-		});
-	};
-
 	setSortHandler = (sort: SORT) => () => {
 		this.props.dispatch(setSort({ sort }));
 	};
@@ -139,10 +132,7 @@ class PlaylistPage extends React.Component<Props> {
 
 		const ret = (
 			<div>
-				<Header
-					onLogin={(login: any) => this.props.dispatch(loginUser(login))}
-					onRegister={this.handleRegister}
-				/>
+				<Header />
 				<div className="playlist-page__titlestats">
 					<span className="playlist-page__title">
 						<span>

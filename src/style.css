@@ -78,6 +78,9 @@
 	position: absolute;
 	right: 0;
 	z-index: 69;
+	padding-top: 5px;
+	padding-bottom: 20px;
+	background-color: white;
 }
 
 .selected-purple {

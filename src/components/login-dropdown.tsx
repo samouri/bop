@@ -1,0 +1,88 @@
+import * as React from 'react';
+import { connect } from 'react-redux';
+
+import { logout, loginUser as login } from '../state/actions';
+import { getUsername } from '../state/reducer';
+import sdk from '../sdk';
+
+type Props = {
+	login: (login) => {};
+	logout: () => {};
+	onRegister: any;
+	loggedIn: boolean;
+	username: string;
+};
+
+class LoginDropdown extends React.Component<Props> {
+	state = {
+		username: '',
+		password: 'todo',
+		showForm: false,
+	};
+
+	toggleForm = () => this.setState({ showForm: !this.state.showForm });
+	handleLogin = () => {
+		const { username, password } = this.state;
+		this.toggleForm();
+		this.props.login({ username, password });
+	};
+	handleLogout = () => {
+		this.toggleForm();
+		this.props.logout();
+	};
+
+	handleRegister = () => {
+		console.log('attempting to create user');
+		const { username, password } = this.state;
+		// todo move to async action
+		sdk.putUser(username, password).then(resp => this.handleLogin());
+	};
+
+	handleUsernameChange = event => this.setState({ username: event.target.value });
+
+	render() {
+		const { loggedIn, username } = this.props;
+		let loginText = username ? `@${username}` : 'Login';
+
+		return (
+			<div className="login-dropdown">
+				<h3 className="header__login pointer" onClick={this.toggleForm}>
+					{loginText} <i className="fa fa-caret-down" />
+				</h3>
+				{this.state.showForm &&
+					<div className="header__login-form">
+						{loggedIn &&
+							<a onClick={this.handleLogout} className="header__login-form-dropdown">
+								<span className="glyphicon glyphicon-log-out" /> Log out
+							</a>}
+						{!loggedIn &&
+							<form className="header__login-form-dropdown">
+								<input
+									type="text"
+									placeholder="username"
+									value={this.state.username}
+									onChange={this.handleUsernameChange}
+								/>
+								<div style={{ display: 'flex' }}>
+									<a onClick={this.handleRegister} className="header__logintext">
+										new account
+									</a>
+									<a onClick={this.handleLogin} className="header__logintext">
+										<span className="glyphicon glyphicon-log-in" /> Log in
+									</a>
+								</div>
+								<input type="submit" style={{ display: 'none' }} onClick={this.handleLogin} />
+							</form>}
+					</div>}
+			</div>
+		);
+	}
+}
+
+function mapStateToProps(state) {
+	const username = getUsername(state);
+	const loggedIn = !!username;
+	return { username, loggedIn };
+}
+
+export default connect<any, any, any>(mapStateToProps, { login, logout })(LoginDropdown);
