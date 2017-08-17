@@ -35,6 +35,8 @@ const opts = {
 		enablejsapi: 1,
 		modestbranding: 1,
 		playsinline: 1,
+		iv_load_policy: 3, // don't show annotations by default
+		autohide: 0,
 	},
 	preload: true,
 };
