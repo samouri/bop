@@ -38,6 +38,7 @@
 }
 .playlist-page__search-bar i {
 	padding-top: 10px;
+	padding-right: 5px;
 	z-index: 99;
 }
 .playlist-page__search-bar div {
