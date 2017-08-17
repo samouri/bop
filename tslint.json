@@ -6,7 +6,6 @@
 		"comment-format": [true, "check-space"],
 		"forin": true,
 		"interface-name": [true, "never-prefix"],
-		"jsdoc-format": true,
 		"jsx-no-lambda": false,
 		"label-position": true,
 		"member-ordering": [
@@ -35,9 +34,7 @@
 		"quotemark": [true, "single", "jsx-double"],
 		"radix": true,
 		"switch-default": true,
-
 		"trailing-comma": false,
-
 		"triple-equals": [true, "allow-null-check"],
 		"typedef": [true, "parameter", "property-declaration"],
 		"typedef-whitespace": [

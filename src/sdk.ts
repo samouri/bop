@@ -16,18 +16,6 @@ declare global {
 	}
 }
 
-const apiBullshitTransform = (obj: any): any =>
-	_.mapKeys(obj as any, (v, k: any) => _.snakeCase(k));
-
-export const mapSpotifyItemToBop = (song: any) => ({
-	artist: song.artists[0].name,
-	title: song.name,
-	album: song.album.name,
-	thumbnail_url: song.album.images[0].url,
-	spotify_id: song.id,
-	popularity: song.popularity,
-});
-
 export const mapLastFmItemToBop = (song: any) => {
 	return _.pickBy({
 		artist: song.artist,
@@ -169,6 +157,10 @@ class BopSdk {
 	};
 
 	putUser = async (username, password): Promise<api.Users> => {
+		if (username === '') {
+			return Promise.reject('fuck you make a username');
+		}
+
 		const user: api.Users = { username, password: 'todo' };
 		const resp = await api.UsersApiFp.usersPost({ body: user, prefer: 'return=representation' })(
 			fetch,
@@ -211,7 +203,7 @@ class BopSdk {
 			const deleteReq = await api.SongsApiFp.songsDelete({
 				id: `eq.${song.id}`,
 			})(fetch, config.swaggerHost);
-			const deleteResp = await deleteReq;
+			await deleteReq;
 		}
 		return { song };
 	};

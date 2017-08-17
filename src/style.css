@@ -38,6 +38,7 @@
 }
 .playlist-page__search-bar i {
 	padding-top: 10px;
+	padding-right: 5px;
 	z-index: 99;
 }
 .playlist-page__search-bar div {
@@ -78,6 +79,9 @@
 	position: absolute;
 	right: 0;
 	z-index: 69;
+	padding-top: 5px;
+	padding-bottom: 20px;
+	background-color: white;
 }
 
 .selected-purple {
@@ -298,6 +302,10 @@
 .playing-bar__title {
 	font-size: 20px;
 }
+.playing-bar__artist {
+	color: #a5a3a3;
+}
+
 .playing-bar__artist,
 .playing-bar__title {
 	white-space: nowrap;

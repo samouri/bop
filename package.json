@@ -24,6 +24,7 @@
     "lodash": "^4.15.0",
     "moment": "^2.18.1",
     "moment-twitter": "^0.2.0",
+    "mousetrap": "^1.6.1",
     "prettier": "^1.5.2",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",

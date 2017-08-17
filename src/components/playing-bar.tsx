@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash';
 import * as cx from 'classnames';
 import Player from 'react-player';
+import * as Mousetrap from 'mousetrap';
 
 import {
 	getCurrentSong,
@@ -13,7 +14,6 @@ import {
 	getCurrentPlaylist,
 } from '../state/reducer';
 import { playSong, pauseSong, shuffleSongs } from '../state/actions';
-import { ApiSongData } from '../sdk';
 
 type StateProps = {
 	currentSong: any;
@@ -36,16 +36,36 @@ const opts = {
 		enablejsapi: 1,
 		modestbranding: 1,
 		playsinline: 1,
+		iv_load_policy: 3, // don't show annotations by default
+		autohide: 0,
 	},
 	preload: true,
 };
 
 class PlayingBar extends React.Component<Props> {
+	componentDidMount() {
+		Mousetrap.bind('space', this.handlePausePlay);
+	}
+	componentWillUnmount() {
+		Mousetrap.unbind('space');
+	}
+
 	playNextSong = () => this.props.dispatch(playSong({ songId: this.props.nextSong }));
 	playPrevSong = () => this.props.dispatch(playSong({ songId: this.props.prevSong }));
 	handleOnPlay = () => this.props.dispatch(playSong({}));
 	handleOnEnd = () => this.playNextSong();
 	handleOnPause = () => this.props.dispatch(pauseSong());
+	handlePausePlay = e => {
+		e.preventDefault();
+
+		// fixme: this is in case no currSong is null. it should really default to playqueue
+		if (this.props.currentSong.song === null) {
+			return this.playNextSong();
+		}
+		this.props.currentSong.playing
+			? this.props.dispatch(pauseSong())
+			: this.props.dispatch(playSong({}));
+	};
 
 	render() {
 		const { currentSong, playlist } = this.props;
@@ -59,10 +79,6 @@ class PlayingBar extends React.Component<Props> {
 			'fa-pause': currentSong.playing,
 			'fa-play': !currentSong.playing,
 		});
-
-		const handlePausePlay = currentSong.playing
-			? () => this.props.dispatch(pauseSong())
-			: () => this.props.dispatch(playSong({}));
 
 		return (
 			<div className="playing-bar">
@@ -80,7 +96,7 @@ class PlayingBar extends React.Component<Props> {
 					</div>
 					<div className="playing-bar__play-controls">
 						<i className="fa fa-2x fa-fast-backward pointer" onClick={this.playPrevSong} />
-						<i className={playOrPauseClasses} onClick={handlePausePlay} />
+						<i className={playOrPauseClasses} onClick={this.handlePausePlay} />
 						<i className="fa fa-2x fa-fast-forward pointer" onClick={this.playNextSong} />
 						<i
 							className={cx('fa fa-2x fa-random pointer', { active: shuffle })}
