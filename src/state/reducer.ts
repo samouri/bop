@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { combineReducers } from 'redux';
-import { Action } from 'redux-actions';
+import { Action, handleActions } from 'redux-actions';
 import * as moment from 'moment';
 
 import {
@@ -20,6 +20,8 @@ import {
 	SetPlaylistNamePayload,
 	SetSortPayload,
 	SORT,
+	FETCH_EVENTS,
+	EventsPayload,
 } from './actions';
 import { ApiSongData } from '../sdk';
 
@@ -292,7 +294,26 @@ function user(state: any = {}, action: any) {
 	}
 }
 
+export const getEvents = (state: any) => state.events;
+
+const events = handleActions(
+	{
+		[FETCH_EVENTS]: (state: any, action: Action<EventsPayload>) => {
+			if (action.error) {
+				console.error('FETCH_EVENT error!', action.error);
+				return state;
+			}
+			const newEvents = _.map(action.payload, event =>
+				_.mapKeys(event, (val, key) => _.camelCase(key + ''))
+			);
+			return _.uniq(_.concat(state, newEvents));
+		},
+	},
+	[]
+);
+
 const BopApp = combineReducers({
+	events,
 	songsById,
 	playlists,
 	currentPlaylistName,

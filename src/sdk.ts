@@ -16,6 +16,13 @@ declare global {
 	}
 }
 
+type Event = {
+	id: number;
+	date_added: string;
+	event_type: 'song' | 'playlist' | 'vote';
+	user_added: number;
+};
+
 export const mapLastFmItemToBop = (song: any) => {
 	return _.pickBy({
 		artist: song.artist,
@@ -222,6 +229,12 @@ class BopSdk {
 		};
 	};
 
+	getEvents = async ({}): Promise<Array<Event>> => {
+		const endpoint = config.swaggerHost + '/events';
+		const events = await (await fetch(endpoint)).json();
+		return events;
+	};
+
 	getYoutubeVideoDuration = async youtube_id => {
 		const endpoint =
 			'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&key=AIzaSyAPGx5PbhdoO2QTR16yZHgMj-Q2vqO8W1M';
@@ -280,9 +293,9 @@ class BopSdk {
 }
 
 window.api = api;
-window.sdk = new BopSdk();
 
 const sdk = new BopSdk();
+window.sdk = sdk;
 export default sdk;
 
 export type ApiSongs = api.Songs;

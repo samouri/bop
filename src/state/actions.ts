@@ -15,9 +15,9 @@ export const DELETE_SONG = 'DELETE_SONG';
 export const SHUFFLE_SONGS = 'SHUFFLE_SONGS';
 export const RECEIVE_PLAYLIST = 'RECEIVE_PLAYLIST';
 export const SET_PLAYLIST_NAME = 'SET_PLAYLIST_NAME';
+export const FETCH_EVENTS = 'FETCH_EVENTS';
 
 /* action creators */
-export type Action = { type: string };
 export type SongIdPayload = { songId?: number };
 export type PlaylistIdPayload = { playlistId?: number };
 // type NoPayload = undefined;
@@ -43,6 +43,9 @@ export const loginUserFailure = createAction<UserPayload>(LOGIN_USER_FAILURE);
 export type PlaylistPayload = { playlist };
 export const receivePlaylist = createAction<PlaylistPayload>(RECEIVE_PLAYLIST);
 
+export type EventsPayload = { events };
+export const fetchEvents = createAction(FETCH_EVENTS, sdk.getEvents);
+
 /* Thunk Async Actions */
 
 export const requestPlaylist = ({ playlistName, userId }) => async dispatch => {
@@ -60,8 +63,6 @@ export const requestPlaylist = ({ playlistName, userId }) => async dispatch => {
 	}
 };
 
-export const fetchSongs = createAction(FETCH_SONGS, sdk.getSongsInPlaylist);
-
 export const loginUser = (login: any) => async (dispatch: any) => {
 	dispatch(requestLogin({ user: login.username }));
 	try {
@@ -74,6 +75,7 @@ export const loginUser = (login: any) => async (dispatch: any) => {
 	}
 };
 
+export const fetchSongs = createAction(FETCH_SONGS, sdk.getSongsInPlaylist);
 export const voteSong = createAction(VOTE_SONG, sdk.vote);
 export const unvoteSong = createAction(VOTE_SONG, sdk.unvote);
 export const deleteSong = createAction(DELETE_SONG, sdk.deleteSong);
