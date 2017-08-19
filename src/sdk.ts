@@ -5,6 +5,18 @@ import * as moment from 'moment';
 window.moment = moment;
 
 import * as api from './generated/api';
+import { normalize, schema } from 'normalizr';
+
+const metadata = new schema.Entity('metadata');
+const user = new schema.Entity('user');
+const playlist = new schema.Entity('playlists');
+const vote = new schema.Entity('votes');
+const song = new schema.Entity('songs', {
+	metadata,
+	playlists: playlist,
+	votes: [vote],
+	users: user,
+});
 
 declare global {
 	interface Window {
@@ -57,7 +69,8 @@ class BopSdk {
 			select: '*,metadata{*},votes{*},user{id,username},playlists{id,name}',
 		});
 		const songs = await (await getSongs(fetch, config.swaggerHost)).json();
-		return { songs, playlistId };
+		const normalized = normalize(songs, [song]);
+		return normalized;
 	};
 
 	//todo need better system
@@ -68,7 +81,8 @@ class BopSdk {
 			select: '*,metadata{*},votes{*},user{id,username},playlists{id,name}',
 		});
 		const songs = await (await getSongs(fetch, config.swaggerHost)).json();
-		return { songs, playlistId: 17 };
+		const normalized = normalize(songs, [song]);
+		return normalized;
 	};
 
 	getSongsAddedByUser = async ({ userId, limit = 200, offset = 0 }) => {
@@ -91,19 +105,18 @@ class BopSdk {
 		return resp.json();
 	};
 
-	getPlaylistForName = async (playlistName: string): Promise<api.Playlists> => {
+	getPlaylistForName = async (playlistName: string): Promise<any> => {
 		const getPlaylists = api.PlaylistsApiFp.playlistsGet({
 			name: `eq.${encodeURIComponent(playlistName)}`,
 			select: '*,users{id,username}',
 		});
 		const resp = await getPlaylists(fetch, config.swaggerHost);
-		const matches = await resp.json();
+		const playlists = await resp.json();
 
-		if (_.isEmpty(matches)) {
+		if (_.isEmpty(playlists)) {
 			throw new Error('No Playlist Matching Name: ' + playlistName);
 		}
-
-		return matches[0];
+		return { playlists: _.keyBy(playlists, 'id'), playlist: playlists[0] };
 	};
 
 	addSongToPlaylist = async ({ playlistId, userId, metaId }) => {
@@ -150,17 +163,17 @@ class BopSdk {
 		return _.first(resp) as api.Metadata;
 	};
 
-	getUser = async (optionalUsername, optionalPassword): Promise<api.Users> => {
+	getUser = async (optionalUsername, optionalPassword): Promise<any> => {
 		const getU = api.UsersApiFp.usersGet({
 			username: `eq.${optionalUsername}`,
 		});
 		const resp = await getU(fetch, config.swaggerHost);
-		const matches = await resp.json();
+		const users = await resp.json();
 
-		if (_.isEmpty(matches)) {
+		if (_.isEmpty(user)) {
 			throw new Error('No User Matching Description');
 		}
-		return matches[0];
+		return { users: _.keyBy(users, 'id'), user: users[0] };
 	};
 
 	putUser = async (username, password): Promise<api.Users> => {
@@ -303,7 +316,3 @@ export type ApiMetadata = api.Metadata;
 export type ApiUser = api.Users;
 export type ApiVotes = api.Votes;
 export type ApiPlaylists = api.Playlists;
-
-export type ApiSongData = ApiSongs & { metadata: ApiMetadata } & { votes: ApiVotes[] } & {
-		user: ApiUser;
-	} & { playlists: ApiPlaylists };

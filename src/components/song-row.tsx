@@ -3,15 +3,20 @@ import * as cx from 'classnames';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { connect } from 'react-redux';
-import { getCurrentSong, getSongById, getUser } from '../state/reducer';
+import {
+	getCurrentSongId,
+	getDenormalizedSong,
+	getCurrentUser,
+	DenormalizedSong,
+} from '../state/reducer';
 import { Link } from 'react-router-dom';
-import sdk, { ApiSongData } from '../sdk';
+import sdk from '../sdk';
 import * as momentTwitter from 'moment-twitter';
 
 import { playSong, pauseSong, deleteSong } from '../state/actions';
 
 type Props = {
-	song: ApiSongData;
+	song: DenormalizedSong;
 	isUpvoted: boolean;
 	isSelected: boolean;
 	isPlaying: boolean;
@@ -126,11 +131,11 @@ class SongRow extends React.Component<Props> {
 }
 
 function mapStateToProps(state, ownProps) {
-	const song: any = getSongById(state, ownProps.songId);
-	const currentSong: any = getCurrentSong(state);
-	const isSelected = currentSong && currentSong.songId === song.id;
+	const song: any = getDenormalizedSong(state, ownProps.songId);
+	const currentSong: any = getCurrentSongId(state);
+	const isSelected = currentSong.songId === song.id;
 	const isPlaying = isSelected && currentSong.playing;
-	const user: any = getUser(state);
+	const user: any = getCurrentUser(state);
 
 	return {
 		song,

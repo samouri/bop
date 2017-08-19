@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 // import * as cx from 'classnames';
-import { getSongById } from '../state/reducer';
+import { getSongEntities } from '../state/reducer';
 
 const SongEvent = ({ song }) => {
 	if (!song) {
@@ -31,11 +31,11 @@ const ConnectedEvent = connect<any, any, any>((state, ownProps) => {
 	const { id, eventType } = ownProps;
 	switch (eventType) {
 		case 'song':
-			return { song: getSongById(state, id) };
+			return { song: getSongEntities(state)[id] };
 		case 'vote':
-			return { song: getSongById(state, id) };
+			return { song: getSongEntities(state)[id] };
 		case 'playlist':
-			return { song: getSongById(state, id) };
+			return { song: getSongEntities(state)[id] };
 	}
 	return {};
 })(Event);

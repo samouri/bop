@@ -6,7 +6,7 @@ import Header from './header';
 import EventsList from './events-list';
 
 import { fetchEvents, loginUser } from '../state/actions';
-import { getEvents, getUser } from '../state/reducer';
+import { getEvents, getCurrentUser } from '../state/reducer';
 
 type Props = {
 	events: Array<any>;
@@ -44,6 +44,6 @@ class FeedPage extends React.Component<Props> {
 }
 
 export default connect<{}, {}, Props>(state => ({
-	user: getUser(state),
+	user: getCurrentUser(state),
 	events: getEvents(state),
 }))(FeedPage);

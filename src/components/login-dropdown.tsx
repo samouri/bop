@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 
 import { logout, loginUser as login } from '../state/actions';
-import { getUsername } from '../state/reducer';
+import { getCurrentUser } from '../state/reducer';
 import sdk from '../sdk';
 
 type Props = {
@@ -80,7 +80,7 @@ class LoginDropdown extends React.Component<Props> {
 }
 
 function mapStateToProps(state) {
-	const username = getUsername(state);
+	const username = getCurrentUser(state).username;
 	const loggedIn = !!username;
 	return { username, loggedIn };
 }
