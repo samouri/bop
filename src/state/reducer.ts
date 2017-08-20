@@ -58,7 +58,10 @@ export const getMetadataForSong = createSelector(
 
 export const getSongsInCurrentPlaylist = createSelector(
 	[getState, getCurrentPlaylist],
-	(state, playlistId) => getSongsInPlaylist(state, playlistId)
+	(state, playlist) => {
+		console.error(state, playlist);
+		return getSongsInPlaylist(state, playlist.id);
+	}
 );
 
 export type DenormalizedSong = ApiSongs & {
@@ -90,6 +93,10 @@ export const getAllSongsDenormalized = createSelector([getSongEntities, getState
 export const getSortedSongsDenormalized = createSelector(
 	[getSongsInCurrentPlaylist, getCurrentSort, getState],
 	(songs, sort: SORT, state) => {
+		if (!songs) {
+			return songs;
+		}
+
 		const denormalizedSongs: Array<DenormalizedSong> = _.map(songs, song =>
 			getDenormalizedSong(state, song)
 		);
@@ -130,9 +137,14 @@ export const getShuffledSongsInPlaylist = createSelector([getSortedSongsDenormal
 export const getContributorsInCurrentPlaylist = createSelector(
 	[getSongsInCurrentPlaylist, getUserEntities, getState],
 	(songs, usersById, state) => {
+		if (_.isEmpty(songs) || _.isEmpty(usersById)) {
+			return [];
+		}
+
 		const denormalizedSongs: Array<DenormalizedSong> = _.map(songs, song =>
 			getDenormalizedSong(state, song)
 		);
+		console.error(denormalizedSongs);
 		const contribs = _.map(denormalizedSongs, s => s.user.username);
 		const counts = _.countBy(contribs);
 		const sortedContribs = _.reverse(_.uniq(_.sortBy(contribs, (c: string) => counts[c])));
@@ -174,8 +186,10 @@ export const getPrevSong = createSelector(
 const songsById = handleActions(
 	{
 		[ADD_ENTITIES]: (state, action: Action<{ songs: any }>) => {
-			const fetchedSongs = _.mapKeys(action.payload!.songs, 'id');
-			return { ...state, ...fetchedSongs };
+			if (!action.payload!.songs) {
+				return state;
+			}
+			return { ...state, ...action.payload!.songs };
 		},
 		[DELETE_SONG]: (state, action: any) => {
 			return _.omit(state, action.payload.song.id);
@@ -232,7 +246,7 @@ const playerPlaylist = handleActions(
 	{ [SET_PLAYLIST]: (state, action: any) => action.payload.playlist.id },
 	null
 );
-const playerPlaying = handleActions({ [PLAY_SONG]: () => true, [PAUSE_SONG]: () => true }, false);
+const playerPlaying = handleActions({ [PLAY_SONG]: () => true, [PAUSE_SONG]: () => false }, false);
 const playerSong = handleActions(
 	{
 		[PLAY_SONG]: (state, action: any) => {
@@ -269,6 +283,19 @@ const usersById = handleActions(
 	{}
 );
 
+const votesById = handleActions(
+	{
+		[ADD_ENTITIES]: (state, action: any) => {
+			if (!action.payload.votes) {
+				return state;
+			}
+			return { ...state, ...action.payload.votes };
+		},
+	},
+	{}
+);
+const votes = combineReducers({ byId: votesById });
+
 const currentUser = handleActions(
 	{ [LOGIN_USER_SUCCESS]: (state, action: any) => action.payload.id },
 	null
@@ -302,6 +329,7 @@ const BopApp = combineReducers({
 	player,
 	users,
 	currentUser,
+	votes,
 });
 
 // App Reducer

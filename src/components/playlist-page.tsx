@@ -42,14 +42,6 @@ class PlaylistPage extends React.Component<Props> {
 	componentWillReceiveProps(nextProps) {
 		const { match: { params }, dispatch } = nextProps;
 
-		if (
-			nextProps.songs === null &&
-			nextProps.playlistName &&
-			params.playlistName !== this.props.match.params.playlistName
-		) {
-			this.fetchSongs(nextProps);
-		}
-
 		if (nextProps.playlistName && !nextProps.playlist) {
 			dispatch(setPlaylistName(params.playlistName));
 		}

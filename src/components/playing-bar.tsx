@@ -40,8 +40,8 @@ class PlayingBar extends React.Component<Props> {
 		Mousetrap.unbind('space');
 	}
 
-	playNextSong = () => this.props.dispatch(playSong({ songId: this.props.nextSong }));
-	playPrevSong = () => this.props.dispatch(playSong({ songId: this.props.prevSong }));
+	playNextSong = () => this.props.dispatch(playSong({ songId: this.props.nextSong.id }));
+	playPrevSong = () => this.props.dispatch(playSong({ songId: this.props.prevSong.id }));
 	handleOnPlay = () => this.props.dispatch(playSong({}));
 	handleOnEnd = () => this.playNextSong();
 	handleOnPause = () => this.props.dispatch(pauseSong());

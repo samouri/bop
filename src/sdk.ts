@@ -8,14 +8,14 @@ import * as api from './generated/api';
 import { normalize, schema } from 'normalizr';
 
 const metadata = new schema.Entity('metadata');
-const user = new schema.Entity('user');
+const user = new schema.Entity('users');
 const playlist = new schema.Entity('playlists');
 const vote = new schema.Entity('votes');
 const song = new schema.Entity('songs', {
 	metadata,
 	playlists: playlist,
 	votes: [vote],
-	users: user,
+	user,
 });
 
 declare global {
@@ -70,7 +70,7 @@ class BopSdk {
 		});
 		const songs = await (await getSongs(fetch, config.swaggerHost)).json();
 		const normalized = normalize(songs, [song]);
-		return normalized;
+		return { ...normalized.entities };
 	};
 
 	//todo need better system
@@ -82,7 +82,8 @@ class BopSdk {
 		});
 		const songs = await (await getSongs(fetch, config.swaggerHost)).json();
 		const normalized = normalize(songs, [song]);
-		return normalized;
+
+		return { ...normalized.entities };
 	};
 
 	getSongsAddedByUser = async ({ userId, limit = 200, offset = 0 }) => {

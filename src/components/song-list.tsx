@@ -1,12 +1,25 @@
 import * as _ from 'lodash';
 import * as React from 'react';
+import { connect } from 'react-redux';
 import * as cx from 'classnames';
 
 import SongRow from './song-row';
 
-import { setSort, SORT } from '../state/actions';
+import { fetchSongsInPlaylist, setSort, SORT } from '../state/actions';
+import { getSortedSongsDenormalized, getCurrentPlaylist } from '../state/reducer';
 
 class SongList extends React.Component<any> {
+	fetchSongs = _.throttle(
+		(props = this.props) => props.dispatch(fetchSongsInPlaylist({ playlistId: props.playlist.id })),
+		200
+	);
+
+	async componentWillReceiveProps(nextProps) {
+		if (_.isEmpty(nextProps.songs) && nextProps.playlist !== this.props.playlist) {
+			this.fetchSongs(nextProps);
+		}
+	}
+
 	renderSongsList = () => {
 		const { songs } = this.props;
 		if (_.isEmpty(songs)) {
@@ -78,4 +91,9 @@ class SongList extends React.Component<any> {
 	}
 }
 
-export default SongList;
+export default connect(state => {
+	return {
+		songs: getSortedSongsDenormalized(state),
+		playlist: getCurrentPlaylist(state),
+	};
+})(SongList);
