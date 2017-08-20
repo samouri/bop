@@ -1,30 +1,20 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import * as _ from 'lodash';
+// import * as _ from 'lodash';
 import * as cx from 'classnames';
 import Player from 'react-player';
 import * as Mousetrap from 'mousetrap';
 
 import {
-	getCurrentSong,
-	getSongById,
 	getNextSong,
 	getPrevSong,
-	getCurrentSort,
 	getCurrentPlaylist,
+	getCurrentPlayer,
+	PlayerState,
+	getDenormalizedSong,
+	DenormalizedSong,
 } from '../state/reducer';
 import { playSong, pauseSong, shuffleSongs } from '../state/actions';
-
-type StateProps = {
-	currentSong: any;
-	nextSong: any;
-	getSongById: any;
-	sort: any;
-	playlist: any;
-	prevSong: any;
-};
-
-type Props = StateProps & { dispatch };
 
 const YOUTUBE_PREFIX = 'https://www.youtube.com/watch?v=';
 
@@ -50,34 +40,29 @@ class PlayingBar extends React.Component<Props> {
 		Mousetrap.unbind('space');
 	}
 
-	playNextSong = () => this.props.dispatch(playSong({ songId: this.props.nextSong }));
-	playPrevSong = () => this.props.dispatch(playSong({ songId: this.props.prevSong }));
+	playNextSong = () => this.props.dispatch(playSong({ songId: this.props.nextSong.id }));
+	playPrevSong = () => this.props.dispatch(playSong({ songId: this.props.prevSong.id }));
 	handleOnPlay = () => this.props.dispatch(playSong({}));
 	handleOnEnd = () => this.playNextSong();
 	handleOnPause = () => this.props.dispatch(pauseSong());
 	handlePausePlay = e => {
 		e.preventDefault();
 
-		// fixme: this is in case no currSong is null. it should really default to playqueue
-		if (this.props.currentSong.song === null) {
-			return this.playNextSong();
-		}
-		this.props.currentSong.playing
+		this.props.player.playing
 			? this.props.dispatch(pauseSong())
 			: this.props.dispatch(playSong({}));
 	};
 
 	render() {
-		const { currentSong, playlist } = this.props;
-		const song = currentSong && currentSong.song;
-		if (!currentSong || !song) {
+		const { player: { playing, shuffle }, playlist, song } = this.props;
+
+		if (!song) {
 			return null;
 		}
 
-		const shuffle = this.props.sort.shuffle;
 		var playOrPauseClasses = cx('fa fa-2x pointer', {
-			'fa-pause': currentSong.playing,
-			'fa-play': !currentSong.playing,
+			'fa-pause': playing,
+			'fa-play': !playing,
 		});
 
 		return (
@@ -105,9 +90,8 @@ class PlayingBar extends React.Component<Props> {
 					</div>
 					<div className="playing-bar__player">
 						<Player
-							playing={currentSong && currentSong.playing}
-							url={`${YOUTUBE_PREFIX}${this.props.currentSong.song &&
-								this.props.currentSong.song.metadata.youtube_id}`}
+							playing={playing}
+							url={`${YOUTUBE_PREFIX}${song && song.metadata.youtube_id}`}
 							height={50}
 							width={300}
 							youtubeConfig={opts}
@@ -122,11 +106,20 @@ class PlayingBar extends React.Component<Props> {
 	}
 }
 
+type StateProps = {
+	nextSong: any;
+	getSongById: any;
+	playlist: any;
+	prevSong: any;
+	player: PlayerState;
+	song: DenormalizedSong;
+};
+type Props = StateProps & { dispatch };
+
 export default connect(state => ({
-	getSongById: _.partial(getSongById, state),
-	currentSong: getCurrentSong(state),
+	player: getCurrentPlayer(state),
 	nextSong: getNextSong(state),
 	prevSong: getPrevSong(state),
-	sort: getCurrentSort(state),
 	playlist: getCurrentPlaylist(state),
+	song: getDenormalizedSong(state, { id: getCurrentPlayer(state).song }),
 }))(PlayingBar);

@@ -2,7 +2,6 @@ import { createAction } from 'redux-actions';
 import sdk from '../sdk';
 
 /* action types */
-export const FETCH_SONGS = 'FETCH_SONGS';
 export const LOGIN_USER_REQUEST = 'USER_LOGIN_REQUEST';
 export const LOGIN_USER_SUCCESS = 'USER_LOGIN_SUCCESS';
 export const LOGIN_USER_FAILURE = 'USER_LOGIN_FAILURE';
@@ -14,16 +13,16 @@ export const SET_SORT = 'SET_SORT';
 export const DELETE_SONG = 'DELETE_SONG';
 export const SHUFFLE_SONGS = 'SHUFFLE_SONGS';
 export const RECEIVE_PLAYLIST = 'RECEIVE_PLAYLIST';
-export const SET_PLAYLIST_NAME = 'SET_PLAYLIST_NAME';
+export const SET_PLAYLIST = 'SET_PLAYLIST';
+export const FETCH_EVENTS = 'FETCH_EVENTS';
+export const ADD_ENTITIES = 'ADD_ENTITIES';
 
 /* action creators */
-export type Action = { type: string };
 export type SongIdPayload = { songId?: number };
 export type PlaylistIdPayload = { playlistId?: number };
 // type NoPayload = undefined;
 export type UserPayload = { user };
-export type SetPlaylistNamePayload = { playlistName };
-export const setPlaylistName = createAction<SetPlaylistNamePayload>(SET_PLAYLIST_NAME);
+export type SetPlaylistPayload = { playlistId };
 
 export const requestLogin = createAction<UserPayload>(LOGIN_USER_REQUEST);
 export const logout = createAction(LOGOUT_USER);
@@ -31,7 +30,7 @@ export const logout = createAction(LOGOUT_USER);
 export type LoginUserSuccessPayload = { username; upvotedSongs; id };
 export const loginUserSuccess = createAction<LoginUserSuccessPayload>(LOGIN_USER_SUCCESS);
 
-export const playSong = createAction<SongIdPayload>(PLAY_SONG);
+export const playSong = createAction<SongIdPayload & { queueType? }>(PLAY_SONG);
 export const pauseSong = createAction(PAUSE_SONG);
 
 export type SORT = 'votes' | 'title' | 'artist' | 'playlist' | 'user' | 'duration' | 'date';
@@ -42,6 +41,9 @@ export const loginUserFailure = createAction<UserPayload>(LOGIN_USER_FAILURE);
 
 export type PlaylistPayload = { playlist };
 export const receivePlaylist = createAction<PlaylistPayload>(RECEIVE_PLAYLIST);
+
+export type EventsPayload = { events };
+export const fetchEvents = createAction(FETCH_EVENTS, sdk.getEvents);
 
 /* Thunk Async Actions */
 
@@ -60,14 +62,13 @@ export const requestPlaylist = ({ playlistName, userId }) => async dispatch => {
 	}
 };
 
-export const fetchSongs = createAction(FETCH_SONGS, sdk.getSongsInPlaylist);
-
 export const loginUser = (login: any) => async (dispatch: any) => {
 	dispatch(requestLogin({ user: login.username }));
 	try {
-		const user = await sdk.getUser(login.username, 'so secure');
-		dispatch(loginUserSuccess({ username: user.username, upvotedSongs: [], id: user.id }));
+		const { users, user }: any = await sdk.getUser(login.username, 'so secure');
+		dispatch(addEntities({ users }));
 		localStorage.setItem('login', JSON.stringify(login));
+		dispatch(loginUserSuccess({ username: user.username, upvotedSongs: [], id: user.id }));
 	} catch (error) {
 		console.error(error, error.stack);
 		dispatch(loginUserFailure(login.username));
@@ -77,3 +78,6 @@ export const loginUser = (login: any) => async (dispatch: any) => {
 export const voteSong = createAction(VOTE_SONG, sdk.vote);
 export const unvoteSong = createAction(VOTE_SONG, sdk.unvote);
 export const deleteSong = createAction(DELETE_SONG, sdk.deleteSong);
+export const fetchSongsInPlaylist = createAction(ADD_ENTITIES, sdk.getSongsInPlaylist);
+export const addEntities = createAction<any>(ADD_ENTITIES);
+export const setPlaylistName = createAction(SET_PLAYLIST, sdk.getPlaylistForName);

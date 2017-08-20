@@ -1,16 +1,10 @@
 import * as React from 'react';
+// import * as _ from 'lodash';
 import { connect } from 'react-redux';
 
-import { getUsername, getCurrentPlaylistName } from '../state/reducer';
+import { getCurrentPlaylist, getCurrentUser } from '../state/reducer';
 import { Link } from 'react-router-dom';
 import LoginDropdown from './login-dropdown';
-
-type PassedProps = {};
-type StateProps = {
-	username: string;
-	playlist: any;
-};
-type Props = PassedProps & StateProps;
 
 class Header extends React.Component<Props> {
 	state = {
@@ -37,9 +31,16 @@ class Header extends React.Component<Props> {
 }
 
 const mapStateToProps = state => {
-	const username = getUsername(state);
-	const playlist = getCurrentPlaylistName(state);
-	return { username, playlist };
+	const user = getCurrentUser(state);
+	const playlist = getCurrentPlaylist(state);
+	return { user, playlist };
 };
+
+type PassedProps = {};
+type StateProps = {
+	user: any;
+	playlist: any;
+};
+type Props = PassedProps & StateProps;
 
 export default connect<StateProps, any, PassedProps>(mapStateToProps)(Header);

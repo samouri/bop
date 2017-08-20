@@ -6,85 +6,28 @@ import Header from './header';
 import SearchBar from './searchbar';
 import TopContributors from './top-contributors';
 import SongList from './song-list';
-import sdk from '../sdk';
+import sdk, { ApiUser, ApiPlaylists } from '../sdk';
 
-import {
-	fetchSongs,
-	loginUser,
-	setSort,
-	requestPlaylist,
-	setPlaylistName,
-	SORT,
-} from '../state/actions';
-import {
-	getCurrentSort,
-	getCurrentPlaylistName,
-	getUpvotedSongs,
-	getUsername,
-	getCurrentSong,
-	getSongById,
-	getSortedSongs,
-	getNextSong,
-	getUser,
-	getCurrentPlaylist,
-} from '../state/reducer';
+import { fetchSongsInPlaylist, loginUser, setSort, setPlaylistName, SORT } from '../state/actions';
+import { getCurrentUser, getCurrentPlaylist } from '../state/reducer';
 
 type Props = {
 	match: { params: any };
 	dispatch: any;
-	playlist: any;
-	nextSong: any;
-	songs: any;
-	currentPlaylistName: any;
-	player: any;
-	currentSong: any;
-	getSongById: any;
-	user: any;
-	sort: any;
+	playlist: ApiPlaylists & { user: any };
+	user: ApiUser;
 };
 class PlaylistPage extends React.Component<Props> {
 	fetchSongs = _.throttle(
-		(props = this.props) => props.dispatch(fetchSongs({ playlistId: props.playlist.id })),
+		(props = this.props) => props.dispatch(fetchSongsInPlaylist({ playlistId: props.playlist.id })),
 		200
 	);
 
 	componentWillMount() {
 		const { match: { params }, dispatch } = this.props;
 		if (params.playlistName) {
-			dispatch(setPlaylistName({ playlistName: params.playlistName }));
+			dispatch(setPlaylistName(params.playlistName));
 		}
-	}
-	componentWillReceiveProps(nextProps) {
-		const { match: { params }, dispatch } = nextProps;
-
-		if (
-			nextProps.songs === null &&
-			nextProps.playlist &&
-			nextProps.playlist !== this.props.playlist
-		) {
-			this.fetchSongs(nextProps);
-		}
-
-		if (params.playlistName) {
-			dispatch(setPlaylistName({ playlistName: params.playlistName }));
-		} else if (_.isEmpty(params)) {
-			dispatch(setPlaylistName({ playlistName: 'All' }));
-		}
-
-		if (nextProps.currentPlaylistName && !nextProps.playlist) {
-			dispatch(
-				requestPlaylist({
-					playlistName: nextProps.currentPlaylistName,
-					userId: nextProps.user.id,
-				})
-			);
-		}
-	}
-
-	async componentDidMount() {
-		this.props.dispatch(
-			requestPlaylist({ playlistName: this.props.currentPlaylistName, userId: this.props.user.id })
-		);
 
 		try {
 			let login = localStorage.getItem('login');
@@ -94,6 +37,13 @@ class PlaylistPage extends React.Component<Props> {
 			}
 		} catch (err) {
 			console.error(err, err.stack);
+		}
+	}
+	componentWillReceiveProps(nextProps) {
+		const { match: { params }, dispatch } = nextProps;
+
+		if (nextProps.playlistName && !nextProps.playlist) {
+			dispatch(setPlaylistName(params.playlistName));
 		}
 	}
 
@@ -127,20 +77,18 @@ class PlaylistPage extends React.Component<Props> {
 	};
 
 	render() {
-		const { dispatch, songs } = this.props;
-		const sort = this.props.sort.sort;
-
+		const { playlist } = this.props;
 		const ret = (
 			<div>
 				<Header />
 				<div className="playlist-page__titlestats">
 					<span className="playlist-page__title">
 						<span>
-							{this.props.currentPlaylistName}{' '}
+							{playlist && playlist.name}
 						</span>
-						{this.props.playlist &&
+						{playlist &&
 							<span className="playlist-page__title-createdby">
-								created by @{this.props.playlist.users.username}
+								created by @{playlist && playlist.user && playlist.user.username}
 							</span>}
 					</span>
 					<div className="playlist-page__top-contribs">
@@ -155,7 +103,7 @@ class PlaylistPage extends React.Component<Props> {
 					</div>
 				</div>
 				<div style={{ paddingBottom: '80px' }}>
-					<SongList songs={songs} sort={sort} dispatch={dispatch} />
+					<SongList />
 				</div>
 			</div>
 		);
@@ -163,19 +111,9 @@ class PlaylistPage extends React.Component<Props> {
 	}
 }
 
-function mapStateToProps(state) {
+export default connect<{}, {}, Props>(state => {
 	return {
-		songs: getSortedSongs(state),
-		user: getUser(state),
-		username: getUsername(state),
-		upvotedSongs: getUpvotedSongs(state),
-		currentSong: getCurrentSong(state),
-		currentPlaylistName: getCurrentPlaylistName(state),
+		user: getCurrentUser(state),
 		playlist: getCurrentPlaylist(state),
-		getSongById: _.partial(getSongById, state),
-		sort: getCurrentSort(state),
-		nextSong: getNextSong(state),
 	};
-}
-
-export default connect<{}, {}, Props>(mapStateToProps)(PlaylistPage);
+})(PlaylistPage);

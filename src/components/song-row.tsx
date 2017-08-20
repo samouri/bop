@@ -3,15 +3,20 @@ import * as cx from 'classnames';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import { connect } from 'react-redux';
-import { getCurrentSong, getSongById, getUser } from '../state/reducer';
+import {
+	getDenormalizedSong,
+	getCurrentUser,
+	DenormalizedSong,
+	getCurrentPlayer,
+} from '../state/reducer';
 import { Link } from 'react-router-dom';
-import sdk, { ApiSongData } from '../sdk';
+import sdk from '../sdk';
 import * as momentTwitter from 'moment-twitter';
 
 import { playSong, pauseSong, deleteSong } from '../state/actions';
 
 type Props = {
-	song: ApiSongData;
+	song: DenormalizedSong;
 	isUpvoted: boolean;
 	isSelected: boolean;
 	isPlaying: boolean;
@@ -53,7 +58,10 @@ class SongRow extends React.Component<Props> {
 	handleMouseOut = e => this.setState({ hovered: false });
 
 	render() {
-		const { title, artist } = _.get(this.props.song, 'metadata') || ({} as any);
+		if (!this.props.song) {
+			return null;
+		}
+		const { title, artist } = _.get(this.props.song, 'metadata', {}) as any;
 		const { id: songId, votes } = this.props.song;
 		const { isPlaying } = this.props;
 		var playOrPauseClasses = cx('fa', 'fa-2x', {
@@ -126,17 +134,17 @@ class SongRow extends React.Component<Props> {
 }
 
 function mapStateToProps(state, ownProps) {
-	const song: any = getSongById(state, ownProps.songId);
-	const currentSong: any = getCurrentSong(state);
-	const isSelected = currentSong && currentSong.songId === song.id;
-	const isPlaying = isSelected && currentSong.playing;
-	const user: any = getUser(state);
+	const song: any = getDenormalizedSong(state, { id: ownProps.songId });
+	const player = getCurrentPlayer(state);
+	const isSelected = song && player.song === song.id;
+	const isPlaying = isSelected && player.playing;
+	const user: any = getCurrentUser(state);
 
 	return {
 		song,
 		isSelected,
 		isPlaying,
-		isUpvoted: !!_.find(song.votes, { user_added: user.id }),
+		isUpvoted: song && !!_.find(song.votes, { user_added: user.id }),
 		user,
 	};
 }

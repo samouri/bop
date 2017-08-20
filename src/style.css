@@ -148,6 +148,40 @@
 	line-height: 41px;
 	max-height: 70px;
 }
+
+.event-row {
+	font-weight: 300;
+	font-size: 16px;
+	height: 120px;
+	display: flex;
+	flex-direction: column;
+	padding-bottom: 20px;
+}
+.event-row__song {
+	display: flex;
+	padding-top: 5px;
+	padding-left: 20px;
+}
+.event-row__song-play-info {
+	display: flex;
+	align-self: center;
+	padding-right: 20px;
+	width: 40px;
+}
+.event-row__thumb {
+	height: 75px;
+}
+.event-row__arttit {
+	padding-left: 20px;
+	flex-direction: column;
+	display: flex;
+}
+.feed-page__title {
+	display: flex;
+	justify-content: center;
+	font-size: 24px;
+}
+
 .song-div span {
 	overflow: hidden;
 	text-overflow: ellipsis;

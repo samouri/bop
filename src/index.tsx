@@ -8,6 +8,7 @@ import thunk from 'redux-thunk';
 import * as promise from 'redux-promise';
 import PlaylistPage from './components/playlist-page';
 import PlayingBar from './components/playing-bar';
+import FeedPage from './components/feed-page';
 import './style.css';
 
 import bopApp from './state/reducer';
@@ -18,7 +19,7 @@ const Root = ({ store }: { store: any }) =>
 	<Provider store={store}>
 		<Router>
 			<div>
-				<Route exact path="/" component={PlaylistPage} />
+				<Route exact path="/" component={FeedPage} />
 				<Route path="/p/:playlistName" component={PlaylistPage} />
 				<Route path="" component={PlayingBar} />
 			</div>

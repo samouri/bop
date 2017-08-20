@@ -5,6 +5,18 @@ import * as moment from 'moment';
 window.moment = moment;
 
 import * as api from './generated/api';
+import { normalize, schema } from 'normalizr';
+
+const metadata = new schema.Entity('metadata');
+const user = new schema.Entity('users');
+const playlist = new schema.Entity('playlists');
+const vote = new schema.Entity('votes');
+const song = new schema.Entity('songs', {
+	metadata,
+	playlists: playlist,
+	votes: [vote],
+	user,
+});
 
 declare global {
 	interface Window {
@@ -15,6 +27,13 @@ declare global {
 		api: any;
 	}
 }
+
+type Event = {
+	id: number;
+	date_added: string;
+	event_type: 'song' | 'playlist' | 'vote';
+	user_added: number;
+};
 
 export const mapLastFmItemToBop = (song: any) => {
 	return _.pickBy({
@@ -47,10 +66,11 @@ class BopSdk {
 			playlistId: `eq.${playlistId}`,
 			offset: offset.toString(),
 			limit: limit.toString(),
-			select: '*,metadata{*},votes{*},user{id,username},playlists{id,name}',
+			select: '*,metadata{*},votes{*},user{id,username},playlists{*}',
 		});
 		const songs = await (await getSongs(fetch, config.swaggerHost)).json();
-		return { songs, playlistId };
+		const normalized = normalize(songs, [song]);
+		return { ...normalized.entities };
 	};
 
 	//todo need better system
@@ -58,10 +78,12 @@ class BopSdk {
 		const getSongs = api.SongsApiFp.songsGet({
 			offset: offset.toString(),
 			limit: limit.toString(),
-			select: '*,metadata{*},votes{*},user{id,username},playlists{id,name}',
+			select: '*,metadata{*},votes{*},user{id,username},playlists{*}',
 		});
 		const songs = await (await getSongs(fetch, config.swaggerHost)).json();
-		return { songs, playlistId: 17 };
+		const normalized = normalize(songs, [song]);
+
+		return { ...normalized.entities };
 	};
 
 	getSongsAddedByUser = async ({ userId, limit = 200, offset = 0 }) => {
@@ -84,19 +106,18 @@ class BopSdk {
 		return resp.json();
 	};
 
-	getPlaylistForName = async (playlistName: string): Promise<api.Playlists> => {
+	getPlaylistForName = async (playlistName: string): Promise<any> => {
 		const getPlaylists = api.PlaylistsApiFp.playlistsGet({
 			name: `eq.${encodeURIComponent(playlistName)}`,
-			select: '*,users{id,username}',
+			select: '*,users{*}',
 		});
 		const resp = await getPlaylists(fetch, config.swaggerHost);
-		const matches = await resp.json();
+		const playlists = await resp.json();
 
-		if (_.isEmpty(matches)) {
+		if (_.isEmpty(playlists)) {
 			throw new Error('No Playlist Matching Name: ' + playlistName);
 		}
-
-		return matches[0];
+		return { playlists: _.keyBy(playlists, 'id'), playlist: playlists[0] };
 	};
 
 	addSongToPlaylist = async ({ playlistId, userId, metaId }) => {
@@ -143,17 +164,17 @@ class BopSdk {
 		return _.first(resp) as api.Metadata;
 	};
 
-	getUser = async (optionalUsername, optionalPassword): Promise<api.Users> => {
+	getUser = async (optionalUsername, optionalPassword): Promise<any> => {
 		const getU = api.UsersApiFp.usersGet({
 			username: `eq.${optionalUsername}`,
 		});
 		const resp = await getU(fetch, config.swaggerHost);
-		const matches = await resp.json();
+		const users = await resp.json();
 
-		if (_.isEmpty(matches)) {
+		if (_.isEmpty(user)) {
 			throw new Error('No User Matching Description');
 		}
-		return matches[0];
+		return { users: _.keyBy(users, 'id'), user: users[0] };
 	};
 
 	putUser = async (username, password): Promise<api.Users> => {
@@ -222,6 +243,12 @@ class BopSdk {
 		};
 	};
 
+	getEvents = async ({}): Promise<Array<Event>> => {
+		const endpoint = config.swaggerHost + '/events';
+		const events = await (await fetch(endpoint)).json();
+		return events;
+	};
+
 	getYoutubeVideoDuration = async youtube_id => {
 		const endpoint =
 			'https://www.googleapis.com/youtube/v3/videos?part=contentDetails&key=AIzaSyAPGx5PbhdoO2QTR16yZHgMj-Q2vqO8W1M';
@@ -280,9 +307,9 @@ class BopSdk {
 }
 
 window.api = api;
-window.sdk = new BopSdk();
 
 const sdk = new BopSdk();
+window.sdk = sdk;
 export default sdk;
 
 export type ApiSongs = api.Songs;
@@ -290,7 +317,3 @@ export type ApiMetadata = api.Metadata;
 export type ApiUser = api.Users;
 export type ApiVotes = api.Votes;
 export type ApiPlaylists = api.Playlists;
-
-export type ApiSongData = ApiSongs & { metadata: ApiMetadata } & { votes: ApiVotes[] } & {
-		user: ApiUser;
-	} & { playlists: ApiPlaylists };
