@@ -5,9 +5,9 @@
 }
 
 /* getting rid of scrollbar until i learn to make bottom playbar ignore it */
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
 	display: none;
-}
+} */
 
 .playlist-page__titlestats {
 	display: flex;
