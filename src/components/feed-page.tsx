@@ -5,8 +5,8 @@ import { connect } from 'react-redux';
 import Header from './header';
 import EventsList from './events-list';
 
-import { fetchEvents, loginUser } from '../state/actions';
-import { getEvents, getCurrentUser } from '../state/reducer';
+import { fetchEvents, fetchSongsInPlaylist, loginUser } from '../state/actions';
+import { getEventsDenormalized, getCurrentUser } from '../state/reducer';
 
 type Props = {
 	events: Array<any>;
@@ -14,9 +14,14 @@ type Props = {
 };
 class FeedPage extends React.Component<Props> {
 	fetchEvents = _.throttle((props = this.props) => props.dispatch(fetchEvents({})), 1000);
+	fetchSongs = _.throttle(
+		(props = this.props) => props.dispatch(fetchSongsInPlaylist({ playlistId: 17 })),
+		1000
+	);
 
 	componentWillMount() {
 		this.fetchEvents();
+		this.fetchSongs();
 	}
 
 	async componentDidMount() {
@@ -45,5 +50,5 @@ class FeedPage extends React.Component<Props> {
 
 export default connect<{}, {}, Props>(state => ({
 	user: getCurrentUser(state),
-	events: getEvents(state),
+	events: getEventsDenormalized(state),
 }))(FeedPage);

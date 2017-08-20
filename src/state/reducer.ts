@@ -318,7 +318,33 @@ const currentUser = handleActions(
 const users = combineReducers({ byId: usersById, current: currentUser });
 
 export const getEvents = (state: any) => state.events;
-
+export const getEventsDenormalized = createSelector(
+	[getState, getEvents, getVoteEntities, getUserEntities],
+	(state, events, votesById, usersById) => {
+		return events.map(event => {
+			const user = usersById[event.userAdded];
+			if (event.eventType === 'song') {
+				return {
+					...event,
+					song: getDenormalizedSong(state, event),
+					user,
+				};
+			} else if (event.eventType === 'vote') {
+				const vote = votesById[event.id];
+				if (!vote) {
+					return event;
+				}
+				return {
+					...event,
+					vote,
+					song: getDenormalizedSong(state, { id: vote.song_id }),
+					user,
+				};
+			}
+			return { ...event, user };
+		});
+	}
+);
 const events = handleActions(
 	{
 		[FETCH_EVENTS]: (state: any, action: Action<EventsPayload>) => {

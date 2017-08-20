@@ -1,44 +1,55 @@
 import * as _ from 'lodash';
 import * as React from 'react';
-import { connect } from 'react-redux';
+// import { connect } from 'react-redux';
 // import * as cx from 'classnames';
-import { getSongEntities } from '../state/reducer';
+import { Link } from 'react-router-dom';
 
-const SongEvent = ({ song }) => {
+const SongEvent = ({ event }) => {
+	const { song, user } = event;
 	if (!song) {
 		return null;
 	}
+
+	const playlistName = song.playlists.name;
 	return (
 		<div>
-			{song.name} was added by {song.userAdded}
+			@{user && user.username} added {song.metadata.title} to{' '}
+			<Link to={`/p/${playlistName}`}>{playlistName}</Link>
 		</div>
 	);
 };
 
-const Event = ({ eventType, userAdded, id, song }) => {
-	switch (eventType) {
-		case 'song':
-			return <SongEvent song={song} />;
+const VoteEvent = ({ event }) => {
+	const { song, user } = event;
+	if (!song) {
+		return null;
 	}
+
+	const playlistName = song.playlists.name;
 	return (
 		<div>
-			<span>{eventType}</span> was added by {userAdded}
+			@{user && user.username} upvoted {song.metadata.title} in {' '}
+			<Link to={`/p/${playlistName}`}>{playlistName}</Link>
 		</div>
 	);
 };
 
-const ConnectedEvent = connect<any, any, any>((state, ownProps) => {
-	const { id, eventType } = ownProps;
+const Event = ({ event }) => {
+	const { eventType } = event;
 	switch (eventType) {
 		case 'song':
-			return { song: getSongEntities(state)[id] };
+			return <SongEvent event={event} />;
 		case 'vote':
-			return { song: getSongEntities(state)[id] };
-		case 'playlist':
-			return { song: getSongEntities(state)[id] };
+			return <VoteEvent event={event} />;
 	}
-	return {};
-})(Event);
+	return (
+		<div>
+			<span>
+				@{event.user && event.user.username} added a {eventType}
+			</span>
+		</div>
+	);
+};
 
 class EventsList extends React.Component<any> {
 	renderEventsList = () => {
@@ -47,12 +58,7 @@ class EventsList extends React.Component<any> {
 			return <p> Nothing has ever happened </p>;
 		} else {
 			return _.map(events, (event: any) =>
-				<ConnectedEvent
-					key={event.id + event.eventType}
-					eventType={event.eventType}
-					userAdded={event.userAdded}
-					id={event.id}
-				/>
+				<Event key={event.id + event.eventType} event={event} />
 			);
 		}
 	};
