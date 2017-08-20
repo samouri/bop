@@ -66,7 +66,7 @@ class BopSdk {
 			playlistId: `eq.${playlistId}`,
 			offset: offset.toString(),
 			limit: limit.toString(),
-			select: '*,metadata{*},votes{*},user{id,username},playlists{id,name}',
+			select: '*,metadata{*},votes{*},user{id,username},playlists{*}',
 		});
 		const songs = await (await getSongs(fetch, config.swaggerHost)).json();
 		const normalized = normalize(songs, [song]);
@@ -78,7 +78,7 @@ class BopSdk {
 		const getSongs = api.SongsApiFp.songsGet({
 			offset: offset.toString(),
 			limit: limit.toString(),
-			select: '*,metadata{*},votes{*},user{id,username},playlists{id,name}',
+			select: '*,metadata{*},votes{*},user{id,username},playlists{*}',
 		});
 		const songs = await (await getSongs(fetch, config.swaggerHost)).json();
 		const normalized = normalize(songs, [song]);
@@ -109,7 +109,7 @@ class BopSdk {
 	getPlaylistForName = async (playlistName: string): Promise<any> => {
 		const getPlaylists = api.PlaylistsApiFp.playlistsGet({
 			name: `eq.${encodeURIComponent(playlistName)}`,
-			select: '*,users{id,username}',
+			select: '*,users{*}',
 		});
 		const resp = await getPlaylists(fetch, config.swaggerHost);
 		const playlists = await resp.json();

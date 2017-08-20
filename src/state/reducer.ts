@@ -38,8 +38,17 @@ export const getProps = (state, props) => props;
 export const getState = state => state;
 
 export const getCurrentPlaylist = createSelector(
-	[getCurrentPlaylistId, getPlaylistEntities],
-	(playlistId, playlistsById) => playlistsById[playlistId] || {}
+	[getCurrentPlaylistId, getPlaylistEntities, getUserEntities],
+	(playlistId, playlistsById, usersById) => {
+		const playlist = playlistsById[playlistId];
+		if (!playlist) {
+			return {};
+		}
+		return {
+			...playlist,
+			user: usersById[playlist.user_added],
+		};
+	}
 );
 
 export const getSongsInPlaylist = createSelector(
