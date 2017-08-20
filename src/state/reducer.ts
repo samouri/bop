@@ -30,9 +30,10 @@ export const getPlaylistEntities = state => state.playlists.byId;
 export const getCurrentPlaylistId = state => state.player.playlist;
 export const getCurrentSongId = state => state.player.song;
 export const getCurrentSort = state => state.player.sort;
-export const getCurrentShuffle = state => state.player.shuffle;
+// export const getCurrentShuffle = state => state.player.shuffle;
 export const getCurrentUser = (state): ApiUser => state.users.byId[state.currentUser] || {};
 export const getCurrentPlayer = (state): PlayerState => state.player;
+export const getEvents = (state: any) => state.events;
 
 export const getProps = (state, props) => props;
 export const getState = state => state;
@@ -166,37 +167,6 @@ export const getContributorsInCurrentPlaylist = createSelector(
 	}
 );
 
-export const getPlayQueue = createSelector(
-	[getSortedSongsDenormalized, getCurrentShuffle],
-	(songs, shuffle) => {
-		if (shuffle) {
-			return _.shuffle(songs);
-		}
-		return songs;
-	}
-);
-
-export const getNextSong = createSelector(
-	[getPlayQueue, getCurrentSongId],
-	(songs: Array<DenormalizedSong>, currSongId) => {
-		const currIndex = _.findIndex(songs, song => song.id === currSongId);
-		if (currIndex === -1) {
-			return songs[0];
-		}
-		return songs[currIndex + 1];
-	}
-);
-export const getPrevSong = createSelector(
-	[getPlayQueue, getCurrentSongId],
-	(songs: Array<DenormalizedSong>, currSongId) => {
-		const currIndex = _.findIndex(songs, song => song.id === currSongId);
-		if (currIndex === -1 || currIndex === 0) {
-			return songs[songs.length - 1];
-		}
-		return songs[currIndex - 1];
-	}
-);
-
 const songsById = handleActions(
 	{
 		[ADD_ENTITIES]: (state, action: Action<{ songs: any }>) => {
@@ -247,6 +217,40 @@ const playlistsById = handleActions(
 	{}
 );
 
+export const getEventsDenormalized = createSelector(
+	[getState, getEvents, getVoteEntities, getUserEntities],
+	(state, events, votesById, usersById) => {
+		const allEvents = events.map(event => {
+			const user = usersById[event.userAdded];
+			if (event.eventType === 'song') {
+				return {
+					...event,
+					song: getDenormalizedSong(state, event),
+					user,
+				};
+			} else if (event.eventType === 'vote') {
+				const vote = votesById[event.id];
+				if (!vote) {
+					return event;
+				}
+				return {
+					...event,
+					vote,
+					song: getDenormalizedSong(state, { id: vote.song_id }),
+					user,
+				};
+			}
+			return { ...event, user };
+		});
+		// TODO make this smart about multiple events on the same song from multiple people etc etc
+		// 4 people liked this song instead of collapsing to this garbage
+		return _.uniqBy(
+			_.filter(allEvents, (event: any) => event.eventType !== 'playlist'),
+			evt => evt.song && evt.song.id
+		);
+	}
+);
+
 const playlists = combineReducers({
 	byId: playlistsById,
 });
@@ -261,6 +265,17 @@ const playerPlaylist = handleActions(
 	null
 );
 const playerPlaying = handleActions({ [PLAY_SONG]: () => true, [PAUSE_SONG]: () => false }, false);
+const playQueueType = handleActions(
+	{
+		[PLAY_SONG]: (state, action: any) => {
+			if (action.payload && action.payload.queueType) {
+				return action.payload.queueType;
+			}
+			return state;
+		},
+	},
+	'playlist'
+);
 const playerSong = handleActions(
 	{
 		[PLAY_SONG]: (state, action: any) => {
@@ -283,6 +298,7 @@ const player = combineReducers({
 	shuffle: playerShuffle,
 	playlist: playerPlaylist,
 	playing: playerPlaying,
+	queueType: playQueueType,
 });
 
 const usersById = handleActions(
@@ -317,35 +333,6 @@ const currentUser = handleActions(
 
 const users = combineReducers({ byId: usersById, current: currentUser });
 
-export const getEvents = (state: any) => state.events;
-export const getEventsDenormalized = createSelector(
-	[getState, getEvents, getVoteEntities, getUserEntities],
-	(state, events, votesById, usersById) => {
-		const allEvents = events.map(event => {
-			const user = usersById[event.userAdded];
-			if (event.eventType === 'song') {
-				return {
-					...event,
-					song: getDenormalizedSong(state, event),
-					user,
-				};
-			} else if (event.eventType === 'vote') {
-				const vote = votesById[event.id];
-				if (!vote) {
-					return event;
-				}
-				return {
-					...event,
-					vote,
-					song: getDenormalizedSong(state, { id: vote.song_id }),
-					user,
-				};
-			}
-			return { ...event, user };
-		});
-		return _.filter(allEvents, (event: any) => event.eventType !== 'playlist');
-	}
-);
 const events = handleActions(
 	{
 		[FETCH_EVENTS]: (state: any, action: Action<EventsPayload>) => {
@@ -360,6 +347,39 @@ const events = handleActions(
 		},
 	},
 	[]
+);
+
+export const getPlayQueue = createSelector(
+	[getSortedSongsDenormalized, getEventsDenormalized, getCurrentPlayer],
+	(songs, events, player) => {
+		const queue = player.queueType === 'event' ? _.map(events, 'song') : songs;
+
+		if (player.shuffle) {
+			return _.shuffle(queue);
+		}
+		return queue;
+	}
+);
+
+export const getNextSong = createSelector(
+	[getPlayQueue, getCurrentSongId],
+	(songs: Array<DenormalizedSong>, currSongId) => {
+		const currIndex = _.findIndex(songs, song => song.id === currSongId);
+		if (currIndex === -1) {
+			return songs[0];
+		}
+		return songs[currIndex + 1];
+	}
+);
+export const getPrevSong = createSelector(
+	[getPlayQueue, getCurrentSongId],
+	(songs: Array<DenormalizedSong>, currSongId) => {
+		const currIndex = _.findIndex(songs, song => song.id === currSongId);
+		if (currIndex === -1 || currIndex === 0) {
+			return songs[songs.length - 1];
+		}
+		return songs[currIndex - 1];
+	}
 );
 
 const BopApp = combineReducers({

@@ -40,8 +40,11 @@ class FeedPage extends React.Component<Props> {
 		const { events } = this.props;
 
 		return (
-			<div>
+			<div className="feed-page">
 				<Header />
+				<span className="feed-page__title">
+					<span>My Stream</span>
+				</span>
 				<EventsList events={events} />
 			</div>
 		);

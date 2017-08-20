@@ -30,7 +30,7 @@ export const logout = createAction(LOGOUT_USER);
 export type LoginUserSuccessPayload = { username; upvotedSongs; id };
 export const loginUserSuccess = createAction<LoginUserSuccessPayload>(LOGIN_USER_SUCCESS);
 
-export const playSong = createAction<SongIdPayload>(PLAY_SONG);
+export const playSong = createAction<SongIdPayload & { queueType? }>(PLAY_SONG);
 export const pauseSong = createAction(PAUSE_SONG);
 
 export type SORT = 'votes' | 'title' | 'artist' | 'playlist' | 'user' | 'duration' | 'date';
