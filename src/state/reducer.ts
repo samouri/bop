@@ -45,6 +45,10 @@ export const getCurrentPlaylist = createSelector(
 export const getSongsInPlaylist = createSelector(
 	[getSongEntities, getProps],
 	(songs, playlistId) => {
+		if (playlistId === 17) {
+			// all
+			return songs;
+		}
 		return _.filter(songs, (song: ApiSongs) => song.playlist_id === playlistId);
 	}
 );
