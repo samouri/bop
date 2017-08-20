@@ -321,7 +321,7 @@ export const getEvents = (state: any) => state.events;
 export const getEventsDenormalized = createSelector(
 	[getState, getEvents, getVoteEntities, getUserEntities],
 	(state, events, votesById, usersById) => {
-		return events.map(event => {
+		const allEvents = events.map(event => {
 			const user = usersById[event.userAdded];
 			if (event.eventType === 'song') {
 				return {
@@ -343,6 +343,7 @@ export const getEventsDenormalized = createSelector(
 			}
 			return { ...event, user };
 		});
+		return _.filter(allEvents, (event: any) => event.eventType !== 'playlist');
 	}
 );
 const events = handleActions(
