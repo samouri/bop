@@ -20,11 +20,19 @@ class Header extends React.Component<Props> {
 
 	render() {
 		return (
-			<div className="header">
-				<h1 className="header__bop pointer">
-					<Link to="/"> Bop </Link>
-				</h1>
-				<LoginDropdown />
+			<div style={{ height: 50 }}>
+				<div className="header">
+					<div className="header__width-wrapper">
+						<div className="header__left-nav">
+							<h1 className="header__bop pointer">
+								<i className="fa fa-headphones" />
+								<Link to="/"> Bop </Link>
+							</h1>
+							<Link to="/"> Songs </Link>
+						</div>
+						<LoginDropdown />
+					</div>
+				</div>
 			</div>
 		);
 	}
