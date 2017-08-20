@@ -31,14 +31,14 @@ class Header extends React.Component<Props> {
 }
 
 const mapStateToProps = state => {
-	const username = getCurrentUser(state).username;
-	const playlist = getCurrentPlaylist(state).playlist;
-	return { username, playlist };
+	const user = getCurrentUser(state);
+	const playlist = getCurrentPlaylist(state);
+	return { user, playlist };
 };
 
 type PassedProps = {};
 type StateProps = {
-	username: string | undefined;
+	user: any;
 	playlist: any;
 };
 type Props = PassedProps & StateProps;

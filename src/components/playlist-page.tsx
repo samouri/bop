@@ -14,7 +14,7 @@ import { getCurrentUser, getCurrentPlaylist } from '../state/reducer';
 type Props = {
 	match: { params: any };
 	dispatch: any;
-	playlist: ApiPlaylists;
+	playlist: ApiPlaylists & { user: any };
 	user: ApiUser;
 };
 class PlaylistPage extends React.Component<Props> {
@@ -77,17 +77,18 @@ class PlaylistPage extends React.Component<Props> {
 	};
 
 	render() {
+		const { playlist } = this.props;
 		const ret = (
 			<div>
 				<Header />
 				<div className="playlist-page__titlestats">
 					<span className="playlist-page__title">
 						<span>
-							{this.props.playlist && this.props.playlist.name}
+							{playlist && playlist.name}
 						</span>
-						{this.props.playlist &&
+						{playlist &&
 							<span className="playlist-page__title-createdby">
-								created by @{this.props.playlist && this.props.playlist.user_added}
+								created by @{playlist && playlist.user && playlist.user.username}
 							</span>}
 					</span>
 					<div className="playlist-page__top-contribs">

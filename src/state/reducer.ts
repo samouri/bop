@@ -44,6 +44,7 @@ export const getCurrentPlaylist = createSelector(
 		if (!playlist) {
 			return {};
 		}
+
 		return {
 			...playlist,
 			user: usersById[playlist.user_added],
