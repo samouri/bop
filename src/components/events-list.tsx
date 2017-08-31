@@ -5,12 +5,12 @@ import Event from './event-row';
 
 class EventsList extends React.Component<any> {
 	renderEventsList = () => {
-		const { events } = this.props;
+		const { events, stream } = this.props;
 		if (_.isEmpty(events)) {
 			return <p> Nothing has ever happened </p>;
 		} else {
 			return _.map(events, (event: any) =>
-				<Event key={event.id + event.eventType} event={event} />
+				<Event key={event.id + event.eventType} event={event} stream={stream} />
 			);
 		}
 	};

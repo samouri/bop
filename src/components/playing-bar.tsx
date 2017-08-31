@@ -116,7 +116,7 @@ type StateProps = {
 };
 type Props = StateProps & { dispatch };
 
-export default connect(state => ({
+export default connect((state, ownProps) => ({
 	player: getCurrentPlayer(state),
 	nextSong: getNextSong(state),
 	prevSong: getPrevSong(state),

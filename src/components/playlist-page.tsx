@@ -2,13 +2,12 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import Header from './header';
 import SearchBar from './searchbar';
 import TopContributors from './top-contributors';
 import SongList from './song-list';
 import sdk, { ApiUser, ApiPlaylists } from '../sdk';
 
-import { fetchSongsInPlaylist, loginUser, setSort, setPlaylistName, SORT } from '../state/actions';
+import { fetchSongsInPlaylist, setSort, setPlaylistName, SORT } from '../state/actions';
 import { getCurrentUser, getCurrentPlaylist } from '../state/reducer';
 
 type Props = {
@@ -27,16 +26,6 @@ class PlaylistPage extends React.Component<Props> {
 		const { match: { params }, dispatch } = this.props;
 		if (params.playlistName) {
 			dispatch(setPlaylistName(params.playlistName));
-		}
-
-		try {
-			let login = localStorage.getItem('login');
-			if (login) {
-				login = JSON.parse(login);
-				this.props.dispatch(loginUser(login));
-			}
-		} catch (err) {
-			console.error(err, err.stack);
 		}
 	}
 	componentWillReceiveProps(nextProps) {
@@ -80,7 +69,6 @@ class PlaylistPage extends React.Component<Props> {
 		const { playlist } = this.props;
 		const ret = (
 			<div>
-				<Header />
 				<div className="playlist-page__titlestats">
 					<span className="playlist-page__title">
 						<span>
@@ -103,7 +91,7 @@ class PlaylistPage extends React.Component<Props> {
 					</div>
 				</div>
 				<div style={{ paddingBottom: '80px' }}>
-					<SongList />
+					<SongList stream={{ type: 'playlist', id: playlist.id }} />
 				</div>
 			</div>
 		);

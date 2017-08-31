@@ -6,7 +6,7 @@ import * as cx from 'classnames';
 import SongRow from './song-row';
 
 import { fetchSongsInPlaylist, setSort, SORT } from '../state/actions';
-import { getSortedSongsDenormalized, getCurrentPlaylist } from '../state/reducer';
+import { getCurrentPlaylist, getSongsInStream } from '../state/reducer';
 
 class SongList extends React.Component<any> {
 	fetchSongs = _.throttle(
@@ -21,11 +21,17 @@ class SongList extends React.Component<any> {
 	}
 
 	renderSongsList = () => {
-		const { songs } = this.props;
+		let { songs, stream, newSongs } = this.props;
+		if (!_.isEmpty(newSongs)) {
+			songs = newSongs;
+		}
+
 		if (_.isEmpty(songs)) {
 			return <p> Theres a first for everything </p>;
 		} else {
-			return _.map(songs, (song: any) => <SongRow key={song.id} songId={song.id} />);
+			return _.map(songs, (song: any) =>
+				<SongRow key={song.id} songId={song.id} stream={stream} />
+			);
 		}
 	};
 
@@ -91,9 +97,11 @@ class SongList extends React.Component<any> {
 	}
 }
 
-export default connect(state => {
+export default connect((state, ownProps: any) => {
+	const { stream } = ownProps;
+
 	return {
-		songs: getSortedSongsDenormalized(state),
+		songs: getSongsInStream(state, stream),
 		playlist: getCurrentPlaylist(state),
 	};
 })(SongList);
