@@ -8,10 +8,9 @@ import * as Mousetrap from 'mousetrap';
 import {
 	getNextSong,
 	getPrevSong,
-	getCurrentPlaylist,
 	getCurrentPlayer,
 	PlayerState,
-	getDenormalizedSong,
+	getCurrentSong,
 	DenormalizedSong,
 } from '../state/reducer';
 import { playSong, pauseSong, shuffleSongs } from '../state/actions';
@@ -54,7 +53,7 @@ class PlayingBar extends React.Component<Props> {
 	};
 
 	render() {
-		const { player: { playing, shuffle }, playlist, song } = this.props;
+		const { player: { playing, shuffle }, song } = this.props;
 
 		if (!song) {
 			return null;
@@ -84,8 +83,8 @@ class PlayingBar extends React.Component<Props> {
 						<i className={playOrPauseClasses} onClick={this.handlePausePlay} />
 						<i className="fa fa-2x fa-fast-forward pointer" onClick={this.playNextSong} />
 						<i
-							className={cx('fa fa-2x fa-random pointer', { active: shuffle })}
-							onClick={() => this.props.dispatch(shuffleSongs({ playlistId: playlist.id }))}
+							className={cx('playing-bar__shuffle fa fa-2x fa-random pointer', { active: shuffle })}
+							onClick={() => this.props.dispatch(shuffleSongs())}
 						/>
 					</div>
 					<div className="playing-bar__player">
@@ -109,17 +108,15 @@ class PlayingBar extends React.Component<Props> {
 type StateProps = {
 	nextSong: any;
 	getSongById: any;
-	playlist: any;
 	prevSong: any;
 	player: PlayerState;
 	song: DenormalizedSong;
 };
 type Props = StateProps & { dispatch };
 
-export default connect(state => ({
+export default connect((state, ownProps) => ({
 	player: getCurrentPlayer(state),
 	nextSong: getNextSong(state),
 	prevSong: getPrevSong(state),
-	playlist: getCurrentPlaylist(state),
-	song: getDenormalizedSong(state, { id: getCurrentPlayer(state).song }),
+	song: getCurrentSong(state),
 }))(PlayingBar);

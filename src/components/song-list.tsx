@@ -5,27 +5,22 @@ import * as cx from 'classnames';
 
 import SongRow from './song-row';
 
-import { fetchSongsInPlaylist, setSort, SORT } from '../state/actions';
-import { getSortedSongsDenormalized, getCurrentPlaylist } from '../state/reducer';
+import { setSort, SORT } from '../state/actions';
+import { getSongsInStream, getCurrentPlayer } from '../state/reducer';
 
 class SongList extends React.Component<any> {
-	fetchSongs = _.throttle(
-		(props = this.props) => props.dispatch(fetchSongsInPlaylist({ playlistId: props.playlist.id })),
-		200
-	);
-
-	async componentWillReceiveProps(nextProps) {
-		if (_.isEmpty(nextProps.songs) && nextProps.playlist !== this.props.playlist) {
-			this.fetchSongs(nextProps);
-		}
-	}
-
 	renderSongsList = () => {
-		const { songs } = this.props;
+		let { songs, stream, newSongs } = this.props;
+		if (!_.isEmpty(newSongs)) {
+			songs = newSongs;
+		}
+
 		if (_.isEmpty(songs)) {
 			return <p> Theres a first for everything </p>;
 		} else {
-			return _.map(songs, (song: any) => <SongRow key={song.id} songId={song.id} />);
+			return _.map(songs, (song: any) =>
+				<SongRow key={song.id} songId={song.id} stream={stream} />
+			);
 		}
 	};
 
@@ -91,9 +86,12 @@ class SongList extends React.Component<any> {
 	}
 }
 
-export default connect(state => {
+export default connect((state, ownProps: any) => {
+	const { stream } = ownProps;
+	const { sort } = getCurrentPlayer(state);
+
 	return {
-		songs: getSortedSongsDenormalized(state),
-		playlist: getCurrentPlaylist(state),
+		songs: getSongsInStream(state, { ...stream, sort }),
+		sort,
 	};
 })(SongList);

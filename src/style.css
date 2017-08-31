@@ -5,9 +5,9 @@
 }
 
 /* getting rid of scrollbar until i learn to make bottom playbar ignore it */
-::-webkit-scrollbar {
+/* ::-webkit-scrollbar {
 	display: none;
-}
+} */
 
 .playlist-page__titlestats {
 	display: flex;
@@ -51,23 +51,50 @@
 
 .header {
 	display: flex;
-	justify-content: space-between;
+	position: fixed;
+	top: 0;
+	height: 70;
+	width: 100%;
+	left: 0;
+	/* background-color: #333333; */
+	background-color: #3a3f41;
+	color: lightgray;
+	justify-content: center;
 	height: 45px;
 	padding-top: 5px;
 }
 
-.header__bop,
-.header__bop a {
+.header__width-wrapper {
+	width: 768px;
+	display: flex;
+	justify-content: space-between;
+	color: white;
+}
+
+.header__left-nav .header__bop,
+.header__left-nav .header__bop a {
 	font-family: 'Roboto', sans-serif;
 	font-size: 40px;
-	font-weight: 300;
-	color: #a223bc;
+	font-weight: 200;
+	color: white;
 	margin: 0;
 	text-decoration: none;
+	margin-top: -5px;
+}
+.header__left-nav,
+.header__left-nav a {
+	padding-right: 20px;
+	color: white;
+	font-size: 24px;
+	font-weight: 200;
 }
 .header__login {
 	margin: 0;
-	align-self: middle;
+	font-weight: 200;
+}
+.header__left-nav {
+	display: flex;
+	flex-direction: row;
 }
 .header__login-form {
 	display: flex;
@@ -115,6 +142,14 @@
 	width: 30px;
 	max-width: 30px;
 }
+
+.play-info i {
+	color: #555;
+}
+.play-info i:hover {
+	color: #000;
+}
+
 .song-playlist {
 	max-width: 100px;
 	width: 100px;
@@ -293,14 +328,24 @@
 	height: 70;
 	width: 100%;
 	left: 0;
-	background-color: #333333;
-	color: lightgray;
+	/* background-color: #333333; */
+	/* background-color: #3a3f41; */
+	background-color: white;
+	border-top: 1px solid #e3e3e3;
+	/* color: lightgray; */
 	justify-content: center;
 }
 .playing-bar__width-wrapper {
 	width: 768px;
 	display: flex;
 }
+.playing-bar__play-controls i {
+	color: #ccc;
+}
+.playing-bar__play-controls i:hover {
+	color: #000;
+}
+
 .playing-bar__play-controls {
 	display: flex;
 	width: 250px;
@@ -337,7 +382,8 @@
 	font-size: 20px;
 }
 .playing-bar__artist {
-	color: #a5a3a3;
+	/* color: #a5a3a3; */
+	color: gray;
 }
 
 .playing-bar__artist,
@@ -345,6 +391,9 @@
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+.playing-bar__shuffle.active {
+	color: purple;
 }
 
 /*
@@ -364,4 +413,12 @@
 
 .search-result-thumbnail-wrapper.is-focused {
 	background-color: rgba(100, 100, 200, 0.5);
+}
+
+.user-page__title {
+	font-family: 'Roboto', sans-serif;
+	font-size: 32px;
+	text-align: center;
+	padding-bottom: 30px;
+	padding-top: 20px;
 }

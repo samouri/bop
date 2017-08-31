@@ -22,6 +22,7 @@ type Props = {
 	isPlaying: boolean;
 	user: any;
 	dispatch: any;
+	stream: object;
 };
 
 class SongRow extends React.Component<Props> {
@@ -63,7 +64,8 @@ class SongRow extends React.Component<Props> {
 		}
 		const { title, artist } = _.get(this.props.song, 'metadata', {}) as any;
 		const { id: songId, votes } = this.props.song;
-		const { isPlaying } = this.props;
+		const { isPlaying, stream } = this.props;
+
 		var playOrPauseClasses = cx('fa', 'fa-2x', {
 			'fa-pause': isPlaying,
 			'fa-play': !isPlaying,
@@ -77,7 +79,7 @@ class SongRow extends React.Component<Props> {
 
 		const handlePausePlay = isPlaying
 			? () => this.props.dispatch(pauseSong())
-			: () => this.props.dispatch(playSong({ songId }));
+			: () => this.props.dispatch(playSong({ songId, stream }));
 
 		const playlistName = this.props.song.playlists.name;
 		const backgroundColor = isPlaying || this.state.hovered ? 'lightgray' : '';
@@ -114,7 +116,9 @@ class SongRow extends React.Component<Props> {
 					{this.getAge()}
 				</span>
 				<span className="song-postee">
-					{this.props.song.user.username}
+					<Link to={`/u/${this.props.song.user.username}`}>
+						{this.props.song.user.username}
+					</Link>
 				</span>
 				<span className="song-duration">
 					{this.durationToString()}
@@ -136,7 +140,7 @@ class SongRow extends React.Component<Props> {
 function mapStateToProps(state, ownProps) {
 	const song: any = getDenormalizedSong(state, { id: ownProps.songId });
 	const player = getCurrentPlayer(state);
-	const isSelected = song && player.song === song.id;
+	const isSelected = song && player.songId === song.id;
 	const isPlaying = isSelected && player.playing;
 	const user: any = getCurrentUser(state);
 

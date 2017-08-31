@@ -149,7 +149,6 @@ class BopSdk {
 		title && (metadataParams.title = `eq.${title}`);
 		artist && (metadataParams.artist = `eq.${artist}`);
 
-		console.error('parmas', metadataParams);
 		const getMetadata = api.MetadataApiFp.metadataGet(metadataParams);
 		const resp = await getMetadata(fetch, config.swaggerHost);
 		return _.first(await resp.json()) as api.Metadata;

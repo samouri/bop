@@ -2,10 +2,9 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import Header from './header';
 import EventsList from './events-list';
 
-import { fetchEvents, fetchSongsInPlaylist, loginUser } from '../state/actions';
+import { fetchEvents, fetchSongsInPlaylist } from '../state/actions';
 import { getEventsDenormalized, getCurrentUser } from '../state/reducer';
 
 type Props = {
@@ -24,28 +23,15 @@ class FeedPage extends React.Component<Props> {
 		this.fetchSongs();
 	}
 
-	async componentDidMount() {
-		try {
-			let login = localStorage.getItem('login');
-			if (login) {
-				login = JSON.parse(login);
-				this.props.dispatch(loginUser(login));
-			}
-		} catch (err) {
-			console.error(err, err.stack);
-		}
-	}
-
 	render() {
 		const { events } = this.props;
 
 		return (
 			<div className="feed-page">
-				<Header />
 				<span className="feed-page__title">
 					<span>My Stream</span>
 				</span>
-				<EventsList events={events} />
+				<EventsList events={events} stream={{ type: 'events' }} />
 			</div>
 		);
 	}

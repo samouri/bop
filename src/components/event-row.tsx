@@ -16,7 +16,8 @@ const SongEvent = ({ event }) => {
 	const playlistName = song.playlists.name;
 	return (
 		<div>
-			@{user && user.username} added a song to <Link to={`/p/${playlistName}`}>{playlistName}</Link>
+			<Link to={`/u/${user.username}`}>@{user && user.username}</Link> added a song to{' '}
+			<Link to={`/p/${playlistName}`}>{playlistName}</Link>
 		</div>
 	);
 };
@@ -30,7 +31,7 @@ const VoteEvent = ({ event }) => {
 	const playlistName = song.playlists.name;
 	return (
 		<div>
-			@{user && user.username} upvoted a song in {' '}
+			<Link to={`/u/${user && user.username}`}>@{user && user.username}</Link> upvoted a song on{' '}
 			<Link to={`/p/${playlistName}`}>{playlistName}</Link>
 		</div>
 	);
@@ -43,7 +44,7 @@ class EventRow extends React.Component<Props> {
 	handleMouseOut = e => this.setState({ hovered: false });
 
 	render() {
-		const { event, isPlaying, isSelected } = this.props;
+		const { event, isPlaying, isSelected, stream } = this.props;
 		const { eventType, song } = event;
 
 		if (!song) {
@@ -64,7 +65,7 @@ class EventRow extends React.Component<Props> {
 
 		const handlePausePlay = isPlaying
 			? () => this.props.dispatch(pauseSong())
-			: () => this.props.dispatch(playSong({ songId: song.id, queueType: 'event' }));
+			: () => this.props.dispatch(playSong({ songId: song.id, stream }));
 
 		return (
 			<div
@@ -100,11 +101,12 @@ type Props = {
 	event: { song: DenormalizedSong; eventType };
 	isPlaying: boolean;
 	isSelected: boolean;
+	stream: any;
 };
 export default connect<any, any, any>((state, ownProps) => {
 	const player = getCurrentPlayer(state);
 	const song: DenormalizedSong = ownProps.event.song;
-	const isSelected = song && player.song === song.id;
+	const isSelected = song && player.songId === song.id;
 	const isPlaying = isSelected && player.playing;
 	const user: any = getCurrentUser(state);
 

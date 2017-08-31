@@ -2,14 +2,13 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import Header from './header';
 import SearchBar from './searchbar';
 import TopContributors from './top-contributors';
 import SongList from './song-list';
 import sdk, { ApiUser, ApiPlaylists } from '../sdk';
 
-import { fetchSongsInPlaylist, loginUser, setSort, setPlaylistName, SORT } from '../state/actions';
-import { getCurrentUser, getCurrentPlaylist } from '../state/reducer';
+import { fetchSongsInPlaylist, setSort, requestPlaylist, SORT } from '../state/actions';
+import { getCurrentUser, getPlaylistByName } from '../state/reducer';
 
 type Props = {
 	match: { params: any };
@@ -19,31 +18,21 @@ type Props = {
 };
 class PlaylistPage extends React.Component<Props> {
 	fetchSongs = _.throttle(
-		(props = this.props) => props.dispatch(fetchSongsInPlaylist({ playlistId: props.playlist.id })),
+		(props = this.props) => props.dispatch(fetchSongsInPlaylist({ playlistId: 17 })),
 		200
 	);
+	fetchPlaylist = _.throttle((props = this.props) => {
+		const { match: { params }, dispatch, user } = props;
+		dispatch(requestPlaylist({ playlistName: params.playlistName, userId: user.id }));
+	}, 300);
 
-	componentWillMount() {
-		const { match: { params }, dispatch } = this.props;
-		if (params.playlistName) {
-			dispatch(setPlaylistName(params.playlistName));
-		}
-
-		try {
-			let login = localStorage.getItem('login');
-			if (login) {
-				login = JSON.parse(login);
-				this.props.dispatch(loginUser(login));
-			}
-		} catch (err) {
-			console.error(err, err.stack);
-		}
+	componentDidMount() {
+		this.fetchPlaylist();
+		this.fetchSongs();
 	}
 	componentWillReceiveProps(nextProps) {
-		const { match: { params }, dispatch } = nextProps;
-
-		if (nextProps.playlistName && !nextProps.playlist) {
-			dispatch(setPlaylistName(params.playlistName));
+		if (nextProps.match.params.playlistName && _.isEmpty(nextProps.playlist)) {
+			this.fetchPlaylist(nextProps);
 		}
 	}
 
@@ -80,7 +69,6 @@ class PlaylistPage extends React.Component<Props> {
 		const { playlist } = this.props;
 		const ret = (
 			<div>
-				<Header />
 				<div className="playlist-page__titlestats">
 					<span className="playlist-page__title">
 						<span>
@@ -103,7 +91,7 @@ class PlaylistPage extends React.Component<Props> {
 					</div>
 				</div>
 				<div style={{ paddingBottom: '80px' }}>
-					<SongList />
+					<SongList stream={{ type: 'playlist', id: playlist.id }} />
 				</div>
 			</div>
 		);
@@ -111,9 +99,9 @@ class PlaylistPage extends React.Component<Props> {
 	}
 }
 
-export default connect<{}, {}, Props>(state => {
+export default connect<{}, {}, Props>((state, ownProps: any) => {
 	return {
 		user: getCurrentUser(state),
-		playlist: getCurrentPlaylist(state),
+		playlist: getPlaylistByName(state, ownProps.match.params.playlistName),
 	};
 })(PlaylistPage);
