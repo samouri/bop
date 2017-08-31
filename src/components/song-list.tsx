@@ -6,7 +6,7 @@ import * as cx from 'classnames';
 import SongRow from './song-row';
 
 import { setSort, SORT } from '../state/actions';
-import { getSongsInStream } from '../state/reducer';
+import { getSongsInStream, getCurrentPlayer } from '../state/reducer';
 
 class SongList extends React.Component<any> {
 	renderSongsList = () => {
@@ -88,8 +88,10 @@ class SongList extends React.Component<any> {
 
 export default connect((state, ownProps: any) => {
 	const { stream } = ownProps;
+	const { sort } = getCurrentPlayer(state);
 
 	return {
-		songs: getSongsInStream(state, stream),
+		songs: getSongsInStream(state, { ...stream, sort }),
+		sort,
 	};
 })(SongList);
