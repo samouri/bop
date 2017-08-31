@@ -140,7 +140,7 @@ class SongRow extends React.Component<Props> {
 function mapStateToProps(state, ownProps) {
 	const song: any = getDenormalizedSong(state, { id: ownProps.songId });
 	const player = getCurrentPlayer(state);
-	const isSelected = song && player.song === song.id;
+	const isSelected = song && player.songId === song.id;
 	const isPlaying = isSelected && player.playing;
 	const user: any = getCurrentUser(state);
 

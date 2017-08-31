@@ -5,21 +5,10 @@ import * as cx from 'classnames';
 
 import SongRow from './song-row';
 
-import { fetchSongsInPlaylist, setSort, SORT } from '../state/actions';
-import { getCurrentPlaylist, getSongsInStream } from '../state/reducer';
+import { setSort, SORT } from '../state/actions';
+import { getSongsInStream } from '../state/reducer';
 
 class SongList extends React.Component<any> {
-	fetchSongs = _.throttle(
-		(props = this.props) => props.dispatch(fetchSongsInPlaylist({ playlistId: props.playlist.id })),
-		200
-	);
-
-	async componentWillReceiveProps(nextProps) {
-		if (_.isEmpty(nextProps.songs) && nextProps.playlist !== this.props.playlist) {
-			this.fetchSongs(nextProps);
-		}
-	}
-
 	renderSongsList = () => {
 		let { songs, stream, newSongs } = this.props;
 		if (!_.isEmpty(newSongs)) {
@@ -102,6 +91,5 @@ export default connect((state, ownProps: any) => {
 
 	return {
 		songs: getSongsInStream(state, stream),
-		playlist: getCurrentPlaylist(state),
 	};
 })(SongList);

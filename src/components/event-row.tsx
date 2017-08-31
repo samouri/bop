@@ -31,7 +31,7 @@ const VoteEvent = ({ event }) => {
 	const playlistName = song.playlists.name;
 	return (
 		<div>
-			<Link to={`/u/${user && user.username}`}>@{user && user.username}</Link> added a song to{' '}
+			<Link to={`/u/${user && user.username}`}>@{user && user.username}</Link> upvoted a song on{' '}
 			<Link to={`/p/${playlistName}`}>{playlistName}</Link>
 		</div>
 	);
@@ -106,7 +106,7 @@ type Props = {
 export default connect<any, any, any>((state, ownProps) => {
 	const player = getCurrentPlayer(state);
 	const song: DenormalizedSong = ownProps.event.song;
-	const isSelected = song && player.song === song.id;
+	const isSelected = song && player.songId === song.id;
 	const isPlaying = isSelected && player.playing;
 	const user: any = getCurrentUser(state);
 

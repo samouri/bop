@@ -7,8 +7,8 @@ import TopContributors from './top-contributors';
 import SongList from './song-list';
 import sdk, { ApiUser, ApiPlaylists } from '../sdk';
 
-import { fetchSongsInPlaylist, setSort, setPlaylistName, SORT } from '../state/actions';
-import { getCurrentUser, getCurrentPlaylist } from '../state/reducer';
+import { fetchSongsInPlaylist, setSort, requestPlaylist, SORT } from '../state/actions';
+import { getCurrentUser, getPlaylistByName } from '../state/reducer';
 
 type Props = {
 	match: { params: any };
@@ -18,21 +18,21 @@ type Props = {
 };
 class PlaylistPage extends React.Component<Props> {
 	fetchSongs = _.throttle(
-		(props = this.props) => props.dispatch(fetchSongsInPlaylist({ playlistId: props.playlist.id })),
+		(props = this.props) => props.dispatch(fetchSongsInPlaylist({ playlistId: 17 })),
 		200
 	);
+	fetchPlaylist = _.throttle((props = this.props) => {
+		const { match: { params }, dispatch, user } = props;
+		dispatch(requestPlaylist({ playlistName: params.playlistName, userId: user.id }));
+	}, 300);
 
-	componentWillMount() {
-		const { match: { params }, dispatch } = this.props;
-		if (params.playlistName) {
-			dispatch(setPlaylistName(params.playlistName));
-		}
+	componentDidMount() {
+		this.fetchPlaylist();
+		this.fetchSongs();
 	}
 	componentWillReceiveProps(nextProps) {
-		const { match: { params }, dispatch } = nextProps;
-
-		if (nextProps.playlistName && !nextProps.playlist) {
-			dispatch(setPlaylistName(params.playlistName));
+		if (nextProps.match.params.playlistName && _.isEmpty(nextProps.playlist)) {
+			this.fetchPlaylist(nextProps);
 		}
 	}
 
@@ -99,9 +99,9 @@ class PlaylistPage extends React.Component<Props> {
 	}
 }
 
-export default connect<{}, {}, Props>(state => {
+export default connect<{}, {}, Props>((state, ownProps: any) => {
 	return {
 		user: getCurrentUser(state),
-		playlist: getCurrentPlaylist(state),
+		playlist: getPlaylistByName(state, ownProps.match.params.playlistName),
 	};
 })(PlaylistPage);

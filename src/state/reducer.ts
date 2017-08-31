@@ -44,10 +44,10 @@ export const getUserByUsername = (state, username) => {
 	return match;
 };
 
-export const getCurrentPlaylist = createSelector(
-	[getCurrentPlaylistId, getPlaylistEntities, getUserEntities],
-	(playlistId, playlistsById, usersById) => {
-		const playlist = playlistsById[playlistId];
+export const getPlaylistByName = createSelector(
+	[getProps, getPlaylistEntities, getUserEntities],
+	(playlistName, playlistsById, usersById) => {
+		const playlist: any = _.find(playlistsById, { name: playlistName });
 		if (!playlist) {
 			return {};
 		}
@@ -262,10 +262,6 @@ const playerSort = handleActions(
 	'date'
 );
 const playerShuffle = handleActions({ [SHUFFLE_SONGS]: state => !state }, false);
-const playerPlaylist = handleActions(
-	{ [SET_PLAYLIST]: (state, action: any) => action.payload.playlist.id },
-	null
-);
 const playerPlaying = handleActions({ [PLAY_SONG]: () => true, [PAUSE_SONG]: () => false }, false);
 
 const playerSong = handleActions(
@@ -296,7 +292,7 @@ const playerQueue = handleActions(
 
 export type PlayerState = {
 	sort: SORT;
-	song: number;
+	songId: number;
 	shuffle: boolean;
 	playlist: number;
 	playing: boolean;
@@ -304,9 +300,8 @@ export type PlayerState = {
 };
 const player = combineReducers({
 	sort: playerSort,
-	song: playerSong,
+	songId: playerSong,
 	shuffle: playerShuffle,
-	playlist: playerPlaylist,
 	playing: playerPlaying,
 	queue: playerQueue,
 });
@@ -365,10 +360,18 @@ export const getPlayQueue = createSelector(
 	}
 );
 
+export const getCurrentSong = createSelector(
+	[getCurrentPlayer, getAllSongsDenormalized],
+	(player, songs) => _.find(songs, { id: player.songId })
+);
+
 export const getNextSong = createSelector(
-	[getPlayQueue, getCurrentSongId],
-	(songs: Array<DenormalizedSong>, currSongId) => {
-		const currIndex = _.findIndex(songs, song => song.id === currSongId);
+	[getPlayQueue, getCurrentPlayer],
+	(denormalizedSongs: Array<DenormalizedSong>, player: PlayerState) => {
+		const { songId, shuffle } = player;
+		const songs = shuffle ? _.shuffle(denormalizedSongs) : denormalizedSongs;
+		const currIndex = _.findIndex(songs, song => song.id === songId);
+
 		if (currIndex === -1) {
 			return songs[0];
 		}

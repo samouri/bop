@@ -392,6 +392,9 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+.playing-bar__shuffle.active {
+	color: purple;
+}
 
 /*
  * Thank you: http://getbootstrap.com.vn/examples/equal-height-columns/

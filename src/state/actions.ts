@@ -36,12 +36,8 @@ export const pauseSong = createAction(PAUSE_SONG);
 export type SORT = 'votes' | 'title' | 'artist' | 'playlist' | 'user' | 'duration' | 'date';
 export type SetSortPayload = { sort: SORT };
 export const setSort = createAction<SetSortPayload>(SET_SORT);
-export const shuffleSongs = createAction<PlaylistIdPayload>(SHUFFLE_SONGS);
+export const shuffleSongs = createAction(SHUFFLE_SONGS);
 export const loginUserFailure = createAction<UserPayload>(LOGIN_USER_FAILURE);
-
-export type PlaylistPayload = { playlist };
-export const receivePlaylist = createAction<PlaylistPayload>(RECEIVE_PLAYLIST);
-
 export type EventsPayload = { events };
 export const fetchEvents = createAction(FETCH_EVENTS, sdk.getEvents);
 
@@ -50,13 +46,13 @@ export const fetchEvents = createAction(FETCH_EVENTS, sdk.getEvents);
 export const requestPlaylist = ({ playlistName, userId }) => async dispatch => {
 	try {
 		const playlist = await sdk.getPlaylistForName(playlistName);
-		dispatch(receivePlaylist({ playlist }));
+		dispatch(addEntities(playlist));
 	} catch (err) {
 		// TODO this is a hack for now to add the playlist if it doens't exist
 		if (userId) {
 			await sdk.createPlaylist({ playlistName, userId });
 			const playlist = await sdk.getPlaylistForName(playlistName);
-			dispatch(receivePlaylist({ playlist }));
+			dispatch(addEntities(playlist));
 		}
 		console.error(err);
 	}
