@@ -101,6 +101,7 @@
 	flex-direction: row;
 	justify-content: flex-end;
 	position: relative;
+	color: black;
 }
 .header__login-form-dropdown {
 	position: absolute;

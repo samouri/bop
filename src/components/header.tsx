@@ -5,34 +5,8 @@ import { connect } from 'react-redux';
 import { getCurrentUser } from '../state/reducer';
 import { Link } from 'react-router-dom';
 import LoginDropdown from './login-dropdown';
-import { loginUser } from '../state/actions';
 
 class Header extends React.Component<Props> {
-	state = {
-		showForm: false,
-		username: '',
-	};
-
-	async componentDidMount() {
-		try {
-			let login = localStorage.getItem('login');
-			console.error(login);
-			if (login) {
-				login = JSON.parse(login);
-				console.error(login);
-				this.props.dispatch(loginUser(login));
-			}
-		} catch (err) {
-			console.error(err, err.stack);
-		}
-	}
-
-	handleToggleForm = () => this.setState({ showForm: !this.state.showForm });
-
-	handleUsernameChange = event => {
-		this.setState({ username: event.target.value });
-	};
-
 	render() {
 		const { user } = this.props;
 		return (

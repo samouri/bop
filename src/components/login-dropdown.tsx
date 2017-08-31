@@ -14,6 +14,20 @@ type Props = {
 };
 
 class LoginDropdown extends React.Component<Props> {
+	async componentDidMount() {
+		try {
+			let login = localStorage.getItem('login');
+			console.error(login);
+			if (login) {
+				login = JSON.parse(login);
+				console.error(login);
+				this.props.login(login);
+			}
+		} catch (err) {
+			console.error(err, err.stack);
+		}
+	}
+
 	state = {
 		username: '',
 		password: 'todo',
@@ -21,6 +35,7 @@ class LoginDropdown extends React.Component<Props> {
 	};
 
 	toggleForm = () => this.setState({ showForm: !this.state.showForm });
+
 	handleLogin = () => {
 		const { username, password } = this.state;
 		this.toggleForm();
@@ -29,6 +44,7 @@ class LoginDropdown extends React.Component<Props> {
 	handleLogout = () => {
 		this.toggleForm();
 		this.props.logout();
+		localStorage.removeItem('login');
 	};
 
 	handleRegister = () => {

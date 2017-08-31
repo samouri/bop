@@ -7,6 +7,7 @@ import * as moment from 'moment';
 import {
 	ADD_ENTITIES,
 	LOGIN_USER_SUCCESS,
+	LOGOUT_USER,
 	PLAY_SONG,
 	PAUSE_SONG,
 	SET_SORT,
@@ -332,7 +333,10 @@ const votesById = handleActions(
 const votes = combineReducers({ byId: votesById });
 
 const currentUser = handleActions(
-	{ [LOGIN_USER_SUCCESS]: (state, action: any) => action.payload.id },
+	{
+		[LOGIN_USER_SUCCESS]: (state, action: any) => action.payload.id,
+		[LOGOUT_USER]: () => null,
+	},
 	null
 );
 
