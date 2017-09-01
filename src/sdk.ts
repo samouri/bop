@@ -163,6 +163,14 @@ class BopSdk {
 		return _.first(resp) as api.Metadata;
 	};
 
+	getAllUsers = async ({ limit = 5000 } = {}): Promise<any> => {
+		const endpoint = `${config.swaggerHost}/users?limit=${limit}`;
+		const users = await (await fetch(endpoint)).json();
+		const normalized = normalize(users, [user]);
+
+		return { ...normalized.entities };
+	};
+
 	getUser = async (optionalUsername, optionalPassword): Promise<any> => {
 		const getU = api.UsersApiFp.usersGet({
 			username: `eq.${optionalUsername}`,

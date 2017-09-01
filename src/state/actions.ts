@@ -40,6 +40,7 @@ export const shuffleSongs = createAction(SHUFFLE_SONGS);
 export const loginUserFailure = createAction<UserPayload>(LOGIN_USER_FAILURE);
 export type EventsPayload = { events };
 export const fetchEvents = createAction(FETCH_EVENTS, sdk.getEvents);
+export const fetchUsers = createAction(ADD_ENTITIES, sdk.getAllUsers);
 
 /* Thunk Async Actions */
 

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 
-import { logout, loginUser as login } from '../state/actions';
+import { logout, loginUser as login, fetchUsers } from '../state/actions';
 import { getCurrentUser } from '../state/reducer';
 import sdk from '../sdk';
 
@@ -11,10 +11,12 @@ type Props = {
 	onRegister: any;
 	loggedIn: boolean;
 	username: string;
+	fetchUsers: any;
 };
 
 class LoginDropdown extends React.Component<Props> {
 	async componentDidMount() {
+		this.props.fetchUsers();
 		try {
 			let login = localStorage.getItem('login');
 			console.error(login);
@@ -101,4 +103,6 @@ function mapStateToProps(state) {
 	return { username, loggedIn };
 }
 
-export default connect<any, any, any>(mapStateToProps, { login, logout })(LoginDropdown);
+export default connect<any, any, any>(mapStateToProps, { login, logout, fetchUsers })(
+	LoginDropdown
+);
