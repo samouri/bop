@@ -56,7 +56,7 @@ export const mapMusicBrainzItemtoBop = (song: any) => {
 };
 
 class BopSdk {
-	getSongsInPlaylist = async ({ playlistId, offset = 0, limit = 200 }) => {
+	getSongsInPlaylist = async ({ playlistId, offset = 0, limit = 5000 }) => {
 		// hardcoded all playlist
 		if (playlistId === 17) {
 			return this.getSongsInAllPlaylist({ offset, limit });
@@ -74,7 +74,7 @@ class BopSdk {
 	};
 
 	//todo need better system
-	getSongsInAllPlaylist = async ({ offset, limit }): Promise<any> => {
+	getSongsInAllPlaylist = async ({ offset, limit = 5000 }): Promise<any> => {
 		const getSongs = api.SongsApiFp.songsGet({
 			offset: offset.toString(),
 			limit: limit.toString(),
@@ -86,7 +86,7 @@ class BopSdk {
 		return { ...normalized.entities };
 	};
 
-	getSongsAddedByUser = async ({ userId, limit = 200, offset = 0 }) => {
+	getSongsAddedByUser = async ({ userId, limit = 5000, offset = 0 }) => {
 		const getSongs = api.SongsApiFp.songsGet({
 			id: `eq.${userId}`,
 			offset: offset.toString(),
@@ -250,8 +250,8 @@ class BopSdk {
 		};
 	};
 
-	getEvents = async ({}): Promise<Array<Event>> => {
-		const endpoint = config.swaggerHost + '/events';
+	getEvents = async ({ limit = 5000 }): Promise<Array<Event>> => {
+		const endpoint = config.swaggerHost + `/events?limit=${limit}`;
 		const events = await (await fetch(endpoint)).json();
 		return events;
 	};
