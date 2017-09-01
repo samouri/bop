@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 
 import SearchBar from './searchbar';
 import TopContributors from './top-contributors';
@@ -67,6 +68,7 @@ class PlaylistPage extends React.Component<Props> {
 
 	render() {
 		const { playlist } = this.props;
+		const createdBy = _.get(playlist, 'user.username');
 		const ret = (
 			<div>
 				<div className="playlist-page__titlestats">
@@ -76,11 +78,11 @@ class PlaylistPage extends React.Component<Props> {
 						</span>
 						{playlist &&
 							<span className="playlist-page__title-createdby">
-								created by @{playlist && playlist.user && playlist.user.username}
+								created by <Link to={`/u/${createdBy}`}> @{createdBy} </Link>
 							</span>}
 					</span>
 					<div className="playlist-page__top-contribs">
-						<TopContributors />
+						<TopContributors playlistId={playlist.id} />
 					</div>
 				</div>
 

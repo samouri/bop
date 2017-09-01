@@ -28,7 +28,6 @@ export const getUserEntities = state => state.users.byId;
 export const getSongEntities = state => state.songs.byId;
 export const getVoteEntities = state => state.votes.byId;
 export const getPlaylistEntities = state => state.playlists.byId;
-export const getCurrentPlaylistId = state => state.player.playlist;
 export const getCurrentSongId = state => state.player.song;
 export const getCurrentSort = state => state.player.sort;
 export const getCurrentlyPlayingQueue = state => state.player.queue;
@@ -154,11 +153,10 @@ export const getUpvotedSongs = createSelector(
 		)
 );
 
-export const getContributorsInCurrentPlaylist = createSelector(
-	[getCurrentPlaylistId, getUserEntities, getState],
-	(playlistId, usersById, state) => {
-		const songs: Array<DenormalizedSong> = getSongsInPlaylist(state, playlistId);
-
+export const getContributorsInPlaylist = createSelector(
+	[getState, getProps, getSongsInPlaylist, getUserEntities],
+	(state, playlistId, songs: Array<DenormalizedSong>, usersById) => {
+		console.error(playlistId, songs, usersById);
 		if (_.isEmpty(songs) || _.isEmpty(usersById)) {
 			return [];
 		}
@@ -295,7 +293,6 @@ export type PlayerState = {
 	sort: SORT;
 	songId: number;
 	shuffle: boolean;
-	playlist: number;
 	playing: boolean;
 	queue: { type: string; id: number };
 };
