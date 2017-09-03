@@ -204,9 +204,18 @@
 }
 .event-row__song-play-info {
 	display: flex;
+	flex-direction: column;
 	align-self: center;
 	padding-right: 20px;
 	width: 40px;
+}
+.event-row__song-upvote {
+	padding-bottom: 5px;
+	/* margin-left: 5px; */
+}
+.event-row__controls {
+	height: 30px;
+	margin-bottom: 20px;
 }
 .event-row__thumb {
 	height: 75px;
