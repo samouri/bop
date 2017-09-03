@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { connect } from 'react-redux';
 import * as cx from 'classnames';
+import * as moment from 'moment';
 import { Link } from 'react-router-dom';
 import { playSong, pauseSong } from '../state/actions';
 import { getCurrentUser, DenormalizedSong, getCurrentPlayer } from '../state/reducer';
@@ -42,6 +43,16 @@ class EventRow extends React.Component<Props> {
 
 	handleMouseOver = () => this.setState({ hovered: true });
 	handleMouseOut = e => this.setState({ hovered: false });
+
+	durationToString() {
+		var duration = moment.duration(this.props.event.song.metadata.youtube_duration);
+		var duration_minutes = duration.minutes();
+		var duration_seconds: any = duration.seconds();
+		if (duration_seconds < 10) {
+			duration_seconds = '0' + duration_seconds;
+		}
+		return duration_minutes + ':' + duration_seconds;
+	}
 
 	render() {
 		const { event, isPlaying, isSelected, stream } = this.props;
@@ -88,6 +99,9 @@ class EventRow extends React.Component<Props> {
 						</span>
 						<span className="event-row__song-artist">
 							{metadata.artist}
+						</span>
+						<span className="event-row__song-duration">
+							{this.durationToString()}
 						</span>
 					</span>
 				</div>

@@ -30,7 +30,7 @@ class Header extends React.Component<Props> {
 								Songs
 							</Link>
 							<Link to={`/leaderboard`} className={cx({ active: this.at('leaderboard') })}>
-								Leaderboards
+								Leaderboard
 							</Link>
 						</div>
 						<LoginDropdown />
