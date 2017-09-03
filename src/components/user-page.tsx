@@ -6,13 +6,12 @@ import SongList from './song-list';
 import { ApiUser, ApiPlaylists } from '../sdk';
 
 import { fetchSongsInPlaylist, setSort, SORT } from '../state/actions';
-import { getCurrentUser, getUserByUsername } from '../state/reducer';
+import { getUserByUsername } from '../state/reducer';
 
 type Props = {
 	match: { params: any };
 	dispatch: any;
 	playlist: ApiPlaylists & { user: any };
-	loggedInUser: ApiUser;
 	username: string;
 	user: ApiUser;
 };
@@ -53,7 +52,6 @@ class UserPage extends React.Component<Props> {
 export default connect<{}, {}, Props>((state, ownProps: any) => {
 	const { params } = ownProps.match;
 	return {
-		loggedInUser: getCurrentUser(state),
 		user: getUserByUsername(state, params.username),
 	};
 })(UserPage);

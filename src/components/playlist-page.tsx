@@ -8,7 +8,7 @@ import TopContributors from './top-contributors';
 import SongList from './song-list';
 import sdk, { ApiUser, ApiPlaylists } from '../sdk';
 
-import { fetchSongsInPlaylist, setSort, requestPlaylist, SORT } from '../state/actions';
+import { fetchSongs, setSort, requestPlaylist, SORT } from '../state/actions';
 import { getCurrentUser, getPlaylistByName } from '../state/reducer';
 
 type Props = {
@@ -18,10 +18,8 @@ type Props = {
 	user: ApiUser;
 };
 class PlaylistPage extends React.Component<Props> {
-	fetchSongs = _.throttle(
-		(props = this.props) => props.dispatch(fetchSongsInPlaylist({ playlistId: 17 })),
-		200
-	);
+	fetchSongs = _.throttle((props = this.props) => props.dispatch(fetchSongs()), 200);
+
 	fetchPlaylist = _.throttle((props = this.props) => {
 		const { match: { params }, dispatch, user } = props;
 		dispatch(requestPlaylist({ playlistName: params.playlistName, userId: user.id }));
