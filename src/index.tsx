@@ -26,7 +26,7 @@ const Root = ({ store }: { store: any }) =>
 				<Route exact path="/" component={FeedPage} />
 				<Route path="/p/:playlistName" component={PlaylistPage} />
 				<Route path="/u/:username" component={UserPage} />
-				<Route path="/leaderboards" component={LeaderboardPage} />
+				<Route path="/leaderboard" component={LeaderboardPage} />
 				<Route component={PlayingBar} />
 			</div>
 		</Router>
