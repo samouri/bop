@@ -41,6 +41,7 @@ export const loginUserFailure = createAction<UserPayload>(LOGIN_USER_FAILURE);
 export type EventsPayload = { events };
 export const fetchEvents = createAction(FETCH_EVENTS, sdk.getEvents);
 export const fetchUsers = createAction(ADD_ENTITIES, sdk.getAllUsers);
+export const fetchSongs = createAction(ADD_ENTITIES, sdk.getAllSongs);
 
 /* Thunk Async Actions */
 

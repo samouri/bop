@@ -171,6 +171,15 @@ class BopSdk {
 		return { ...normalized.entities };
 	};
 
+	getAllSongs = async ({ limit = 5000 } = {}): Promise<any> => {
+		const selectParams = '*,metadata{*},votes{*},user{id,username},playlists{*}';
+		const endpoint = `${config.swaggerHost}/songs?limit=${limit}&select=${selectParams}`;
+		const songs = await (await fetch(endpoint)).json();
+		const normalized = normalize(songs, [song]);
+
+		return { ...normalized.entities };
+	};
+
 	getUser = async (optionalUsername, optionalPassword): Promise<any> => {
 		const getU = api.UsersApiFp.usersGet({
 			username: `eq.${optionalUsername}`,

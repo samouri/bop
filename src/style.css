@@ -88,6 +88,11 @@
 	font-size: 24px;
 	font-weight: 200;
 }
+
+.header__left-nav a.active {
+	text-shadow: 2px 2px 4px #9a05b5;
+}
+
 .header__login {
 	margin: 0;
 	font-weight: 200;

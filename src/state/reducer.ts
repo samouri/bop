@@ -153,6 +153,15 @@ export const getUpvotedSongs = createSelector(
 		)
 );
 
+export const getUserScores = createSelector(
+	[getAllSongsDenormalized, getUserEntities],
+	(songs: Array<DenormalizedSong>, users) => {
+		const counted = _.countBy(songs, song => song.user.id);
+		const withUser = _.mapValues(counted, (elt, key) => ({ score: elt, ...users[key] }));
+		return withUser;
+	}
+);
+
 export const getContributorsInPlaylist = createSelector(
 	[getState, getProps, getSongsInPlaylist, getUserEntities],
 	(state, playlistId, songs: Array<DenormalizedSong>, usersById) => {
