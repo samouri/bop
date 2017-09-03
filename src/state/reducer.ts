@@ -162,6 +162,14 @@ export const getUserScores = createSelector(
 	}
 );
 
+export const getTopPlaylists = createSelector(
+	[getAllSongsDenormalized],
+	(songs: Array<DenormalizedSong>) => {
+		const counted = _.countBy(songs, song => song.votes.length);
+		console.error(counted);
+	}
+);
+
 export const getContributorsInPlaylist = createSelector(
 	[getState, getProps, getSongsInPlaylist, getUserEntities],
 	(state, playlistId, songs: Array<DenormalizedSong>, usersById) => {

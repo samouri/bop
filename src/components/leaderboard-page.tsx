@@ -25,22 +25,22 @@ class LeaderboardsPage extends React.Component<Props> {
 		const sortedUsers = _.reverse(_.sortBy(scores, 'score'));
 		console.error(sortedUsers);
 		return (
-			<div className="feed-page" style={{}}>
-				<span className="feed-page__title" style={{ display: 'flex', flexDirection: 'column' }}>
+			<div className="leaderboard-page" style={{}}>
+				<span style={{ display: 'flex', flexDirection: 'column' }}>
 					<h2 style={{ textAlign: 'center', paddingBottom: '20px', paddingTop: '20px' }}>
 						Leaderboard
 					</h2>
 					<table className="table table-striped">
 						<tr>
-							<th> User </th> <th> Points (songs added) </th>
+							<th> USER </th> <th> POINTS </th>
 						</tr>
 						{_.map(sortedUsers, user =>
 							<tr>
-								<th>
+								<td>
 									<Link to={`/u/${user.username}`}>
 										@{user.username}
 									</Link>
-								</th>
+								</td>
 								<th>
 									{user.score}
 								</th>
