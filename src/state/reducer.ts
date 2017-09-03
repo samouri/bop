@@ -137,8 +137,10 @@ export const getSongsInStream = createSelector(
 			songs = getSongsInPlaylist(state, id);
 		} else if (type === 'events') {
 			songs = _.map(getEventsDenormalized(state), 'song');
-		} else if (type === 'user') {
+		} else if (type === 'user-posted') {
 			songs = _.filter(denormalizedSongs, song => song.user.id === id);
+		} else if (type === 'user-voted') {
+			songs = _.filter(denormalizedSongs, song => !!_.find(song.votes, { user_added: id }));
 		}
 		return sortSongs(songs, sort as any);
 	}

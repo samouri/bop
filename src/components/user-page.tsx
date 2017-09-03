@@ -21,6 +21,12 @@ class UserPage extends React.Component<Props> {
 		200
 	);
 
+	state = { selection: 'posted' };
+	handleSelectionClick = () =>
+		this.state.selection === 'posted'
+			? this.setState({ selection: 'voted' })
+			: this.setState({ selection: 'posted' });
+
 	componentWillMount() {
 		this.fetchSongs();
 	}
@@ -32,16 +38,21 @@ class UserPage extends React.Component<Props> {
 	render() {
 		const { user, match: { params } } = this.props;
 		const { username } = params;
+		const { selection } = this.state;
 
 		const ret = (
 			<div>
 				<div className="user-page__title">
-					@{username}'s Music
+					@{username}'s {''}
+					<span className="user-page__selection" onClick={this.handleSelectionClick}>
+						{selection}
+					</span>{' '}
+					Music
 				</div>
 				{/* <div className="playlist-page__top-contribs" /> */}
 
 				<div style={{ paddingBottom: '80px' }}>
-					{user && <SongList stream={{ type: 'user', id: user.id }} />}
+					{user && <SongList stream={{ type: `user-${selection}`, id: user.id }} />}
 				</div>
 			</div>
 		);
