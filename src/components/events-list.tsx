@@ -6,6 +6,7 @@ import Event from './event-row';
 class EventsList extends React.Component<any> {
 	renderEventsList = () => {
 		const { events, stream } = this.props;
+
 		if (_.isEmpty(events)) {
 			return <p> Nothing has ever happened </p>;
 		} else {

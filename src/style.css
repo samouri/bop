@@ -4,10 +4,13 @@
 	margin: 0 auto;
 }
 
-/* getting rid of scrollbar until i learn to make bottom playbar ignore it */
-/* ::-webkit-scrollbar {
-	display: none;
-} */
+img {
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-drag: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+}
 
 .playlist-page__titlestats {
 	display: flex;
@@ -150,6 +153,7 @@
 
 .play-info i {
 	color: #555;
+	cursor: pointer;
 }
 .play-info i:hover {
 	color: #000;
@@ -216,6 +220,7 @@
 .event-row__controls {
 	height: 30px;
 	margin-bottom: 20px;
+	cursor: pointer;
 }
 .event-row__thumb {
 	height: 75px;
@@ -288,6 +293,7 @@
 }
 .pointer {
 	cursor: pointer;
+	user-select: none;
 }
 #ftue-hero {
 	background-image: url("./images/listening.png");
@@ -442,4 +448,12 @@
 	color: mediumpurple;
 	display: inline-block;
 	width: 95px;
+}
+
+.combined-song-event__play {
+	display: flex;
+	position: relative;
+	top: 41px;
+	left: 35px;
+	color: mediumpurple;
 }

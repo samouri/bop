@@ -2,18 +2,12 @@ import * as React from 'react';
 import * as cx from 'classnames';
 import * as _ from 'lodash';
 import * as moment from 'moment';
-import { connect } from 'react-redux';
-import {
-	getDenormalizedSong,
-	getCurrentUser,
-	DenormalizedSong,
-	getCurrentPlayer,
-} from '../state/reducer';
+import { DenormalizedSong } from '../state/reducer';
 import { Link } from 'react-router-dom';
-import sdk from '../sdk';
 import * as momentTwitter from 'moment-twitter';
+import { withSongControls } from './hocs';
 
-import { playSong, pauseSong, deleteSong } from '../state/actions';
+import { deleteSong } from '../state/actions';
 
 type Props = {
 	song: DenormalizedSong;
@@ -23,11 +17,14 @@ type Props = {
 	user: any;
 	dispatch: any;
 	stream: object;
+	voteCount: number;
+	vote;
+	play;
+	pause;
 };
 
 class SongRow extends React.Component<Props> {
 	state = {
-		voteModifier: 0,
 		hovered: false,
 	};
 
@@ -43,17 +40,6 @@ class SongRow extends React.Component<Props> {
 
 	getAge = () => momentTwitter.utc(this.props.song.date_added).twitterLong();
 
-	handleUpvote = () => {
-		const { isUpvoted } = this.props;
-		const vote = isUpvoted ? -1 : 1;
-		const voteModifier = this.state.voteModifier !== 0 ? 0 : vote;
-
-		this.setState({ voteModifier });
-
-		const voteParams = { songId: this.props.song.id, userId: this.props.user.id };
-		isUpvoted ? sdk.unvote(voteParams) : sdk.vote(voteParams);
-	};
-
 	handleDelete = () => this.props.dispatch(deleteSong(this.props.song));
 	handleMouseOver = () => this.setState({ hovered: true });
 	handleMouseOut = e => this.setState({ hovered: false });
@@ -63,8 +49,7 @@ class SongRow extends React.Component<Props> {
 			return null;
 		}
 		const { title, artist } = _.get(this.props.song, 'metadata', {}) as any;
-		const { id: songId, votes } = this.props.song;
-		const { isPlaying, stream } = this.props;
+		const { isPlaying, isUpvoted, voteCount, vote } = this.props;
 
 		var playOrPauseClasses = cx('fa', 'fa-2x', {
 			'fa-pause': isPlaying,
@@ -73,14 +58,10 @@ class SongRow extends React.Component<Props> {
 		});
 
 		var upChevronClasses = cx('fa fa-chevron-up pointer', {
-			'up-chevron-selected':
-				(this.props.isUpvoted && this.state.voteModifier !== -1) || this.state.voteModifier === 1,
+			'up-chevron-selected': isUpvoted,
 		});
 
-		const handlePausePlay = isPlaying
-			? () => this.props.dispatch(pauseSong())
-			: () => this.props.dispatch(playSong({ songId, stream }));
-
+		const handlePausePlay = isPlaying ? this.props.pause : this.props.play;
 		const playlistName = this.props.song.playlists.name;
 		const backgroundColor = isPlaying || this.state.hovered ? 'lightgray' : '';
 		return (
@@ -96,9 +77,9 @@ class SongRow extends React.Component<Props> {
 						<i className={playOrPauseClasses} onClick={handlePausePlay} />}
 				</span>
 				<span className="vote-info">
-					<i className={upChevronClasses} onClick={this.handleUpvote} />
+					<i className={upChevronClasses} onClick={vote} />
 					<span className="vote-count">
-						{votes.length + this.state.voteModifier}
+						{voteCount}
 					</span>
 				</span>
 				<span className="song-title">
@@ -137,20 +118,4 @@ class SongRow extends React.Component<Props> {
 	}
 }
 
-function mapStateToProps(state, ownProps) {
-	const song: any = getDenormalizedSong(state, { id: ownProps.songId });
-	const player = getCurrentPlayer(state);
-	const isSelected = song && player.songId === song.id;
-	const isPlaying = isSelected && player.playing;
-	const user: any = getCurrentUser(state);
-
-	return {
-		song,
-		isSelected,
-		isPlaying,
-		isUpvoted: song && !!_.find(song.votes, { user_added: user.id }),
-		user,
-	};
-}
-
-export default connect(mapStateToProps)(SongRow);
+export default withSongControls(SongRow);

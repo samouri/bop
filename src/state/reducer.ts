@@ -28,7 +28,7 @@ export const getUserEntities = state => state.users.byId;
 export const getSongEntities = state => state.songs.byId;
 export const getVoteEntities = state => state.votes.byId;
 export const getPlaylistEntities = state => state.playlists.byId;
-export const getCurrentSongId = state => state.player.song;
+export const getCurrentSongId = state => state.player.songId;
 export const getCurrentSort = state => state.player.sort;
 export const getCurrentlyPlayingQueue = state => state.player.queue;
 // export const getCurrentShuffle = state => state.player.shuffle;
@@ -142,7 +142,7 @@ export const getSongsInStream = createSelector(
 		} else if (type === 'user-voted') {
 			songs = _.filter(denormalizedSongs, song => !!_.find(song.votes, { user_added: id }));
 		}
-		return sortSongs(songs, sort as any);
+		return type === 'events' ? songs : sortSongs(songs, sort as any);
 	}
 );
 
@@ -164,18 +164,18 @@ export const getUserScores = createSelector(
 	}
 );
 
-export const getTopPlaylists = createSelector(
-	[getAllSongsDenormalized],
-	(songs: Array<DenormalizedSong>) => {
-		const counted = _.countBy(songs, song => song.votes.length);
-		console.error(counted);
-	}
-);
+// idea for later: maybe show top playlists somewhere
+// export const getTopPlaylists = createSelector(
+// 	[getAllSongsDenormalized],
+// 	(songs: Array<DenormalizedSong>) => {
+// 		const counted = _.countBy(songs, song => song.votes.length);
+// 		console.error(counted);
+// 	}
+// );
 
 export const getContributorsInPlaylist = createSelector(
 	[getState, getProps, getSongsInPlaylist, getUserEntities],
 	(state, playlistId, songs: Array<DenormalizedSong>, usersById) => {
-		console.error(playlistId, songs, usersById);
 		if (_.isEmpty(songs) || _.isEmpty(usersById)) {
 			return [];
 		}
@@ -264,12 +264,32 @@ export const getEventsDenormalized = createSelector(
 		});
 		// TODO make this smart about multiple events on the same song from multiple people etc etc
 		// 4 people liked this song instead of collapsing to this garbage
-		return _.uniqBy(
-			_.filter(allEvents, (event: any) => event.eventType !== 'playlist'),
-			evt => evt.song && evt.song.id
+		const withoutPlaylistEvents = _.filter(
+			allEvents,
+			(event: any) => event.eventType !== 'playlist'
 		);
+		// return withoutPlaylistEvents;
+		return _.uniqBy(withoutPlaylistEvents, evt => evt.song && evt.song.id);
 	}
 );
+
+export const getCombinedEvents = createSelector([getEventsDenormalized], events => {
+	const destutteredEvents: Array<any> = [];
+
+	_.forEach(events, (event, i: number) => {
+		const lastEvent = _.last(destutteredEvents);
+		const lastType = _.get(lastEvent, 'eventType');
+		const lastPlaylist = _.get(lastEvent, ['song', 'playlist_id']);
+
+		if (lastType === event.eventType && lastPlaylist === _.get(event, ['song', 'playlist_id'])) {
+			lastEvent.combined = _.concat(lastEvent.combined || [], event);
+		} else {
+			destutteredEvents.push({ ...event });
+		}
+	});
+	console.error(destutteredEvents);
+	return destutteredEvents;
+});
 
 const playlists = combineReducers({
 	byId: playlistsById,
@@ -392,18 +412,21 @@ export const getNextSong = createSelector(
 		const songs = shuffle ? _.shuffle(denormalizedSongs) : denormalizedSongs;
 		const currIndex = _.findIndex(songs, song => song.id === songId);
 
-		if (currIndex === -1) {
-			return songs[0];
+		if (currIndex === -1 || currIndex === songs.length - 1) {
+			return _.first(songs);
 		}
 		return songs[currIndex + 1];
 	}
 );
 export const getPrevSong = createSelector(
-	[getPlayQueue, getCurrentSongId],
-	(songs: Array<DenormalizedSong>, currSongId) => {
-		const currIndex = _.findIndex(songs, song => song.id === currSongId);
+	[getPlayQueue, getCurrentPlayer],
+	(denormalizedSongs: Array<DenormalizedSong>, player: PlayerState) => {
+		const { songId, shuffle } = player;
+		const songs = shuffle ? _.shuffle(denormalizedSongs) : denormalizedSongs;
+		const currIndex = _.findIndex(songs, song => song.id === songId);
+
 		if (currIndex === -1 || currIndex === 0) {
-			return songs[songs.length - 1];
+			return _.last(songs);
 		}
 		return songs[currIndex - 1];
 	}
