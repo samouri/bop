@@ -1,13 +1,18 @@
-// import * as _ from 'lodash';
 import * as React from 'react';
 import * as _ from 'lodash';
 import * as cx from 'classnames';
 import * as moment from 'moment';
 import { Link } from 'react-router-dom';
-import { withSongControls } from './hocs';
+import { withSongControls, withPlayer } from './hocs';
+import CoverFlow from 'react-coverflow';
 
 import { DenormalizedSong } from '../state/reducer';
-import { default as Slider } from 'react-slick';
+// import { playSong } from '../state/actions';
+// import { connect } from 'react-redux';
+
+// const CoverFlowTitle = withPlayer( ({ songId, isPlaying, play, pause } ) ) => {
+
+// });
 
 class CombinedSongEvent extends React.Component<any> {
 	sliderRef = null;
@@ -22,6 +27,21 @@ class CombinedSongEvent extends React.Component<any> {
 		this.setState({ current: i });
 	};
 
+	componentWillReceiveProps(nextProps) {
+		const currSongId = _.get(this.props, ['player', 'songId']);
+		const nextSongId = _.get(nextProps, ['player', 'songId']);
+		if (nextSongId === currSongId) {
+			return;
+		}
+
+		const songIndex = _.findIndex(this.props.event.combined, { id: nextSongId });
+		console.error('onlye one!!', songIndex);
+		if (songIndex >= 0) {
+			this.setState({ current: songIndex });
+			this.sliderRef && (this.sliderRef as any).slickGoTo(songIndex);
+		}
+	}
+
 	render() {
 		const event: any = this.props.event;
 
@@ -29,48 +49,42 @@ class CombinedSongEvent extends React.Component<any> {
 			return null;
 		}
 
-		const settings = {
-			slidesToShow: 5,
-			draggable: true,
-			speed: 500,
-			focusOnSelect: false,
-			centerMode: true,
-			infinite: true,
-			swipeToSlide: true,
-			useCSS: true,
-		};
-
 		const thumbs = _.map(event.combined, (evt: any, i: number) => {
 			return (
-				<div key={`${evt.eventType}-${evt.id}`}>
-					<i className="fa fa-play combined-song-event__play" />
-					<img height="75px" src={evt.song.metadata.thumbnail_url} />
-				</div>
+				// <div key={`${evt.eventType}-${evt.id}`}>
+				// <i className="fa fa-play combined-song-event__play" />
+				<img
+					key={`${evt.eventType}-${evt.id}`}
+					src={evt.song.metadata.thumbnail_url}
+					alt={_.truncate(evt.song.metadata.title, { length: 20 })}
+					data-action={this.props.play}
+				/>
+				// </div>
 			);
 		});
-		const currEvent = event.combined[this.state.current];
 
 		return (
 			<div style={{ paddingBottom: '20px' }}>
 				<SongEvent event={event} />
-				<ConnectedSingleEvent
-					event={currEvent}
-					stream={this.props.stream}
-					showContextLine={false}
-				/>
 				<div>
-					<Slider
-						{...settings}
-						ref={c => (this.sliderRef = c)}
-						afterChange={this.handleSliderChange}
+					<CoverFlow
+						width={800}
+						height={200}
+						displayQuantityOfSide={2}
+						navigation={false}
+						enableScroll={true}
+						clickable={true}
+						active={0}
 					>
 						{thumbs}
-					</Slider>
+					</CoverFlow>
 				</div>
 			</div>
 		);
 	}
 }
+
+// const ConnectedCombinedSongEvent = connect()(CombinedSongEvent);
 
 const SongEvent = ({ event }) => {
 	const { song, user } = event;
@@ -141,7 +155,7 @@ class SingleEvent extends React.Component<Props> {
 		});
 		const backgroundColor = isPlaying || this.state.hovered ? 'lightgray' : '';
 
-		const handlePausePlay = isPlaying ? () => this.props.pause : () => this.props.play;
+		const handlePausePlay = isPlaying ? this.props.pause : this.props.play;
 		const upChevronClasses = cx('fa fa-lg fa-chevron-up pointer', {
 			'up-chevron-selected': isUpvoted,
 		});
@@ -183,12 +197,14 @@ class SingleEvent extends React.Component<Props> {
 	}
 }
 
-const EventRow = ({ event, stream }) => {
+const EventRow = withPlayer(({ event, stream, player }) => {
 	if (event.eventType === 'song' && event.combined) {
-		return <CombinedSongEvent event={event} stream={stream} />;
+		return <CombinedSongEvent event={event} stream={stream} player={player} />;
 	}
-	return <ConnectedSingleEvent event={event} stream={stream} />;
-};
+	return (
+		<ConnectedSingleEvent event={event} stream={stream} songId={event.song && event.song.id} />
+	);
+});
 
 type Props = {
 	dispatch: any;

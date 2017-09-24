@@ -282,12 +282,12 @@ export const getCombinedEvents = createSelector([getEventsDenormalized], events 
 		const lastPlaylist = _.get(lastEvent, ['song', 'playlist_id']);
 
 		if (lastType === event.eventType && lastPlaylist === _.get(event, ['song', 'playlist_id'])) {
-			lastEvent.combined = _.concat(lastEvent.combined || [], event);
+			lastEvent.combined = _.concat(lastEvent.combined || [lastEvent], event);
 		} else {
 			destutteredEvents.push({ ...event });
 		}
 	});
-	console.error(destutteredEvents);
+
 	return destutteredEvents;
 });
 

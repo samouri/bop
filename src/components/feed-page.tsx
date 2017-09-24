@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import EventsList from './events-list';
 
 import { fetchEvents, fetchSongsInPlaylist } from '../state/actions';
-import { getCombinedEvents, getCurrentUser } from '../state/reducer';
+import { getEventsDenormalized, getCurrentUser } from '../state/reducer';
 // import { getEventsDenormalized } from '../state/reducer';
 
 type Props = {
@@ -26,7 +26,7 @@ class FeedPage extends React.Component<Props> {
 
 	render() {
 		const { events } = this.props;
-		console.error(events);
+
 		return (
 			<div className="feed-page">
 				<span className="feed-page__title">
@@ -40,6 +40,6 @@ class FeedPage extends React.Component<Props> {
 
 export default connect<{}, {}, Props>(state => ({
 	user: getCurrentUser(state),
-	events: getCombinedEvents(state),
-	// events: getEventsDenormalized(state),
+	// events: getCombinedEvents(state),
+	events: getEventsDenormalized(state),
 }))(FeedPage);

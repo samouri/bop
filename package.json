@@ -28,6 +28,7 @@
     "normalizr": "^3.2.3",
     "prettier": "^1.5.2",
     "react": "^15.6.1",
+    "react-coverflow": "^0.2.3",
     "react-dom": "^15.6.1",
     "react-player": "^0.20.0",
     "react-redux": "^4.4.5",
