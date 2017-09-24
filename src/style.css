@@ -457,3 +457,12 @@ img {
 	left: 35px;
 	color: mediumpurple;
 }
+
+.sidebar {
+	position: absolute;
+	left: 0;
+	height: 100%;
+	width: 300px;
+	background-color: red;
+	margin-top: -5px;
+}
