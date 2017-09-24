@@ -6,6 +6,7 @@ import EventsList from './events-list';
 
 import { fetchEvents, fetchSongsInPlaylist } from '../state/actions';
 import { getEventsDenormalized, getCurrentUser } from '../state/reducer';
+// import { getEventsDenormalized } from '../state/reducer';
 
 type Props = {
 	events: Array<any>;
@@ -39,5 +40,6 @@ class FeedPage extends React.Component<Props> {
 
 export default connect<{}, {}, Props>(state => ({
 	user: getCurrentUser(state),
+	// events: getCombinedEvents(state),
 	events: getEventsDenormalized(state),
 }))(FeedPage);
