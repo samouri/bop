@@ -68,7 +68,7 @@ class PlaylistPage extends React.Component<Props> {
 		const { playlist } = this.props;
 		const createdBy = _.get(playlist, 'user.username');
 		const ret = (
-			<div>
+			<div className="playlist-page">
 				<div className="playlist-page__titlestats">
 					<span className="playlist-page__title">
 						<span>

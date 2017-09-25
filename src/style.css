@@ -1,6 +1,14 @@
 #root {
-	max-width: 768px;
+	/* max-width: 768px;
 	min-width: 768px;
+	*/
+	margin: 0 auto;
+}
+.feed-page,
+.user-page,
+.leaderboard-page,
+.playlist-page {
+	max-width: 768px;
 	margin: 0 auto;
 }
 
@@ -55,8 +63,8 @@ img {
 	display: flex;
 	position: fixed;
 	top: 0;
-	width: 100%;
-	left: 0;
+	right: 0;
+	width: calc(100% - 200px);
 	/* background-color: #333333; */
 	background-color: #3a3f41;
 	color: lightgray;
@@ -459,10 +467,34 @@ img {
 }
 
 .sidebar {
-	position: absolute;
+	position: fixed;
 	left: 0;
+	top: 0;
 	height: 100%;
-	width: 300px;
-	background-color: red;
-	margin-top: -5px;
+	width: 200px;
+	background-color: #1d1d1d;
+	color: rgb(178, 178, 178);
+}
+
+.sidebar__menu {
+	margin-top: 50px;
+}
+
+.sidebar p:hover {
+	color: white;
+	cursor: pointer;
+}
+
+.sidebar-hamburger {
+	/* padding-right: 30px;
+	padding-left: 5px;
+	padding-top: 5px;
+	cursor: pointer; */
+
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	font-size: x-large;
+	color: white;
+	z-index: 2;
 }

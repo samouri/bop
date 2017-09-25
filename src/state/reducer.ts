@@ -19,6 +19,7 @@ import {
 	SORT,
 	FETCH_EVENTS,
 	EventsPayload,
+	SET_MOBILE,
 } from './actions';
 import { ApiSongs, ApiMetadata, ApiPlaylists, ApiVotes, ApiUser } from '../sdk';
 
@@ -432,6 +433,19 @@ export const getPrevSong = createSelector(
 	}
 );
 
+const MOBILE_WIDTH = 660;
+const isMobileReducer = handleActions(
+	{
+		[SET_MOBILE]: () => window.innerWidth < MOBILE_WIDTH,
+	},
+	window.innerWidth < MOBILE_WIDTH
+);
+const view = combineReducers({
+	isMobile: isMobileReducer,
+});
+
+export const isMobile = state => state.view.isMobile;
+
 const BopApp = combineReducers({
 	events,
 	metadata,
@@ -441,6 +455,7 @@ const BopApp = combineReducers({
 	users,
 	currentUser,
 	votes,
+	view,
 });
 
 // App Reducer
