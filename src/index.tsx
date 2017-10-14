@@ -1,3 +1,5 @@
+import './style.css';
+
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
@@ -15,13 +17,12 @@ import UserPage from './components/user-page';
 import LeaderboardPage from './components/leaderboard-page';
 import PlayingBar from './components/playing-bar';
 import Sidebar from './components/sidebar';
-import { setMobile } from './state/actions';
-import './style.css';
+import { resizeWindow } from './state/actions';
 
 import bopApp from './state/reducer';
 
 const store = createStore(bopApp, applyMiddleware(thunk, promise, logger));
-window.addEventListener('resize', _.debounce(() => store.dispatch(setMobile()), 100));
+window.addEventListener('resize', _.debounce(() => store.dispatch(resizeWindow()), 200));
 
 const Root = ({ store }: { store: any }) =>
 	<Provider store={store}>

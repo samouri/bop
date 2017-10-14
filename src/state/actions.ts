@@ -16,7 +16,7 @@ export const RECEIVE_PLAYLIST = 'RECEIVE_PLAYLIST';
 export const SET_PLAYLIST = 'SET_PLAYLIST';
 export const FETCH_EVENTS = 'FETCH_EVENTS';
 export const ADD_ENTITIES = 'ADD_ENTITIES';
-export const SET_MOBILE = 'SET_WIDTH';
+export const RESIZE_EVENT = 'RESIZE_EVENT';
 
 /* action creators */
 export type SongIdPayload = { songId?: number };
@@ -43,7 +43,7 @@ export type EventsPayload = { events };
 export const fetchEvents = createAction(FETCH_EVENTS, sdk.getEvents);
 export const fetchUsers = createAction(ADD_ENTITIES, sdk.getAllUsers);
 export const fetchSongs = createAction(ADD_ENTITIES, sdk.getAllSongs);
-export const setMobile = createAction(SET_MOBILE);
+export const resizeWindow = createAction(RESIZE_EVENT);
 
 /* Thunk Async Actions */
 

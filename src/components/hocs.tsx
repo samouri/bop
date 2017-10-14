@@ -3,7 +3,13 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash';
 
 import { playSong, pauseSong } from '../state/actions';
-import { getCurrentUser, getCurrentPlayer, getDenormalizedSong, isMobile } from '../state/reducer';
+import {
+	getCurrentUser,
+	getCurrentPlayer,
+	getDenormalizedSong,
+	isMobile,
+	getPlaylistEntities,
+} from '../state/reducer';
 import sdk from '../sdk';
 
 export const withSongControls = EnhancedComponent => {
@@ -67,3 +73,7 @@ export const withScreenSize = connect(state => ({
 	isMobile: isMobile(state),
 	isWidescreen: !isMobile(state),
 })) as any;
+
+export const withData = connect(state => ({
+	playlists: getPlaylistEntities(state),
+}));

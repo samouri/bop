@@ -70,9 +70,13 @@ class LoginDropdown extends React.Component<Props> {
 				{this.state.showForm &&
 					<div className="header__login-form">
 						{loggedIn &&
-							<a onClick={this.handleLogout} className="header__login-form-dropdown">
-								<span className="glyphicon glyphicon-log-out" /> Log out
-							</a>}
+							<div className="header__login-form-dropdown">
+								<a onClick={this.handleLogout} className="header__login-form-logout-button">
+									<span>
+										<i className="fa fa-sign-out" /> Log out
+									</span>
+								</a>
+							</div>}
 						{!loggedIn &&
 							<form className="header__login-form-dropdown">
 								<input

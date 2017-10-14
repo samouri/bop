@@ -19,7 +19,7 @@ import {
 	SORT,
 	FETCH_EVENTS,
 	EventsPayload,
-	SET_MOBILE,
+	RESIZE_EVENT,
 } from './actions';
 import { ApiSongs, ApiMetadata, ApiPlaylists, ApiVotes, ApiUser } from '../sdk';
 
@@ -59,6 +59,8 @@ export const getPlaylistByName = createSelector(
 		};
 	}
 );
+
+export const getPlaylists = state => _.values(getPlaylistEntities(state));
 
 export const getAllSongsDenormalized = createSelector([getSongEntities, getState], (songs, state) =>
 	_.map(songs, song => getDenormalizedSong(state, song))
@@ -436,7 +438,7 @@ export const getPrevSong = createSelector(
 const MOBILE_WIDTH = 660;
 const isMobileReducer = handleActions(
 	{
-		[SET_MOBILE]: () => window.innerWidth < MOBILE_WIDTH,
+		[RESIZE_EVENT]: () => window.innerWidth < MOBILE_WIDTH,
 	},
 	window.innerWidth < MOBILE_WIDTH
 );

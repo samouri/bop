@@ -122,9 +122,22 @@ img {
 	position: absolute;
 	right: 0;
 	z-index: 69;
-	padding-top: 5px;
+	padding-top: 20px;
 	padding-bottom: 20px;
-	background-color: white;
+	background-color: #3a3f41;
+	color: rgb(178, 178, 178);
+	width: 120px;
+}
+
+a {
+	cursor: pointer;
+}
+
+.header__login-form-dropdown a {
+	padding-left: 10px;
+}
+.header__login-form-logout-button:hover {
+	color: white !important;
 }
 
 .selected-purple {
@@ -303,40 +316,6 @@ img {
 	cursor: pointer;
 	user-select: none;
 }
-#ftue-hero {
-	background-image: url("./images/listening.png");
-	height: 365px;
-	background-position-y: -90px;
-	clear: both;
-}
-#ftue-hero-text {
-	font-family: Roboto;
-	font-weight: 100;
-	display: block;
-	font-size: 50px;
-	color: #000000;
-	line-height: 68px;
-	padding-top: 20px;
-	margin-left: 20px;
-}
-#ftue-play-button {
-	background: #464444;
-	border: 1px solid #979797;
-	border-radius: 8px;
-	width: 256px;
-	height: 78px;
-	margin-left: 85px;
-	margin-top: 20px;
-}
-#ftue-play-button-text {
-	font-family: Roboto;
-	font-weight: 100;
-	font-size: 50px;
-	color: #ffffff;
-	line-height: 68px;
-	display: block;
-	text-align: center;
-}
 
 .topcontributors {
 	display: flex;
@@ -479,9 +458,19 @@ img {
 
 .sidebar__menu {
 	margin-top: 50px;
+	overflow-x: hidden;
 }
 
-.sidebar p:hover {
+.sidebar__menu p,
+.sidebar__menu a {
+	display: block;
+	color: inherit;
+	padding-left: 20px;
+	text-decoration: none;
+}
+
+.sidebar p:hover,
+.sidebar a:hover {
 	color: white;
 	cursor: pointer;
 }
@@ -498,4 +487,8 @@ img {
 	font-size: x-large;
 	color: white;
 	z-index: 2;
+}
+.thumb-vertical {
+	color: white;
+	background-color: white;
 }
