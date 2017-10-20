@@ -19,7 +19,6 @@ class LoginDropdown extends React.Component<Props> {
 		this.props.fetchUsers();
 		try {
 			let login = localStorage.getItem('login');
-			console.error(login);
 			if (login) {
 				login = JSON.parse(login);
 				console.error(login);

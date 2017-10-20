@@ -1,12 +1,77 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import * as _ from 'lodash';
 import { Link } from 'react-router-dom';
 import { withScreenSize, withData } from './hocs';
 import { ApiPlaylists } from '../sdk';
 import { Scrollbars } from 'react-custom-scrollbars';
+import { createPlaylist } from '../state/actions';
+
+class CreatePlaylistForm extends React.Component<any> {
+	state = { name: '' };
+	node: any = null;
+	inputRef: any = null;
+
+	componentDidMount() {
+		document.addEventListener('click', this.onClick);
+		this.inputRef.focus();
+	}
+
+	componentWillUnmount() {
+		document.removeEventListener('click', this.onClick);
+	}
+
+	onClick = e => {
+		const { target } = e;
+		const { tagName } = target;
+		const role = target.getAttribute('role');
+
+		const outsideClick = !this.node.contains(target);
+		const targetIsButton = role === 'button';
+		const targetIsLink = role === 'link' || tagName === 'A';
+
+		if (outsideClick || targetIsButton || targetIsLink) {
+			this.props.onClose();
+		}
+	};
+	submit = () => this.props.createPlaylist({ playlistName: this.state.name, userId: 1 });
+
+	render() {
+		return (
+			<div
+				className="create-playlist-form"
+				style={{ display: 'flex', position: 'absolute', top: 0 }}
+				ref={c => (this.node = c)}
+			>
+				<form>
+					<input
+						type="text"
+						placeholder="playlist name"
+						value={this.state.name}
+						onChange={(e: any) => this.setState({ name: e.value })}
+						style={{
+							border: 0,
+							backgroundColor: 'inherit',
+							width: 150,
+							paddingLeft: 20,
+							paddingRight: 10,
+							color: 'white',
+						}}
+						ref={c => (this.inputRef = c)}
+					/>
+					<i className="fa fa-plus" onClick={this.submit} />
+					<input type="submit" style={{ display: 'none' }} onClick={this.submit} />
+				</form>
+			</div>
+		);
+	}
+}
+
+const ConnectedCreatePlaylistForm: any = connect(null, { createPlaylist })(CreatePlaylistForm);
 
 class Sidebar extends React.Component<any> {
-	state = { isOpen: false };
+	state = { isOpen: false, showCreatePlaylist: false };
+	createPlaylistRef: any = null;
 
 	toggleOpen = () => this.setState({ isOpen: !this.state.isOpen });
 
@@ -32,8 +97,14 @@ class Sidebar extends React.Component<any> {
 							renderThumbVertical={props => <div {...props} className="thumb-vertical" />}
 						>
 							<div className="sidebar__menu">
-								<p> All Playlists</p>
-								<p> Create Playlist</p>
+								{/* <p> All Playlists</p> */}
+								<p
+									onClick={() =>
+										this.setState({ showCreatePlaylist: !this.state.showCreatePlaylist })}
+									ref={c => (this.createPlaylistRef = c)}
+								>
+									Create Playlist
+								</p>
 								<hr />
 								{playlists &&
 									_.map(playlists, (playlist: ApiPlaylists) => {
@@ -45,6 +116,11 @@ class Sidebar extends React.Component<any> {
 									})}
 							</div>
 						</Scrollbars>
+						{this.state.showCreatePlaylist &&
+							<ConnectedCreatePlaylistForm
+								onClose={() => this.setState({ showCreatePlaylist: false })}
+								userId={this.props.user && this.props.user.id}
+							/>}
 					</div>}
 			</div>
 		);

@@ -497,3 +497,12 @@ a {
 	color: white;
 	background-color: white;
 }
+
+.create-playlist-form input:placeholder {
+	color: white;
+}
+
+.create-playlist-form i:hover {
+	color: white;
+	cursor: pointer;
+}

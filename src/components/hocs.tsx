@@ -76,4 +76,5 @@ export const withScreenSize = connect(state => ({
 
 export const withData = connect(state => ({
 	playlists: getPlaylistEntities(state),
+	user: getCurrentUser(state),
 }));
