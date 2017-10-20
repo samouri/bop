@@ -126,16 +126,21 @@ img {
 	padding-bottom: 20px;
 	background-color: #3a3f41;
 	color: rgb(178, 178, 178);
-	width: 120px;
+	width: 220px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 a {
 	cursor: pointer;
 }
 
-.header__login-form-dropdown a {
-	padding-left: 10px;
+.header__logintext {
+	margin: 10px 10px 0px 10px;
 }
+
+.header__logintext:hover,
 .header__login-form-logout-button:hover {
 	color: white !important;
 }
@@ -452,8 +457,8 @@ a {
 	top: 0;
 	height: 100%;
 	width: 200px;
-	background-color: #1d1d1d;
-	color: rgb(178, 178, 178);
+	background-color: rgb(80, 80, 80);
+	color: rgb(200, 200, 200);
 }
 
 .sidebar__menu {

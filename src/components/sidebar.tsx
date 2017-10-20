@@ -18,7 +18,6 @@ class Sidebar extends React.Component<any> {
 		const { isWidescreen } = this.props;
 		const show = isWidescreen || this.state.isOpen;
 		const playlists = _.sortBy(_.values(this.props.playlists), 'name');
-		console.error(playlists);
 
 		return (
 			<div>
@@ -39,7 +38,7 @@ class Sidebar extends React.Component<any> {
 								{playlists &&
 									_.map(playlists, (playlist: ApiPlaylists) => {
 										return (
-											<Link to={`/p/${playlist.name}`}>
+											<Link to={`/p/${playlist.name}`} key={playlist.id}>
 												{playlist.name}
 											</Link>
 										);

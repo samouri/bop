@@ -434,7 +434,7 @@ export const getPrevSong = createSelector(
 	}
 );
 
-const MOBILE_WIDTH = 660;
+const MOBILE_WIDTH = 800;
 const isMobileReducer = handleActions(
 	{
 		[RESIZE_EVENT]: () => window.innerWidth < MOBILE_WIDTH,
@@ -447,7 +447,7 @@ const view = combineReducers({
 
 export const isMobile = state => state.view.isMobile;
 
-const BopApp = combineReducers({
+const state = combineReducers({
 	events,
 	metadata,
 	songs,
@@ -459,5 +459,4 @@ const BopApp = combineReducers({
 	view,
 });
 
-// App Reducer
-export default BopApp;
+export default state;

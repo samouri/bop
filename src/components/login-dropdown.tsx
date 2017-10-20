@@ -84,10 +84,11 @@ class LoginDropdown extends React.Component<Props> {
 									placeholder="username"
 									value={this.state.username}
 									onChange={this.handleUsernameChange}
+									style={{ width: 180 }}
 								/>
-								<div style={{ display: 'flex' }}>
+								<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 									<a onClick={this.handleRegister} className="header__logintext">
-										new account
+										New account
 									</a>
 									<a onClick={this.handleLogin} className="header__logintext">
 										<span className="glyphicon glyphicon-log-in" /> Log in
