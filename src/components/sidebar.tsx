@@ -32,7 +32,7 @@ class Sidebar extends React.Component<any> {
 							autoHide
 							renderThumbVertical={props => <div {...props} className="thumb-vertical" />}
 						>
-							<div className="sidebar__menu" ss-container>
+							<div className="sidebar__menu">
 								<p> All Playlists</p>
 								<p> Create Playlist</p>
 								<hr />

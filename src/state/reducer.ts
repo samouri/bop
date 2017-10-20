@@ -6,14 +6,13 @@ import * as moment from 'moment';
 
 import {
 	ADD_ENTITIES,
-	LOGIN_USER_SUCCESS,
+	LOGIN_USER,
 	LOGOUT_USER,
 	PLAY_SONG,
 	PAUSE_SONG,
 	SET_SORT,
 	SHUFFLE_SONGS,
 	DELETE_SONG,
-	RECEIVE_PLAYLIST,
 	SET_PLAYLIST,
 	SetSortPayload,
 	SORT,
@@ -226,7 +225,7 @@ const metadata = combineReducers({
 
 const playlistsById = handleActions(
 	{
-		[combineActions(ADD_ENTITIES, RECEIVE_PLAYLIST, SET_PLAYLIST) as any]: (state, action: any) => {
+		[combineActions(ADD_ENTITIES, SET_PLAYLIST) as any]: (state, action: any) => {
 			if (!action.payload.playlists) {
 				return state;
 			}
@@ -373,7 +372,7 @@ const votes = combineReducers({ byId: votesById });
 
 const currentUser = handleActions(
 	{
-		[LOGIN_USER_SUCCESS]: (state, action: any) => action.payload.id,
+		[LOGIN_USER]: (state, action: any) => (action.error ? null : action.payload.id),
 		[LOGOUT_USER]: () => null,
 	},
 	null

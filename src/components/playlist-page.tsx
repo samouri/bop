@@ -21,8 +21,8 @@ class PlaylistPage extends React.Component<Props> {
 	fetchSongs = _.throttle((props = this.props) => props.dispatch(fetchSongs()), 200);
 
 	fetchPlaylist = _.throttle((props = this.props) => {
-		const { match: { params }, dispatch, user } = props;
-		dispatch(requestPlaylist({ playlistName: params.playlistName, userId: user.id }));
+		const { match: { params }, dispatch } = props;
+		dispatch(requestPlaylist(params.playlistName));
 	}, 300);
 
 	componentDidMount() {
