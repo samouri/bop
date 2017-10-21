@@ -41,7 +41,7 @@ class UserPage extends React.Component<Props> {
 		const { selection } = this.state;
 
 		const ret = (
-			<div>
+			<div className="user-page">
 				<div className="user-page__title">
 					@{username}'s {''}
 					<span className="user-page__selection" onClick={this.handleSelectionClick}>

@@ -21,17 +21,28 @@ class PlaylistPage extends React.Component<Props> {
 	fetchSongs = _.throttle((props = this.props) => props.dispatch(fetchSongs()), 200);
 
 	fetchPlaylist = _.throttle((props = this.props) => {
-		const { match: { params }, dispatch, user } = props;
-		dispatch(requestPlaylist({ playlistName: params.playlistName, userId: user.id }));
+		const { match: { params }, dispatch } = props;
+		dispatch(requestPlaylist(params.playlistName));
 	}, 300);
 
 	componentDidMount() {
 		this.fetchPlaylist();
 		this.fetchSongs();
+		setTimeout(() => {
+			// HACK ALERT.  @TODO: account for lag in creation. what i really want is:
+			// playlistCreated.then( transitionToPlaylistPage )
+			this.fetchPlaylist();
+		}, 500);
 	}
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.match.params.playlistName && _.isEmpty(nextProps.playlist)) {
 			this.fetchPlaylist(nextProps);
+			setTimeout(() => {
+				// HACK ALERT.  @TODO: account for lag in creation. what i really want is:
+				// playlistCreated.then( transitionToPlaylistPage )
+				this.fetchPlaylist();
+				console.error('happenssss');
+			}, 500);
 		}
 	}
 
@@ -68,7 +79,7 @@ class PlaylistPage extends React.Component<Props> {
 		const { playlist } = this.props;
 		const createdBy = _.get(playlist, 'user.username');
 		const ret = (
-			<div>
+			<div className="playlist-page">
 				<div className="playlist-page__titlestats">
 					<span className="playlist-page__title">
 						<span>

@@ -31,21 +31,26 @@ class LeaderboardsPage extends React.Component<Props> {
 						Leaderboard
 					</h2>
 					<table className="table table-striped">
-						<tr>
-							<th> USER </th> <th> POINTS </th>
-						</tr>
-						{_.map(sortedUsers, user =>
+						<thead>
 							<tr>
-								<td>
-									<Link to={`/u/${user.username}`}>
-										@{user.username}
-									</Link>
-								</td>
-								<th>
-									{user.score}
-								</th>
+								<th>USER</th>
+								<th>POINTS</th>
 							</tr>
-						)}
+						</thead>
+						<tbody>
+							{_.map(sortedUsers, user =>
+								<tr key={user.id}>
+									<td>
+										<Link to={`/u/${user.username}`}>
+											@{user.username}
+										</Link>
+									</td>
+									<th>
+										{user.score}
+									</th>
+								</tr>
+							)}
+						</tbody>
 					</table>
 				</span>
 			</div>

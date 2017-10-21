@@ -43,7 +43,7 @@ class PlayingBar extends React.Component<Props> {
 	playPrevSong = () => this.props.dispatch(playSong({ songId: this.props.prevSong.id }));
 	handleOnPlay = () => this.props.dispatch(playSong({}));
 	handleOnEnd = () => this.playNextSong();
-	handleOnPause = () => this.props.dispatch(pauseSong());
+	handleOnPause = () => console.error('why this happen'); //this.props.dispatch(pauseSong());
 	handlePausePlay = e => {
 		e.preventDefault();
 

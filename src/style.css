@@ -1,6 +1,14 @@
 #root {
-	max-width: 768px;
+	/* max-width: 768px;
 	min-width: 768px;
+	*/
+	margin: 0 auto;
+}
+.feed-page,
+.user-page,
+.leaderboard-page,
+.playlist-page {
+	max-width: 768px;
 	margin: 0 auto;
 }
 
@@ -55,8 +63,8 @@ img {
 	display: flex;
 	position: fixed;
 	top: 0;
-	width: 100%;
-	left: 0;
+	right: 0;
+	width: calc(100% - 200px);
 	/* background-color: #333333; */
 	background-color: #3a3f41;
 	color: lightgray;
@@ -114,9 +122,27 @@ img {
 	position: absolute;
 	right: 0;
 	z-index: 69;
-	padding-top: 5px;
+	padding-top: 20px;
 	padding-bottom: 20px;
-	background-color: white;
+	background-color: #3a3f41;
+	color: rgb(178, 178, 178);
+	width: 220px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+a {
+	cursor: pointer;
+}
+
+.header__logintext {
+	margin: 10px 10px 0px 10px;
+}
+
+.header__logintext:hover,
+.header__login-form-logout-button:hover {
+	color: white !important;
 }
 
 .selected-purple {
@@ -295,40 +321,6 @@ img {
 	cursor: pointer;
 	user-select: none;
 }
-#ftue-hero {
-	background-image: url("./images/listening.png");
-	height: 365px;
-	background-position-y: -90px;
-	clear: both;
-}
-#ftue-hero-text {
-	font-family: Roboto;
-	font-weight: 100;
-	display: block;
-	font-size: 50px;
-	color: #000000;
-	line-height: 68px;
-	padding-top: 20px;
-	margin-left: 20px;
-}
-#ftue-play-button {
-	background: #464444;
-	border: 1px solid #979797;
-	border-radius: 8px;
-	width: 256px;
-	height: 78px;
-	margin-left: 85px;
-	margin-top: 20px;
-}
-#ftue-play-button-text {
-	font-family: Roboto;
-	font-weight: 100;
-	font-size: 50px;
-	color: #ffffff;
-	line-height: 68px;
-	display: block;
-	text-align: center;
-}
 
 .topcontributors {
 	display: flex;
@@ -456,4 +448,61 @@ img {
 	top: 41px;
 	left: 35px;
 	color: mediumpurple;
+}
+
+.sidebar {
+	position: fixed;
+	overflow: auto;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 200px;
+	background-color: rgb(80, 80, 80);
+	color: rgb(200, 200, 200);
+}
+
+.sidebar__menu {
+	margin-top: 50px;
+	overflow-x: hidden;
+}
+
+.sidebar__menu p,
+.sidebar__menu a {
+	display: block;
+	color: inherit;
+	padding-left: 20px;
+	text-decoration: none;
+}
+
+.sidebar p:hover,
+.sidebar a:hover {
+	color: white;
+	cursor: pointer;
+}
+
+.sidebar-hamburger {
+	/* padding-right: 30px;
+	padding-left: 5px;
+	padding-top: 5px;
+	cursor: pointer; */
+
+	position: fixed;
+	top: 5px;
+	left: 5px;
+	font-size: x-large;
+	color: white;
+	z-index: 2;
+}
+.thumb-vertical {
+	color: white;
+	background-color: white;
+}
+
+.create-playlist-form input:placeholder {
+	color: white;
+}
+
+.create-playlist-form i:hover {
+	color: white;
+	cursor: pointer;
 }

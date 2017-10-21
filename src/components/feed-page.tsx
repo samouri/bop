@@ -7,6 +7,7 @@ import EventsList from './events-list';
 import { fetchEvents, fetchSongsInPlaylist } from '../state/actions';
 import { getEventsDenormalized, getCurrentUser } from '../state/reducer';
 // import { getEventsDenormalized } from '../state/reducer';
+import { SidebarSpacer } from './sidebar';
 
 type Props = {
 	events: Array<any>;
@@ -28,11 +29,14 @@ class FeedPage extends React.Component<Props> {
 		const { events } = this.props;
 
 		return (
-			<div className="feed-page">
-				<span className="feed-page__title">
-					<span>My Stream</span>
-				</span>
-				<EventsList events={events} stream={{ type: 'events' }} />
+			<div style={{ display: 'flex' }}>
+				<SidebarSpacer />
+				<div className="feed-page">
+					<span className="feed-page__title">
+						<span>My Stream</span>
+					</span>
+					<EventsList events={events} stream={{ type: 'events' }} />
+				</div>
 			</div>
 		);
 	}

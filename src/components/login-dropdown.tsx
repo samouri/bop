@@ -19,7 +19,6 @@ class LoginDropdown extends React.Component<Props> {
 		this.props.fetchUsers();
 		try {
 			let login = localStorage.getItem('login');
-			console.error(login);
 			if (login) {
 				login = JSON.parse(login);
 				console.error(login);
@@ -70,9 +69,13 @@ class LoginDropdown extends React.Component<Props> {
 				{this.state.showForm &&
 					<div className="header__login-form">
 						{loggedIn &&
-							<a onClick={this.handleLogout} className="header__login-form-dropdown">
-								<span className="glyphicon glyphicon-log-out" /> Log out
-							</a>}
+							<div className="header__login-form-dropdown">
+								<a onClick={this.handleLogout} className="header__login-form-logout-button">
+									<span>
+										<i className="fa fa-sign-out" /> Log out
+									</span>
+								</a>
+							</div>}
 						{!loggedIn &&
 							<form className="header__login-form-dropdown">
 								<input
@@ -80,10 +83,11 @@ class LoginDropdown extends React.Component<Props> {
 									placeholder="username"
 									value={this.state.username}
 									onChange={this.handleUsernameChange}
+									style={{ width: 180 }}
 								/>
-								<div style={{ display: 'flex' }}>
+								<div style={{ display: 'flex', justifyContent: 'space-between' }}>
 									<a onClick={this.handleRegister} className="header__logintext">
-										new account
+										New account
 									</a>
 									<a onClick={this.handleLogin} className="header__logintext">
 										<span className="glyphicon glyphicon-log-in" /> Log in
