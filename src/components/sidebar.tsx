@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { withScreenSize, withData } from './hocs';
 import { ApiPlaylists } from '../sdk';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -34,7 +34,12 @@ class CreatePlaylistForm extends React.Component<any> {
 			this.props.onClose();
 		}
 	};
-	submit = () => this.props.createPlaylist({ playlistName: this.state.name, userId: 1 });
+	submit = e => {
+		e && e.preventDefault && e.preventDefault();
+		this.props.createPlaylist({ playlistName: this.state.name, userId: this.props.userId });
+		this.props.onClose();
+		this.props.history.push(`/p/${this.state.name}`);
+	};
 
 	render() {
 		return (
@@ -48,7 +53,7 @@ class CreatePlaylistForm extends React.Component<any> {
 						type="text"
 						placeholder="playlist name"
 						value={this.state.name}
-						onChange={(e: any) => this.setState({ name: e.value })}
+						onChange={(e: any) => this.setState({ name: e.target.value })}
 						style={{
 							border: 0,
 							backgroundColor: 'inherit',
@@ -67,7 +72,9 @@ class CreatePlaylistForm extends React.Component<any> {
 	}
 }
 
-const ConnectedCreatePlaylistForm: any = connect(null, { createPlaylist })(CreatePlaylistForm);
+const ConnectedCreatePlaylistForm: any = connect(null, { createPlaylist })(
+	withRouter(CreatePlaylistForm)
+);
 
 class Sidebar extends React.Component<any> {
 	state = { isOpen: false, showCreatePlaylist: false };

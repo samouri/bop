@@ -14,6 +14,7 @@ export const SET_PLAYLIST = 'SET_PLAYLIST';
 export const FETCH_EVENTS = 'FETCH_EVENTS';
 export const ADD_ENTITIES = 'ADD_ENTITIES';
 export const RESIZE_EVENT = 'RESIZE_EVENT';
+export const CREATED_PLAYLIST = 'CREATED_PLAYLIST';
 
 /* action creators */
 export type SongIdPayload = { songId?: number };
@@ -60,4 +61,4 @@ export const fetchSongsInPlaylist = createAction(ADD_ENTITIES, sdk.getSongsInPla
 export const addEntities = createAction<any>(ADD_ENTITIES);
 export const setPlaylistName = createAction(SET_PLAYLIST, sdk.getPlaylistForName);
 export const requestPlaylist = createAction(ADD_ENTITIES, sdk.getPlaylistForName);
-export const createPlaylist = createAction(ADD_ENTITIES, sdk.createPlaylist);
+export const createPlaylist = createAction(CREATED_PLAYLIST, sdk.createPlaylist);

@@ -28,10 +28,21 @@ class PlaylistPage extends React.Component<Props> {
 	componentDidMount() {
 		this.fetchPlaylist();
 		this.fetchSongs();
+		setTimeout(() => {
+			// HACK ALERT.  @TODO: account for lag in creation. what i really want is:
+			// playlistCreated.then( transitionToPlaylistPage )
+			this.fetchPlaylist();
+		}, 500);
 	}
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.match.params.playlistName && _.isEmpty(nextProps.playlist)) {
 			this.fetchPlaylist(nextProps);
+			setTimeout(() => {
+				// HACK ALERT.  @TODO: account for lag in creation. what i really want is:
+				// playlistCreated.then( transitionToPlaylistPage )
+				this.fetchPlaylist();
+				console.error('happenssss');
+			}, 500);
 		}
 	}
 

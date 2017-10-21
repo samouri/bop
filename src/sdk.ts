@@ -98,12 +98,11 @@ class BopSdk {
 	};
 
 	createPlaylist = async ({ playlistName, userId }: { playlistName: string; userId: number }) => {
-		const playlist: api.Playlists = { name: playlistName, user_added: userId };
 		const resp = await api.PlaylistsApiFp.playlistsPost({
-			body: playlist,
+			body: { name: playlistName, user_added: userId },
 		})(fetch, config.swaggerHost);
 
-		return resp.json();
+		return { success: resp.ok, name: playlistName, userId };
 	};
 
 	getPlaylistForName = async (playlistName: string): Promise<any> => {
