@@ -9,6 +9,7 @@ import {
 	getDenormalizedSong,
 	isMobile,
 	getPlaylistEntities,
+	getUserEntities,
 } from '../state/reducer';
 import sdk from '../sdk';
 
@@ -77,4 +78,5 @@ export const withScreenSize = connect(state => ({
 export const withData = connect(state => ({
 	playlists: getPlaylistEntities(state),
 	user: getCurrentUser(state),
+	users: getUserEntities(state),
 }));

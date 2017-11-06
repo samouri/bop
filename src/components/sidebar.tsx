@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import * as _ from 'lodash';
 import { Link, withRouter } from 'react-router-dom';
 import { withScreenSize, withData } from './hocs';
-import { ApiPlaylists } from '../sdk';
+import { ApiPlaylists, ApiUser } from '../sdk';
 import { Scrollbars } from 'react-custom-scrollbars';
 import { createPlaylist } from '../state/actions';
 
@@ -76,6 +76,44 @@ const ConnectedCreatePlaylistForm: any = connect(null, { createPlaylist })(
 	withRouter(CreatePlaylistForm)
 );
 
+class CollapsibleUser extends React.Component<
+	{ user: ApiUser; playlists: Array<ApiPlaylists> },
+	{ collapsed: boolean }
+> {
+	state = { collapsed: true };
+
+	render() {
+		const { playlists, user } = this.props;
+		const sortedPlaylists = _.sortBy(playlists, 'name');
+		const icon = this.state.collapsed ? 'fa-caret-up' : 'fa-caret-down';
+		return (
+			<div>
+				<div style={{ display: 'flex' }}>
+					<i className={`fa ${icon}`} style={{ paddingLeft: 10 }} />
+					<a
+						href="#lkjlkj"
+						onClick={e => {
+							e.preventDefault();
+							this.setState({ collapsed: !this.state.collapsed });
+						}}
+						style={{ paddingLeft: 10 }}
+					>
+						{_.get(user, 'username')}
+					</a>
+				</div>
+				{!this.state.collapsed &&
+					_.map(sortedPlaylists, (playlist: ApiPlaylists) => {
+						return (
+							<Link to={`/p/${playlist.name}`} key={playlist.id} style={{ paddingLeft: 40 }}>
+								{playlist.name}
+							</Link>
+						);
+					})}
+			</div>
+		);
+	}
+}
+
 class Sidebar extends React.Component<any> {
 	state = { isOpen: false, showCreatePlaylist: false };
 	createPlaylistRef: any = null;
@@ -97,9 +135,12 @@ class Sidebar extends React.Component<any> {
 	}
 
 	render() {
-		const { isWidescreen } = this.props;
+		const { isWidescreen, users } = this.props;
 		const show = isWidescreen || this.state.isOpen;
-		const playlists = _.sortBy(_.values(this.props.playlists), 'name');
+		const playlists: Array<ApiPlaylists> = _.values(this.props.playlists);
+		const playlistsByUser = _.groupBy(playlists, 'user_added');
+		delete playlistsByUser['null'];
+		delete playlistsByUser['All'];
 
 		return (
 			<div>
@@ -122,15 +163,14 @@ class Sidebar extends React.Component<any> {
 								>
 									Create Playlist
 								</p>
+								<Link to={`/p/All`} key={17}>
+									All songs
+								</Link>
 								<hr />
-								{playlists &&
-									_.map(playlists, (playlist: ApiPlaylists) => {
-										return (
-											<Link to={`/p/${playlist.name}`} key={playlist.id}>
-												{playlist.name}
-											</Link>
-										);
-									})}
+								{_.map(playlistsByUser, (playlists, userAdded) => {
+									const user = users[userAdded];
+									return <CollapsibleUser playlists={playlists} user={user} />;
+								})}
 							</div>
 						</Scrollbars>
 						{this.state.showCreatePlaylist &&

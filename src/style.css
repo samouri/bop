@@ -475,6 +475,7 @@ a {
 }
 
 .sidebar__menu p,
+.sidebar__menu span,
 .sidebar__menu a {
 	display: block;
 	color: inherit;
@@ -498,7 +499,7 @@ a {
 	top: 5px;
 	left: 5px;
 	font-size: x-large;
-	color: white;
+	color: black;
 	z-index: 2;
 }
 .thumb-vertical {
