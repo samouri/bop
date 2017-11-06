@@ -16,14 +16,18 @@ class Header extends React.Component<Props> {
 		const width = isMobile ? '100%' : 'calc( 100% - 200px)';
 
 		return (
-			<div style={{ height: 50 }}>
+			<div
+				style={{
+					height: 50,
+				}}
+			>
 				<div className="header" style={{ width, height: 50 }}>
 					<div className="header__width-wrapper">
 						<div className="header__left-nav">
 							<h1 className="header__bop pointer" style={{ paddingLeft: isMobile ? '50px' : 0 }}>
-								<i className="fa fa-headphones pointer" />
 								<Link to="/" className={cx({ active: this.props.location.pathname === '/' })}>
-									Bop
+									{/* Bop */}
+									<img height="50px" src={process.env.PUBLIC_URL + '/bop-sara.png'} />
 								</Link>
 							</h1>
 							<Link
