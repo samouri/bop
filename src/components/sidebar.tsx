@@ -79,6 +79,16 @@ const ConnectedCreatePlaylistForm: any = connect(null, { createPlaylist })(
 class Sidebar extends React.Component<any> {
 	state = { isOpen: false, showCreatePlaylist: false };
 	createPlaylistRef: any = null;
+	componentWillMount() {
+		document.addEventListener('keydown', e => {
+			if (e.keyCode === 27) {
+				this.setState({ showCreatePlaylist: false });
+			}
+		});
+	}
+	componentWillUnmount() {
+		document.removeEventListener('keydown');
+	}
 
 	toggleOpen = () => this.setState({ isOpen: !this.state.isOpen });
 
