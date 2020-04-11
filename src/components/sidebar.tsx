@@ -178,7 +178,7 @@ class Sidebar extends React.Component<any> {
                 <hr />
                 {_.map(playlistsByUser, (playlists, userAdded) => {
                   const user = users[userAdded]
-                  return <CollapsibleUser playlists={playlists} user={user} />
+                  return <CollapsibleUser playlists={playlists} user={user} key={user.id} />
                 })}
               </div>
             </Scrollbars>

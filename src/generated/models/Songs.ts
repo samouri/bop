@@ -13,6 +13,10 @@
  */
 
 import { exists } from '../runtime'
+import { Metadata } from './Metadata'
+import { Votes } from './Votes'
+import { Playlists } from './Playlists'
+import { Users } from './Users'
 /**
  *
  * @export
@@ -49,6 +53,11 @@ export interface Songs {
    * @memberof Songs
    */
   dateAdded?: string
+
+  metadata?: Metadata
+  playlists?: Playlists
+  votes?: Array<Votes>
+  user?: Users
 }
 
 export function SongsFromJSON(json: any): Songs {
@@ -65,6 +74,10 @@ export function SongsFromJSONTyped(json: any, ignoreDiscriminator: boolean): Son
     metadataId: !exists(json, 'metadata_id') ? undefined : json['metadata_id'],
     userAdded: json['user_added'],
     dateAdded: !exists(json, 'date_added') ? undefined : json['date_added'],
+    metadata: !exists(json, 'metadata') ? undefined : json['metadata'],
+    playlists: !exists(json, 'playlists') ? undefined : json['playlists'],
+    votes: !exists(json, 'votes') ? undefined : json['votes'],
+    user: !exists(json, 'user') ? undefined : json['user'],
   }
 }
 

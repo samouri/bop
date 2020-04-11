@@ -79,7 +79,7 @@ export const getSongsInPlaylist = createSelector(
 export const getMetadataForSong = createSelector(
   [getMetadataEntities, getSongEntities, getProps],
   (metadata, songs, songId) => {
-    const metadataId = songs[songId].metadata_id
+    const metadataId = songs[songId].metadataId
     return metadata[metadataId]
   }
 )
@@ -100,8 +100,8 @@ export const getDenormalizedSong = createSelector([getState, getProps], (state, 
   return {
     ...song,
     metadata: getMetadataForSong(state, song.id),
-    user: state.users.byId[song.user_added!],
-    playlists: state.playlists.byId[song.playlist_id!],
+    user: state.users.byId[song.userAdded!],
+    playlists: state.playlists.byId[song.playlistId!],
     votes: _.filter(state.votes.byId, (vote: ApiVotes) => vote.songId === song.id),
   }
 })
@@ -142,7 +142,7 @@ export const getSongsInStream = createSelector(
     } else if (type === 'user-posted') {
       songs = _.filter(denormalizedSongs, (song) => song.user.id === id)
     } else if (type === 'user-voted') {
-      songs = _.filter(denormalizedSongs, (song) => !!_.find(song.votes, { user_added: id }))
+      songs = _.filter(denormalizedSongs, (song) => !!_.find(song.votes, { userAdded: id }))
     }
     return type === 'events' ? songs : sortSongs(songs, sort as any)
   }
@@ -261,7 +261,7 @@ export const getEventsDenormalized = createSelector(
         return {
           ...event,
           vote,
-          song: getDenormalizedSong(state, { id: vote.song_id }),
+          song: getDenormalizedSong(state, { id: vote.songId }),
           user,
         }
       }
@@ -284,9 +284,9 @@ export const getCombinedEvents = createSelector([getEventsDenormalized], (events
   _.forEach(events, (event, i: number) => {
     const lastEvent = _.last(destutteredEvents)
     const lastType = _.get(lastEvent, 'eventType')
-    const lastPlaylist = _.get(lastEvent, ['song', 'playlist_id'])
+    const lastPlaylist = _.get(lastEvent, ['song', 'playlistId'])
 
-    if (lastType === event.eventType && lastPlaylist === _.get(event, ['song', 'playlist_id'])) {
+    if (lastType === event.eventType && lastPlaylist === _.get(event, ['song', 'playlistId'])) {
       lastEvent.combined = _.concat(lastEvent.combined || [lastEvent], event)
     } else {
       destutteredEvents.push({ ...event })
