@@ -100,7 +100,7 @@ export const getDenormalizedSong = createSelector([getState, getProps], (state, 
   return {
     ...song,
     metadata: getMetadataForSong(state, song.id),
-    user: state.users.byId[song.userAdded!],
+    user: state.users.byId[song.userAdded.id],
     playlists: state.playlists.byId[song.playlistId!],
     votes: _.filter(state.votes.byId, (vote: ApiVotes) => vote.songId === song.id),
   }

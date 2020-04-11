@@ -175,7 +175,7 @@ class BopSdk {
   }
 
   getUser = async (optionalUsername, optionalPassword): Promise<any> => {
-    const users = await api.users.usersGet({ username: optionalUsername })
+    const users = await api.users.usersGet({ username: `eq.${optionalUsername}` })
 
     if (_.isEmpty(user)) {
       throw new Error('No User Matching Description')
