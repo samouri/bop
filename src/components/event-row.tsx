@@ -126,7 +126,7 @@ class SingleEvent extends React.Component<Props> {
   handleMouseOut = (e) => this.setState({ hovered: false })
 
   durationToString() {
-    var duration = moment.duration(this.props.event.song.metadata.youtube_duration)
+    var duration = moment.duration(this.props.event.song.metadata.youtubeDuration)
     var duration_minutes = duration.minutes()
     var duration_seconds: any = duration.seconds()
     if (duration_seconds < 10) {
@@ -175,7 +175,7 @@ class SingleEvent extends React.Component<Props> {
               )}
             </span>
           </span>
-          <img className="event-row__thumb" alt="thumbnail" src={metadata.thumbnail_url} />
+          <img className="event-row__thumb" alt="thumbnail" src={metadata.thumbnailUrl} />
           <span className="event-row__arttit">
             <span className="event-row__song-title">{metadata.title}</span>
             <span className="event-row__song-artist">{metadata.artist}</span>

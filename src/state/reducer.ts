@@ -72,7 +72,7 @@ export const getSongsInPlaylist = createSelector(
       // all
       return songs
     }
-    return _.filter(songs, (song: ApiSongs) => song.playlist_id === playlistId)
+    return _.filter(songs, (song: ApiSongs) => song.playlistId === playlistId)
   }
 )
 
@@ -102,7 +102,7 @@ export const getDenormalizedSong = createSelector([getState, getProps], (state, 
     metadata: getMetadataForSong(state, song.id),
     user: state.users.byId[song.user_added!],
     playlists: state.playlists.byId[song.playlist_id!],
-    votes: _.filter(state.votes.byId, (vote: ApiVotes) => vote.song_id === song.id),
+    votes: _.filter(state.votes.byId, (vote: ApiVotes) => vote.songId === song.id),
   }
 })
 
@@ -111,7 +111,7 @@ export const sortSongs = (denormalizedSongs: Array<DenormalizedSong>, sort: SORT
     case 'votes':
       return _.reverse(_.sortBy(denormalizedSongs, (song) => song.votes.length))
     case 'date':
-      return _.reverse(_.sortBy(denormalizedSongs, (song) => song.date_added))
+      return _.reverse(_.sortBy(denormalizedSongs, (song) => song.dateAdded))
     case 'duration':
       return _.sortBy(denormalizedSongs, (song: any) =>
         moment.duration(song.metadata.youtube_duration).asSeconds()
@@ -153,7 +153,7 @@ export const getUpvotedSongs = createSelector(
   [getCurrentUser, getAllSongsDenormalized, getVoteEntities],
   (user: ApiUser, songs) =>
     _.filter(songs, (song: DenormalizedSong) =>
-      _.some(song.votes, (vote) => vote.user_added === user.id)
+      _.some(song.votes, (vote) => vote.userAdded === user.id)
     )
 )
 

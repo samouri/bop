@@ -29,7 +29,7 @@ class SongRow extends React.Component<Props> {
   }
 
   durationToString() {
-    var duration = moment.duration(this.props.song.metadata.youtube_duration)
+    var duration = moment.duration(this.props.song.metadata.youtubeDuration)
     var duration_minutes = duration.minutes()
     var duration_seconds: any = duration.seconds()
     if (duration_seconds < 10) {
@@ -38,7 +38,7 @@ class SongRow extends React.Component<Props> {
     return duration_minutes + ':' + duration_seconds
   }
 
-  getAge = () => momentTwitter.utc(this.props.song.date_added).twitterLong()
+  getAge = () => momentTwitter.utc(this.props.song.dateAdded).twitterLong()
 
   handleDelete = () => this.props.dispatch(deleteSong(this.props.song))
   handleMouseOver = () => this.setState({ hovered: true })
