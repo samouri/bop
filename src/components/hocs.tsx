@@ -63,7 +63,7 @@ export const withSongControls = (EnhancedComponent) => {
     const isSelected = song && player.songId === song.id
     const isPlaying = isSelected && player.playing
     const user: any = getCurrentUser(state)
-    const isUpvotedOnServer = song && !!_.find(song.votes, { user_added: user.id })
+    const isUpvotedOnServer = song && !!_.find(song.votes, { userAdded: user.id })
 
     return { song, player, isSelected, isPlaying, isUpvotedOnServer, user }
   }

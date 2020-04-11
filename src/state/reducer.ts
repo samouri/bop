@@ -54,7 +54,7 @@ export const getPlaylistByName = createSelector(
 
     return {
       ...playlist,
-      user: usersById[playlist.user_added],
+      user: usersById[playlist.userAdded],
     }
   }
 )

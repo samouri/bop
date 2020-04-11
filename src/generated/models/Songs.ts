@@ -13,10 +13,10 @@
  */
 
 import { exists } from '../runtime'
-import { Metadata } from './Metadata'
-import { Votes } from './Votes'
-import { Playlists } from './Playlists'
-import { Users } from './Users'
+import { Metadata, MetadataFromJSON } from './Metadata'
+import { Votes, VotesFromJSON } from './Votes'
+import { Playlists, PlaylistsFromJSON } from './Playlists'
+import { Users, UsersFromJSON } from './Users'
 /**
  *
  * @export
@@ -74,10 +74,10 @@ export function SongsFromJSONTyped(json: any, ignoreDiscriminator: boolean): Son
     metadataId: !exists(json, 'metadata_id') ? undefined : json['metadata_id'],
     userAdded: json['user_added'],
     dateAdded: !exists(json, 'date_added') ? undefined : json['date_added'],
-    metadata: !exists(json, 'metadata') ? undefined : json['metadata'],
-    playlists: !exists(json, 'playlists') ? undefined : json['playlists'],
-    votes: !exists(json, 'votes') ? undefined : json['votes'],
-    user: !exists(json, 'user') ? undefined : json['user'],
+    metadata: !exists(json, 'metadata') ? undefined : MetadataFromJSON(json['metadata']),
+    playlists: !exists(json, 'playlists') ? undefined : PlaylistsFromJSON(json['playlists']),
+    votes: !exists(json, 'votes') ? undefined : json['votes'].map((vote) => VotesFromJSON(vote)),
+    user: !exists(json, 'user') ? undefined : UsersFromJSON(json['user']),
   }
 }
 
