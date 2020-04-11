@@ -71,7 +71,7 @@ class PlayingBar extends React.Component<Props> {
             <img
               className="playing-bar__thumb"
               alt="playing-bar-thumbnail"
-              src={song.metadata.thumbnail_url}
+              src={song.metadata.thumbnailUrl}
             />
             <span className="playing-bar__arttit">
               <span className="playing-bar__title">{song.metadata.title}</span>
@@ -92,7 +92,7 @@ class PlayingBar extends React.Component<Props> {
           <div className="playing-bar__player">
             <Player
               playing={playing}
-              url={`${YOUTUBE_PREFIX}${song && song.metadata.youtube_id}`}
+              url={`${YOUTUBE_PREFIX}${song && song.metadata.youtubeId}`}
               height={50}
               width={300}
               youtubeConfig={opts}

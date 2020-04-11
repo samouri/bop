@@ -33,6 +33,7 @@
     "jest",
     "src/setupTests.ts"
   ],
+  "strictPropertyInitialization": false,
   "types": ["typePatches"],
   "include": ["src"]
 }

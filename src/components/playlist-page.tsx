@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom'
 import SearchBar from './searchbar'
 import TopContributors from './top-contributors'
 import SongList from './song-list'
-import sdk, { ApiUser, ApiPlaylists } from '../sdk'
+import sdk, { ApiUser, ApiPlaylists, ApiMetadata } from '../sdk'
 
 import { fetchSongs, setSort, requestPlaylist, SORT } from '../state/actions'
 import { getCurrentUser, getPlaylistByName } from '../state/reducer'
@@ -53,7 +53,7 @@ class PlaylistPage extends React.Component<Props> {
     const { playlist, user } = this.props
 
     const youtubeSearchMeta = await sdk.searchYoutube({ title, artist })
-    let songMeta = await sdk.getSongMetadata({
+    let songMeta: ApiMetadata | undefined = await sdk.getSongMetadata({
       youtubeId: youtubeSearchMeta.youtube_id,
     })
 
@@ -70,6 +70,9 @@ class PlaylistPage extends React.Component<Props> {
           ...youtubeMeta,
         },
       })
+      if (!songMeta) {
+        throw new Error('could not create SongMeta')
+      }
     }
 
     console.error(songMeta, user, playlist)

@@ -1,9 +1,10 @@
 import config from './config'
 import * as _ from 'lodash'
 import * as moment from 'moment'
-import * as api from './generated/api'
+import * as generated from './generated'
 
 import { normalize, schema } from 'normalizr'
+import { UsersPostPreferEnum } from './generated'
 
 const metadata = new schema.Entity('metadata')
 const user = new schema.Entity('users')
@@ -16,6 +17,15 @@ const song = new schema.Entity('songs', {
   user,
 })
 
+const api = {
+  votes: new generated.VotesApi(config),
+  songs: new generated.SongsApi(config),
+  playlists: new generated.PlaylistsApi(config),
+  metadata: new generated.MetadataApi(config),
+  users: new generated.UsersApi(config),
+  events: new generated.EventsApi(config),
+}
+
 window.moment = moment
 
 declare global {
@@ -26,13 +36,6 @@ declare global {
     swaggerClient: any
     api: any
   }
-}
-
-type Event = {
-  id: number
-  date_added: string
-  event_type: 'song' | 'playlist' | 'vote'
-  user_added: number
 }
 
 export const mapLastFmItemToBop = (song: any) => {
@@ -62,56 +65,53 @@ class BopSdk {
       return this.getSongsInAllPlaylist({ offset, limit })
     }
 
-    const getSongs = api.SongsApiFp.songsGet({
-      playlistId: `eq.${playlistId}`,
+    const api = new generated.SongsApi(config)
+    const songs = await api.songsGet({
+      playlistId: playlistId,
       offset: offset.toString(),
       limit: limit.toString(),
       select: '*,metadata{*},votes{*},user{id,username},playlists{*}',
     })
-    const songs = await (await getSongs(fetch, config.swaggerHost)).json()
     const normalized = normalize(songs, [song])
     return { ...normalized.entities }
   }
 
   //todo need better system
   getSongsInAllPlaylist = async ({ offset, limit = 5000 }): Promise<any> => {
-    const getSongs = api.SongsApiFp.songsGet({
+    const songs = await api.songs.songsGet({
       offset: offset.toString(),
       limit: limit.toString(),
       select: '*,metadata{*},votes{*},user{id,username},playlists{*}',
     })
-    const songs = await (await getSongs(fetch, config.swaggerHost)).json()
     const normalized = normalize(songs, [song])
 
     return { ...normalized.entities }
   }
 
   getSongsAddedByUser = async ({ userId, limit = 5000, offset = 0 }) => {
-    const getSongs = api.SongsApiFp.songsGet({
-      id: `eq.${userId}`,
+    const songs = await api.songs.songsGet({
+      id: userId,
       offset: offset.toString(),
       limit: limit.toString(),
       select: '*,songs{*}',
     })
-    const resp = await getSongs(fetch, config.swaggerHost)
-    return resp.json()
+    return songs
   }
 
   createPlaylist = async ({ playlistName, userId }: { playlistName: string; userId: number }) => {
-    const resp = await api.PlaylistsApiFp.playlistsPost({
-      body: { name: playlistName, user_added: userId },
-    })(fetch, config.swaggerHost)
+    await api.playlists.playlistsPost({
+      playlists: { name: playlistName, userAdded: userId } as any,
+    })
 
-    return { success: resp.ok, name: playlistName, userId }
+    // TODO handle failure?
+    return { success: true, name: playlistName, userId }
   }
 
   getPlaylistForName = async (playlistName: string): Promise<any> => {
-    const getPlaylists = api.PlaylistsApiFp.playlistsGet({
+    const playlists = await api.playlists.playlistsGet({
       name: `eq.${encodeURIComponent(playlistName)}`,
       select: '*,users{*}',
     })
-    const resp = await getPlaylists(fetch, config.swaggerHost)
-    const playlists = await resp.json()
 
     if (_.isEmpty(playlists)) {
       throw new Error('No Playlist Matching Name: ' + playlistName)
@@ -120,17 +120,13 @@ class BopSdk {
   }
 
   addSongToPlaylist = async ({ playlistId, userId, metaId }) => {
-    const song: api.Songs = {
-      playlist_id: playlistId,
-      user_added: userId,
-      metadata_id: metaId,
+    const song: generated.Songs = {
+      playlistId: playlistId,
+      userAdded: userId,
+      metadataId: metaId,
     }
 
-    const resp = await api.SongsApiFp.songsPost({
-      body: song,
-    })(fetch, config.swaggerHost)
-
-    return resp.ok
+    await api.songs.songsPost({ songs: song })
   }
 
   getSongMetadata = async ({
@@ -141,50 +137,51 @@ class BopSdk {
     youtubeId?
     title?
     artist?
-  }): Promise<api.Metadata> => {
+  }): Promise<generated.Metadata> => {
     const metadataParams: any = {}
 
     youtubeId && (metadataParams.youtubeId = `eq.${youtubeId}`)
     title && (metadataParams.title = `eq.${title}`)
     artist && (metadataParams.artist = `eq.${artist}`)
 
-    const getMetadata = api.MetadataApiFp.metadataGet(metadataParams)
-    const resp = await getMetadata(fetch, config.swaggerHost)
-    return _.first(await resp.json()) as api.Metadata
+    const metadata = await api.metadata.metadataGet(metadataParams)
+    return _.first(metadata) as generated.Metadata
   }
 
-  addSongMetadata = async ({ metadata }): Promise<api.Metadata> => {
-    const addMeta = api.MetadataApiFp.metadataPost({
-      body: metadata,
-      prefer: 'return=representation',
-    })
-    const resp = await (await addMeta(fetch, config.swaggerHost)).json()
-    return _.first(resp) as api.Metadata
+  addSongMetadata = async ({ metadata }): Promise<generated.Metadata | undefined> => {
+    const resp: Array<generated.Metadata> = ((await api.metadata.metadataPostRaw({
+      metadata: metadata,
+      prefer: generated.MetadataPostPreferEnum.Representation,
+    })) as unknown) as Array<generated.Metadata>
+
+    return _.first(resp)
   }
 
   getAllUsers = async ({ limit = 5000 } = {}): Promise<any> => {
-    const endpoint = `${config.swaggerHost}/users?limit=${limit}`
-    const users = await (await fetch(endpoint)).json()
+    // const users = api.user
+    // const endpoint = `${config.swaggerHost}/users?limit=${limit}`
+    // const users = await (await fetch(endpoint)).json()
+    const users = await api.users.usersGet({ limit: String(limit) })
     const normalized = normalize(users, [user])
 
     return { ...normalized.entities }
   }
 
   getAllSongs = async ({ limit = 5000 } = {}): Promise<any> => {
-    const selectParams = '*,metadata{*},votes{*},user{id,username},playlists{*}'
-    const endpoint = `${config.swaggerHost}/songs?limit=${limit}&select=${selectParams}`
-    const songs = await (await fetch(endpoint)).json()
+    // const selectParams = '*,metadata{*},votes{*},user{id,username},playlists{*}'
+    // const endpoint = `${config.swaggerHost}/songs?limit=${limit}&select=${selectParams}`
+    // const songs = await (await fetch(endpoint)).json()
+    const songs = await api.songs.songsGet({
+      limit: String(limit),
+      select: '*,metadata{*},votes{*},user{id,username},playlists{*}',
+    })
     const normalized = normalize(songs, [song])
 
     return { ...normalized.entities }
   }
 
   getUser = async (optionalUsername, optionalPassword): Promise<any> => {
-    const getU = api.UsersApiFp.usersGet({
-      username: `eq.${optionalUsername}`,
-    })
-    const resp = await getU(fetch, config.swaggerHost)
-    const users = await resp.json()
+    const users = await api.users.usersGet({ username: optionalUsername })
 
     if (_.isEmpty(user)) {
       throw new Error('No User Matching Description')
@@ -192,37 +189,33 @@ class BopSdk {
     return { users: _.keyBy(users, 'id'), user: users[0] }
   }
 
-  putUser = async (username, password): Promise<api.Users> => {
+  putUser = async (username, password): Promise<generated.Users> => {
     if (username === '') {
       return Promise.reject('fuck you make a username')
     }
 
-    const user: api.Users = { username, password: 'todo' }
-    const resp = await api.UsersApiFp.usersPost({
-      body: user,
-      prefer: 'return=representation',
-    })(fetch, config.swaggerHost)
+    const user: generated.Users = { username, password: 'todo' }
+    const resp = ((await api.users.usersPostRaw({
+      users: user,
+      prefer: UsersPostPreferEnum.Representation,
+    })) as unknown) as generated.Users
 
-    return resp.json()
+    return resp
   }
 
   vote = async ({ userId, songId }: any) => {
-    const voteReq = await api.VotesApiFp.votesPost({
-      body: { song_id: songId, user_added: userId },
-    })(fetch, config.swaggerHost)
-
-    const voteResp = await voteReq.json()
+    const voteResp = await api.votes.votesPost({
+      votes: { songId, userAdded: userId },
+    })
 
     return { userId, songId, voteResp }
   }
 
   unvote = async ({ userId, songId }) => {
-    const unvoteReq = await api.VotesApiFp.votesDelete({
-      userAdded: `eq.${userId}`,
-      songId: `eq.${songId}`,
-    })(fetch, config.swaggerHost)
-
-    const unvoteResp = await unvoteReq.json()
+    const unvoteResp = await api.votes.votesDelete({
+      userAdded: userId,
+      songId: songId,
+    })
 
     return { userId, songId, unvoteResp }
   }
@@ -230,16 +223,13 @@ class BopSdk {
   deleteSong = async (song) => {
     const songId = song.id
     // fk constraint on votes
-    const deleteVotes = await api.VotesApiFp.votesDelete({
-      songId: `eq.${songId}`,
-    })(fetch, config.swaggerHost)
-    const deleteSuccess = await deleteVotes
-    if (deleteSuccess.ok) {
-      const deleteReq = await api.SongsApiFp.songsDelete({
-        id: `eq.${song.id}`,
-      })(fetch, config.swaggerHost)
-      await deleteReq
+    try {
+      await api.votes.votesDelete({ songId })
+      await api.songs.songsDelete({ id: song.id })
+    } catch (err) {
+      console.error(err)
     }
+
     return { song }
   }
 
@@ -257,10 +247,10 @@ class BopSdk {
     }
   }
 
-  getEvents = async ({ limit = 5000 }): Promise<Array<Event>> => {
-    const endpoint = config.swaggerHost + `/events?limit=${limit}`
-    const events = await (await fetch(endpoint)).json()
-    return events
+  getEvents = async ({ limit = 5000 }): Promise<Array<generated.Events>> => {
+    // const endpoint = config.swaggerHost + `/events?limit=${limit}`
+    // const events = await (await fetch(endpoint)).json()
+    return api.events.eventsGet({ limit: String(limit) })
   }
 
   getYoutubeVideoDuration = async (youtube_id) => {
@@ -326,8 +316,8 @@ const sdk = new BopSdk()
 window.sdk = sdk
 export default sdk
 
-export type ApiSongs = api.Songs
-export type ApiMetadata = api.Metadata
-export type ApiUser = api.Users
-export type ApiVotes = api.Votes
-export type ApiPlaylists = api.Playlists
+export type ApiSongs = generated.Songs
+export type ApiMetadata = generated.Metadata
+export type ApiUser = generated.Users
+export type ApiVotes = generated.Votes
+export type ApiPlaylists = generated.Playlists
