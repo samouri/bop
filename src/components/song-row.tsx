@@ -91,15 +91,6 @@ class SongRow extends React.Component<Props> {
           <Link to={`/u/${this.props.song.user.username}`}>{this.props.song.user.username}</Link>
         </span>
         <span className="song-duration">{this.durationToString()}</span>
-        {/* <div>
-					{(!this.props.song.user_added || this.props.song.user_added === this.props.user.id) &&
-						<div
-							onClick={this.handleDelete}
-							style={{ cursor: 'pointer', paddingTop: '35px', color: 'red' }}
-						>
-							X
-						</div>}
-				</div> */}
       </div>
     )
   }

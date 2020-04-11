@@ -143,7 +143,7 @@ class Sidebar extends React.Component<any> {
     const { isWidescreen, users } = this.props
     const show = isWidescreen || this.state.isOpen
     const playlists: Array<ApiPlaylists> = _.values(this.props.playlists)
-    const playlistsByUser = _.groupBy(playlists, 'user_added')
+    const playlistsByUser = _.groupBy(playlists, 'userAdded')
     delete playlistsByUser['null']
     delete playlistsByUser['All']
 
@@ -178,7 +178,7 @@ class Sidebar extends React.Component<any> {
                 <hr />
                 {_.map(playlistsByUser, (playlists, userAdded) => {
                   const user = users[userAdded]
-                  return <CollapsibleUser playlists={playlists} user={user} key={user.id} />
+                  return <CollapsibleUser playlists={playlists} user={user} key={userAdded} />
                 })}
               </div>
             </Scrollbars>
