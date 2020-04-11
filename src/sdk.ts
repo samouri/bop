@@ -70,7 +70,7 @@ class BopSdk {
       playlistId: playlistId,
       offset: offset.toString(),
       limit: limit.toString(),
-      select: '*,metadata{*},votes{*},user{id,username},playlists{*}',
+      select: '*,metadata(*),votes(*),user_added(id,username),playlists(*)',
     })
     const normalized = normalize(songs, [song])
     return { ...normalized.entities }
@@ -81,7 +81,7 @@ class BopSdk {
     const songs = await api.songs.songsGet({
       offset: offset.toString(),
       limit: limit.toString(),
-      select: '*,metadata{*},votes{*},user{id,username},playlists{*}',
+      select: '*,metadata(*),votes(*),user_added(id,username),playlists(*)',
     })
     const normalized = normalize(songs, [song])
 
@@ -93,7 +93,7 @@ class BopSdk {
       id: userId,
       offset: offset.toString(),
       limit: limit.toString(),
-      select: '*,songs{*}',
+      select: '*,songs(*)',
     })
     return songs
   }
@@ -110,7 +110,7 @@ class BopSdk {
   getPlaylistForName = async (playlistName: string): Promise<any> => {
     const playlists = await api.playlists.playlistsGet({
       name: `eq.${encodeURIComponent(playlistName)}`,
-      select: '*,users{*}',
+      select: '*,users(*)',
     })
 
     if (_.isEmpty(playlists)) {
@@ -158,9 +158,6 @@ class BopSdk {
   }
 
   getAllUsers = async ({ limit = 5000 } = {}): Promise<any> => {
-    // const users = api.user
-    // const endpoint = `${config.swaggerHost}/users?limit=${limit}`
-    // const users = await (await fetch(endpoint)).json()
     const users = await api.users.usersGet({ limit: String(limit) })
     const normalized = normalize(users, [user])
 
@@ -168,12 +165,9 @@ class BopSdk {
   }
 
   getAllSongs = async ({ limit = 5000 } = {}): Promise<any> => {
-    // const selectParams = '*,metadata{*},votes{*},user{id,username},playlists{*}'
-    // const endpoint = `${config.swaggerHost}/songs?limit=${limit}&select=${selectParams}`
-    // const songs = await (await fetch(endpoint)).json()
     const songs = await api.songs.songsGet({
       limit: String(limit),
-      select: '*,metadata{*},votes{*},user{id,username},playlists{*}',
+      select: '*,metadata(*),votes(*),user_added(id,username),playlists(*)',
     })
     const normalized = normalize(songs, [song])
 
@@ -248,8 +242,6 @@ class BopSdk {
   }
 
   getEvents = async ({ limit = 5000 }): Promise<Array<generated.Events>> => {
-    // const endpoint = config.swaggerHost + `/events?limit=${limit}`
-    // const events = await (await fetch(endpoint)).json()
     return api.events.eventsGet({ limit: String(limit) })
   }
 

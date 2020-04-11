@@ -92,7 +92,7 @@ const SongEvent = ({ event }) => {
     action = `added ${event.combined.length} songs to`
   }
 
-  const playlistName = song.playlists.name
+  const playlistName = song.playlists?.name
   return (
     <div>
       <Link to={`/u/${user.username}`}>@{user && user.username}</Link> {action}{' '}
@@ -107,7 +107,7 @@ const VoteEvent = ({ event }) => {
     return null
   }
 
-  const playlistName = song.playlists.name
+  const playlistName = song.playlists?.name
   return (
     <div>
       <Link to={`/u/${user && user.username}`}>@{user && user.username}</Link> upvoted a song on{' '}
@@ -126,7 +126,7 @@ class SingleEvent extends React.Component<Props> {
   handleMouseOut = (e) => this.setState({ hovered: false })
 
   durationToString() {
-    var duration = moment.duration(this.props.event.song.metadata.youtubeDuration)
+    var duration = moment.duration(this.props.event.song.metadata?.youtubeDuration) ?? 0
     var duration_minutes = duration.minutes()
     var duration_seconds: any = duration.seconds()
     if (duration_seconds < 10) {
