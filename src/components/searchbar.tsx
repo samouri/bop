@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as Select from 'react-select'
 import 'react-select/dist/react-select.css'
-import * as cx from 'classnames'
+import cx from 'classnames'
 import * as _ from 'lodash'
 import sdk from '../sdk'
 import * as fuzzysearch from 'fuzzysearch'
@@ -75,7 +75,7 @@ export default class SearchBar extends React.Component<SearchBarProps> {
       <Select.Async
         loadOptions={debouncedGetOptions}
         autoload={false}
-        optionComponent={TrackValue}
+        optionComponent={TrackValue as any}
         placeholder={'add a song'}
         onValueClick={(option: any) => {
           console.error(option)
@@ -84,15 +84,17 @@ export default class SearchBar extends React.Component<SearchBarProps> {
         onChange={(option: any) => {
           option && this.props.handleSelection(option.value)
         }}
-        filterOption={(option: Option, filter: string): any => {
-          const { title, artist } = _.mapValues(option.value, _.toLower) as any
-          return (
-            fuzzysearch(filter, title) ||
-            fuzzysearch(filter, artist) ||
-            fuzzysearch(filter, artist + title) ||
-            fuzzysearch(filter, title + artist)
-          )
-        }}
+        filterOption={
+          ((option: Option, filter: string): any => {
+            const { title, artist } = _.mapValues(option.value, _.toLower) as any
+            return (
+              fuzzysearch(filter, title) ||
+              fuzzysearch(filter, artist) ||
+              fuzzysearch(filter, artist + title) ||
+              fuzzysearch(filter, title + artist)
+            )
+          }) as any
+        }
       />
     )
   }

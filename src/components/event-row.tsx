@@ -1,11 +1,10 @@
 import * as React from 'react'
 import * as _ from 'lodash'
-import * as cx from 'classnames'
+import cx from 'classnames'
 import * as moment from 'moment'
 import { Link } from 'react-router-dom'
 import { withSongControls, withPlayer } from './hocs'
 import CoverFlow from 'react-coverflow'
-
 import { DenormalizedSong } from '../state/reducer'
 
 class CombinedSongEvent extends React.Component<any> {
@@ -176,7 +175,7 @@ class SingleEvent extends React.Component<Props> {
               )}
             </span>
           </span>
-          <img className="event-row__thumb" src={metadata.thumbnail_url} />
+          <img className="event-row__thumb" alt="thumbnail" src={metadata.thumbnail_url} />
           <span className="event-row__arttit">
             <span className="event-row__song-title">{metadata.title}</span>
             <span className="event-row__song-artist">{metadata.artist}</span>
