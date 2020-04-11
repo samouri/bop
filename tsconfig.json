@@ -21,8 +21,8 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true
+    "isolatedModules": true
+    // "noEmit": true
   },
   "exclude": [
     "node_modules",
@@ -33,7 +33,6 @@
     "jest",
     "src/setupTests.ts"
   ],
-  "strictPropertyInitialization": false,
   "types": ["typePatches"],
   "include": ["src"]
 }

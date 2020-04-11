@@ -53,7 +53,7 @@ export interface FetchArgs {
  * @class BaseAPI
  */
 export class BaseAPI {
-  protected configuration: Configuration
+  protected configuration!: Configuration
 
   constructor(
     configuration?: Configuration,
@@ -74,7 +74,7 @@ export class BaseAPI {
  * @extends {Error}
  */
 export class RequiredError extends Error {
-  name: 'RequiredError'
+  name!: 'RequiredError'
   constructor(public field: string, msg?: string) {
     super(msg)
   }
