@@ -1,5 +1,6 @@
 import { createAction } from 'redux-actions'
 import sdk from '../sdk'
+import { Events } from '../generated'
 
 /* action types */
 export const LOGIN_USER = 'LOGIN_USER'
@@ -32,7 +33,7 @@ export type SORT = 'votes' | 'title' | 'artist' | 'playlist' | 'user' | 'duratio
 export type SetSortPayload = { sort: SORT }
 export const setSort = createAction<SetSortPayload>(SET_SORT)
 export const shuffleSongs = createAction(SHUFFLE_SONGS)
-export type EventsPayload = { events }
+export type EventsPayload = Array<Events>
 export const fetchEvents = createAction(FETCH_EVENTS, sdk.getEvents)
 export const fetchUsers = createAction(ADD_ENTITIES, sdk.getAllUsers)
 export const fetchSongs = createAction(ADD_ENTITIES, sdk.getAllSongs)

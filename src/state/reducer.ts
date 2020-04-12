@@ -391,10 +391,7 @@ const events = handleActions(
       if (action.error) {
         return state
       }
-      const newEvents = _.map(action.payload, (event) =>
-        _.mapKeys(event, (val, key) => _.camelCase(key + ''))
-      )
-      return _.uniq(_.concat(state, newEvents))
+      return _.uniq(_.concat(state, action.payload))
     },
   },
   []
@@ -446,9 +443,7 @@ const isMobileReducer = handleActions(
   },
   window.innerWidth < MOBILE_WIDTH
 )
-const view = combineReducers({
-  isMobile: isMobileReducer,
-})
+const view = combineReducers({ isMobile: isMobileReducer })
 
 export const isMobile = (state) => state.view.isMobile
 
