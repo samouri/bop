@@ -110,7 +110,7 @@ class BopSdk {
   getPlaylistForName = async (playlistName: string): Promise<any> => {
     const playlists = await api.playlists.playlistsGet({
       name: `eq.${encodeURIComponent(playlistName)}`,
-      select: '*,users(*)',
+      select: '*,user_added(*)',
     })
 
     if (_.isEmpty(playlists)) {

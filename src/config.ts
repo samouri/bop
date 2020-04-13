@@ -9,7 +9,7 @@ const config: Configuration = new Configuration({
       proxiedInit = { method: init?.method, body: JSON.stringify({ init }) }
     }
 
-    return fetch(`api/postgrest?url=${encodeURIComponent(input.toString())}`, proxiedInit)
+    return fetch(`/api/postgrest?url=${encodeURIComponent(input.toString())}`, proxiedInit)
   },
 })
 
