@@ -1,5 +1,6 @@
+import { normalize, schema } from 'normalizr'
 import { createAction } from 'redux-actions'
-import sdk from '../sdk'
+import sdk, { ApiUser, ApiSongs, ApiPlaylists } from '../sdk'
 
 /* action types */
 export const LOGIN_USER = 'LOGIN_USER'
@@ -34,8 +35,6 @@ export const setSort = createAction<SetSortPayload>(SET_SORT)
 export const shuffleSongs = createAction(SHUFFLE_SONGS)
 export type EventsPayload = { events }
 export const fetchEvents = createAction(FETCH_EVENTS, sdk.getEvents)
-export const fetchUsers = createAction(ADD_ENTITIES, sdk.getAllUsers)
-export const fetchSongs = createAction(ADD_ENTITIES, sdk.getAllSongs)
 export const resizeWindow = createAction(RESIZE_EVENT)
 
 /* Thunk Async Actions */
@@ -57,8 +56,47 @@ export const loginUser = (credentials: any) => async (dispatch: any) => {
 export const voteSong = createAction(VOTE_SONG, sdk.vote)
 export const unvoteSong = createAction(VOTE_SONG, sdk.unvote)
 export const deleteSong = createAction(DELETE_SONG, sdk.deleteSong)
-export const fetchSongsInPlaylist = createAction(ADD_ENTITIES, sdk.getSongsInPlaylist)
-export const addEntities = createAction<any>(ADD_ENTITIES)
 export const setPlaylistName = createAction(SET_PLAYLIST, sdk.getPlaylistForName)
-export const requestPlaylist = createAction(ADD_ENTITIES, sdk.getPlaylistForName)
 export const createPlaylist = createAction(CREATED_PLAYLIST, sdk.createPlaylist)
+
+export const fetchSongsInPlaylist: any = createAction(
+  ADD_ENTITIES,
+  wrap(sdk.getSongsInPlaylist, normalizeSongs)
+)
+export const addEntities = createAction<any>(ADD_ENTITIES)
+export const requestPlaylist: any = createAction(
+  ADD_ENTITIES,
+  wrap(sdk.getPlaylistForName, normalizePlaylist)
+)
+
+export const fetchUsers: any = createAction(ADD_ENTITIES, wrap(sdk.getAllUsers, normalizeUsers))
+export const fetchSongs: any = createAction(ADD_ENTITIES, wrap(sdk.getAllSongs, normalizeSongs))
+
+function wrap(fn, normalizer): any {
+  return (...args: any) => fn(...args).then(normalizer)
+}
+
+function normalizePlaylist(playlists: Array<ApiPlaylists>) {
+  const playlist = new schema.Entity('playlists')
+  return normalize(playlists, [playlist])
+}
+
+function normalizeUsers(users: Array<ApiUser>) {
+  const user = new schema.Entity('users')
+  return normalize(users, [user])
+}
+
+function normalizeSongs(songs: Array<ApiSongs>) {
+  const metadata = new schema.Entity('metadata')
+  const user = new schema.Entity('users')
+  const playlist = new schema.Entity('playlists')
+  const vote = new schema.Entity('votes')
+  const song = new schema.Entity('songs', {
+    metadata,
+    playlists: playlist,
+    votes: [vote],
+    user,
+  })
+
+  return normalize(songs, [song])
+}

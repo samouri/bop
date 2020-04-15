@@ -1,26 +1,25 @@
 import _ from 'lodash'
 import { combineReducers } from 'redux'
-import { Action, handleActions, combineActions } from 'redux-actions'
+import { Action, combineActions, handleActions } from 'redux-actions'
 import { createSelector } from 'reselect'
-
+import { ApiMetadata, ApiPlaylists, ApiSongs, ApiUser, ApiVotes } from '../sdk'
+import { parseDuration } from '../utils'
 import {
   ADD_ENTITIES,
+  DELETE_SONG,
+  EventsPayload,
+  FETCH_EVENTS,
   LOGIN_USER,
   LOGOUT_USER,
-  PLAY_SONG,
   PAUSE_SONG,
+  PLAY_SONG,
+  RESIZE_EVENT,
+  SetSortPayload,
+  SET_PLAYLIST,
   SET_SORT,
   SHUFFLE_SONGS,
-  DELETE_SONG,
-  SET_PLAYLIST,
-  SetSortPayload,
   SORT,
-  FETCH_EVENTS,
-  EventsPayload,
-  RESIZE_EVENT,
 } from './actions'
-import { ApiSongs, ApiMetadata, ApiPlaylists, ApiVotes, ApiUser } from '../sdk'
-import { parseDuration } from '../utils'
 
 // Selectors first
 export const getMetadataEntities = (state) => state.metadata.byId
@@ -170,15 +169,6 @@ export const getUserScores = createSelector(
   }
 )
 
-// idea for later: maybe show top playlists somewhere
-// export const getTopPlaylists = createSelector(
-// 	[getAllSongsDenormalized],
-// 	(songs: Array<DenormalizedSong>) => {
-// 		const counted = _.countBy(songs, song => song.votes.length);
-// 		console.error(counted);
-// 	}
-// );
-
 export const getContributorsInPlaylist = createSelector(
   [getState, getProps, getSongsInPlaylist, getUserEntities],
   (state, playlistId, songs: Array<DenormalizedSong>, usersById) => {
@@ -195,16 +185,17 @@ export const getContributorsInPlaylist = createSelector(
 
 const songsById = handleActions(
   {
-    [ADD_ENTITIES]: (state, action: Action<{ songs: any }>) => {
-      if (!action.payload!.songs) {
+    [ADD_ENTITIES]: (state, action: any) => {
+      const songs = action.payload.entities?.songs
+      if (!songs) {
         return state
       }
-      return { ...state, ...action.payload!.songs }
+      return { ...state, ...songs }
     },
     [DELETE_SONG]: (state, action: any) => {
       return _.omit(state, action.payload.song.id)
     },
-  } as any,
+  },
   {}
 )
 
@@ -215,10 +206,11 @@ const songs = combineReducers({
 const metadataById = handleActions(
   {
     [ADD_ENTITIES]: (state, action: any) => {
-      if (!action.payload.metadata) {
+      const metadata = action.payload?.entities?.metadata
+      if (!metadata) {
         return state
       }
-      return { ...state, ...action.payload.metadata }
+      return { ...state, ...metadata }
     },
   },
   {}
@@ -230,13 +222,14 @@ const metadata = combineReducers({
 const playlistsById = handleActions(
   {
     [combineActions(ADD_ENTITIES, SET_PLAYLIST) as any]: (state, action: any) => {
-      if (!action.payload.playlists) {
+      const playlists = action.payload?.entities?.playlists
+      if (!playlists) {
         return state
       }
 
       return {
         ...state,
-        ...action.payload.playlists,
+        ...playlists,
       }
     },
   },
@@ -354,10 +347,11 @@ const player = combineReducers({
 const usersById = handleActions(
   {
     [ADD_ENTITIES]: (state, action: any) => {
-      if (!action.payload.users) {
+      const users = action.payload?.entities?.users
+      if (!users) {
         return state
       }
-      return { ...state, ...action.payload.users }
+      return { ...state, ...users }
     },
   },
   {}
@@ -366,10 +360,11 @@ const usersById = handleActions(
 const votesById = handleActions(
   {
     [ADD_ENTITIES]: (state, action: any) => {
-      if (!action.payload.votes) {
+      const votes = action.payload?.entities?.votes
+      if (!votes) {
         return state
       }
-      return { ...state, ...action.payload.votes }
+      return { ...state, ...votes }
     },
   },
   {}

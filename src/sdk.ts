@@ -2,19 +2,7 @@ import config from './config'
 import _ from 'lodash'
 import * as generated from './generated'
 
-import { normalize, schema } from 'normalizr'
 import { UsersPostPreferEnum } from './generated'
-
-const metadata = new schema.Entity('metadata')
-const user = new schema.Entity('users')
-const playlist = new schema.Entity('playlists')
-const vote = new schema.Entity('votes')
-const song = new schema.Entity('songs', {
-  metadata,
-  playlists: playlist,
-  votes: [vote],
-  user,
-})
 
 const api = {
   votes: new generated.VotesApi(config),
@@ -52,30 +40,24 @@ class BopSdk {
       return this.getSongsInAllPlaylist({ offset, limit })
     }
 
-    const api = new generated.SongsApi(config)
-    const songs = await api.songsGet({
+    return api.songs.songsGet({
       playlistId: playlistId,
       offset: offset.toString(),
       limit: limit.toString(),
       select: '*,metadata(*),votes(*),user_added(id,username),playlists(*)',
     })
-    const normalized = normalize(songs, [song])
-    return { ...normalized.entities }
   }
 
   //todo need better system
   getSongsInAllPlaylist = async ({ offset, limit = 5000 }): Promise<any> => {
-    const songs = await api.songs.songsGet({
+    return api.songs.songsGet({
       offset: offset.toString(),
       limit: limit.toString(),
       select: '*,metadata(*),votes(*),user_added(id,username),playlists(*)',
     })
-    const normalized = normalize(songs, [song])
-
-    return { ...normalized.entities }
   }
 
-  getSongsAddedByUser = async ({ userId, limit = 5000, offset = 0 }) => {
+  getSongsAddedByUser = async ({ userId, limit = 5000, offset = 0 }): Promise<Array<ApiSongs>> => {
     const songs = await api.songs.songsGet({
       id: userId,
       offset: offset.toString(),
@@ -94,16 +76,16 @@ class BopSdk {
     return { success: true, name: playlistName, userId }
   }
 
-  getPlaylistForName = async (playlistName: string): Promise<any> => {
+  getPlaylistForName = async (playlistName: string): Promise<Array<ApiPlaylists>> => {
     const playlists = await api.playlists.playlistsGet({
       name: `eq.${encodeURIComponent(playlistName)}`,
-      select: '*,user_added(*)',
+      select: '*',
     })
 
     if (_.isEmpty(playlists)) {
       throw new Error('No Playlist Matching Name: ' + playlistName)
     }
-    return { playlists: _.keyBy(playlists, 'id'), playlist: playlists[0] }
+    return playlists
   }
 
   addSongToPlaylist = async ({ playlistId, userId, metaId }) => {
@@ -144,30 +126,24 @@ class BopSdk {
     return _.first(resp)
   }
 
-  getAllUsers = async ({ limit = 5000 } = {}): Promise<any> => {
-    const users = await api.users.usersGet({ limit: String(limit) })
-    const normalized = normalize(users, [user])
-
-    return { ...normalized.entities }
+  getAllUsers = async ({ limit = 5000 } = {}): Promise<Array<ApiUser>> => {
+    return api.users.usersGet({ limit: String(limit) })
   }
 
-  getAllSongs = async ({ limit = 5000 } = {}): Promise<any> => {
-    const songs = await api.songs.songsGet({
+  getAllSongs = async ({ limit = 5000 } = {}): Promise<Array<ApiSongs>> => {
+    return await api.songs.songsGet({
       limit: String(limit),
       select: '*,metadata(*),votes(*),user_added(id,username),playlists(*)',
     })
-    const normalized = normalize(songs, [song])
-
-    return { ...normalized.entities }
   }
 
-  getUser = async (optionalUsername, optionalPassword): Promise<any> => {
+  getUser = async (optionalUsername, optionalPassword): Promise<Array<ApiUser>> => {
     const users = await api.users.usersGet({ username: `eq.${optionalUsername}` })
 
-    if (_.isEmpty(user)) {
+    if (_.isEmpty(users)) {
       throw new Error('No User Matching Description')
     }
-    return { users: _.keyBy(users, 'id'), user: users[0] }
+    return users
   }
 
   putUser = async (username, password): Promise<generated.Users> => {

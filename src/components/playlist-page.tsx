@@ -9,16 +9,17 @@ import SongList from './song-list'
 import sdk, { ApiUser, ApiPlaylists, ApiMetadata } from '../sdk'
 
 import { fetchSongs, setSort, requestPlaylist, SORT } from '../state/actions'
-import { getCurrentUser, getPlaylistByName } from '../state/reducer'
+import { getCurrentUser, getPlaylistByName, getUserEntities } from '../state/reducer'
 
 type Props = {
   match: { params: any }
   dispatch: any
   playlist: ApiPlaylists & { user: any }
   user: ApiUser
+  creator: ApiUser
 }
 class PlaylistPage extends React.Component<Props> {
-  fetchSongs = _.throttle((props = this.props) => props.dispatch(fetchSongs({})), 200)
+  fetchSongs = _.throttle((props = this.props) => props.dispatch(fetchSongs()), 200)
 
   fetchPlaylist = _.throttle((props = this.props) => {
     const {
@@ -56,7 +57,6 @@ class PlaylistPage extends React.Component<Props> {
     let songMeta: ApiMetadata | undefined = await sdk.getSongMetadata({
       youtubeId: youtubeSearchMeta.youtube_id,
     })
-    console.log(this.props)
 
     // if we don't have the meta for it yet, create it
     if (!songMeta) {
@@ -95,8 +95,7 @@ class PlaylistPage extends React.Component<Props> {
   }
 
   render() {
-    const { playlist } = this.props
-    const createdBy = _.get(playlist, 'user.username')
+    const { playlist, creator } = this.props
     const ret = (
       <div className="playlist-page">
         <div className="playlist-page__titlestats">
@@ -104,7 +103,7 @@ class PlaylistPage extends React.Component<Props> {
             <span>{playlist && playlist.name}</span>
             {playlist && (
               <span className="playlist-page__title-createdby">
-                created by <Link to={`/u/${createdBy}`}> @{createdBy} </Link>
+                created by <Link to={`/u/${creator?.username}`}> @{creator?.username} </Link>
               </span>
             )}
           </span>
@@ -129,8 +128,10 @@ class PlaylistPage extends React.Component<Props> {
 }
 
 export default connect<{}, {}, Props>((state, ownProps: any) => {
+  const playlist = getPlaylistByName(state, ownProps.match.params.playlistName)
   return {
     user: getCurrentUser(state),
-    playlist: getPlaylistByName(state, ownProps.match.params.playlistName),
+    playlist,
+    creator: getUserEntities(state)[playlist?.userAdded],
   }
 })(PlaylistPage)
