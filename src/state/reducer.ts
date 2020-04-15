@@ -1,8 +1,7 @@
-import * as _ from 'lodash'
+import _ from 'lodash'
 import { combineReducers } from 'redux'
 import { Action, handleActions, combineActions } from 'redux-actions'
 import { createSelector } from 'reselect'
-import * as moment from 'moment'
 
 import {
   ADD_ENTITIES,
@@ -21,6 +20,7 @@ import {
   RESIZE_EVENT,
 } from './actions'
 import { ApiSongs, ApiMetadata, ApiPlaylists, ApiVotes, ApiUser } from '../sdk'
+import { parseDuration } from '../utils'
 
 // Selectors first
 export const getMetadataEntities = (state) => state.metadata.byId
@@ -113,9 +113,10 @@ export const sortSongs = (denormalizedSongs: Array<DenormalizedSong>, sort: SORT
     case 'date':
       return _.reverse(_.sortBy(denormalizedSongs, (song) => song.dateAdded))
     case 'duration':
-      return _.sortBy(denormalizedSongs, (song: any) =>
-        moment.duration(song.metadata.youtube_duration).asSeconds()
-      )
+      return _.sortBy(denormalizedSongs, (song: any) => {
+        const { hours, minutes, seconds } = parseDuration(song.metadata.youtube_duration)
+        return hours * 60 * 60 + minutes * 60 + seconds
+      })
     case 'title':
       return _.sortBy(denormalizedSongs, (song) => song.metadata.title)
     case 'artist':

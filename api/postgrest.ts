@@ -14,10 +14,12 @@ export default async (req: NowRequest, res: NowResponse) => {
     console.error('sending GET to: ', url)
     resp = fetch(url)
   } else {
-    console.error(`sending ${req.method} to: `, url)
-    resp = fetch(url, JSON.parse(req.body.input))
+    const { body, headers } = JSON.parse(req.body)
+    console.error(`sending ${req.method} to: ${url} with body: ${JSON.stringify(body)}`)
+    resp = fetch(url, { method: req.method, headers, body })
   }
 
-  const proxiedResponse = await (await resp).json()
-  res.json(proxiedResponse)
+  const text = await (await resp).text()
+  // console.log(text)
+  res.send(text)
 }

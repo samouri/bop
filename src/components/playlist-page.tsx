@@ -49,33 +49,34 @@ class PlaylistPage extends React.Component<Props> {
     }
   }
 
-  handleSearchSelection = async ({ title, artist, thumbnail_url }) => {
+  handleSearchSelection = async ({ title, artist, thumbnailUrl }) => {
     const { playlist, user } = this.props
 
     const youtubeSearchMeta = await sdk.searchYoutube({ title, artist })
     let songMeta: ApiMetadata | undefined = await sdk.getSongMetadata({
       youtubeId: youtubeSearchMeta.youtube_id,
     })
+    console.log(this.props)
 
     // if we don't have the meta for it yet, create it
     if (!songMeta) {
       const youtubeDuration = await sdk.getYoutubeVideoDuration(youtubeSearchMeta.youtube_id)
-      const youtubeMeta = { ...youtubeSearchMeta, ...youtubeDuration }
-      songMeta = await sdk.addSongMetadata({
-        metadata: {
-          title,
-          artist,
-          thumbnail_url,
-          ...youtubeDuration,
-          ...youtubeMeta,
-        },
-      })
+      const youtubeMeta = _.mapKeys({ ...youtubeSearchMeta, ...youtubeDuration }, (v, k) =>
+        _.camelCase(k)
+      )
+      const metadata = {
+        title,
+        artist,
+        thumbnailUrl,
+        ...youtubeDuration,
+        ...youtubeMeta,
+      }
+      songMeta = await sdk.addSongMetadata(metadata)
       if (!songMeta) {
         throw new Error('could not create SongMeta')
       }
     }
 
-    console.error(songMeta, user, playlist)
     sdk
       .addSongToPlaylist({
         userId: user.id,

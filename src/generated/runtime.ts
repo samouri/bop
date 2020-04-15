@@ -59,6 +59,7 @@ export class BaseAPI {
       // do not handle correctly sometimes.
       url += '?' + this.configuration.queryParamsStringify(context.query)
     }
+
     const body =
       context.body instanceof FormData ||
       context.body instanceof URLSearchParams ||

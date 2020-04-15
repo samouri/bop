@@ -1,6 +1,5 @@
 import config from './config'
 import * as _ from 'lodash'
-import * as moment from 'moment'
 import * as generated from './generated'
 
 import { normalize, schema } from 'normalizr'
@@ -26,12 +25,9 @@ const api = {
   events: new generated.EventsApi(config),
 }
 
-window.moment = moment
-
 declare global {
   interface Window {
     swagger: any
-    moment: any
     sdk: any
     swaggerClient: any
     api: any
@@ -148,9 +144,9 @@ class BopSdk {
     return _.first(metadata) as generated.Metadata
   }
 
-  addSongMetadata = async ({ metadata }): Promise<generated.Metadata | undefined> => {
+  addSongMetadata = async (metadata): Promise<generated.Metadata | undefined> => {
     const resp: Array<generated.Metadata> = ((await api.metadata.metadataPostRaw({
-      metadata: metadata,
+      metadata,
       prefer: generated.MetadataPostPreferEnum.Representation,
     })) as unknown) as Array<generated.Metadata>
 

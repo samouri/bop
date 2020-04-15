@@ -1,11 +1,11 @@
 import * as React from 'react'
 import * as _ from 'lodash'
 import cx from 'classnames'
-import * as moment from 'moment'
 import { Link } from 'react-router-dom'
 import { withSongControls, withPlayer } from './hocs'
 import CoverFlow from 'react-coverflow'
 import { DenormalizedSong } from '../state/reducer'
+import { parseDuration } from '../utils'
 
 class CombinedSongEvent extends React.Component<any> {
   sliderRef = null
@@ -126,13 +126,8 @@ class SingleEvent extends React.Component<Props> {
   handleMouseOut = (e) => this.setState({ hovered: false })
 
   durationToString() {
-    var duration = moment.duration(this.props.event.song.metadata?.youtubeDuration) ?? 0
-    var duration_minutes = duration.minutes()
-    var duration_seconds: any = duration.seconds()
-    if (duration_seconds < 10) {
-      duration_seconds = '0' + duration_seconds
-    }
-    return duration_minutes + ':' + duration_seconds
+    let { minutes, seconds } = parseDuration(this.props.event.song.metadata?.youtubeDuration)
+    return minutes + ':' + (seconds < 10 ? '0' : '') + seconds
   }
 
   render() {

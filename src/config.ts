@@ -6,7 +6,7 @@ const config: Configuration = new Configuration({
   fetchApi: (input: RequestInfo, init?: RequestInit): Promise<Response> => {
     let proxiedInit: Object | undefined = undefined
     if (init?.method !== 'GET') {
-      proxiedInit = { method: init?.method, body: JSON.stringify({ init }) }
+      proxiedInit = { method: init?.method, body: JSON.stringify(init) }
     }
 
     return fetch(`/api/postgrest?url=${encodeURIComponent(input.toString())}`, proxiedInit)

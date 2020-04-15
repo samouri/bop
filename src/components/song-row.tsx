@@ -1,13 +1,12 @@
 import * as React from 'react'
 import cx from 'classnames'
 import * as _ from 'lodash'
-import * as moment from 'moment'
 import { DenormalizedSong } from '../state/reducer'
 import { Link } from 'react-router-dom'
-import * as momentTwitter from 'moment-twitter'
 import { withSongControls } from './hocs'
 
 import { deleteSong } from '../state/actions'
+import { parseDuration, timeago } from '../utils'
 
 type Props = {
   song: DenormalizedSong
@@ -29,16 +28,11 @@ class SongRow extends React.Component<Props> {
   }
 
   durationToString() {
-    var duration = moment.duration(this.props.song.metadata.youtubeDuration)
-    var duration_minutes = duration.minutes()
-    var duration_seconds: any = duration.seconds()
-    if (duration_seconds < 10) {
-      duration_seconds = '0' + duration_seconds
-    }
-    return duration_minutes + ':' + duration_seconds
+    let { minutes, seconds } = parseDuration(this.props.song.metadata?.youtubeDuration)
+    return minutes + ':' + (seconds < 10 ? '0' : '') + seconds
   }
 
-  getAge = () => momentTwitter.utc(this.props.song.dateAdded).twitterLong()
+  getAge = () => timeago(new Date(this.props.song.dateAdded ?? ''))
 
   handleDelete = () => this.props.dispatch(deleteSong(this.props.song))
   handleMouseOver = () => this.setState({ hovered: true })

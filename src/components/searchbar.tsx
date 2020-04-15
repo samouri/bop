@@ -7,7 +7,10 @@ import sdk from '../sdk'
 import * as fuzzysearch from 'fuzzysearch'
 
 const mapSongsToOptions = (songs: any): Option[] => {
-  return songs.map((track) => ({ value: track, label: track.title }))
+  return songs.map((track) => ({
+    value: _.mapKeys(track, (v, k) => _.camelCase(k)),
+    label: track.title,
+  }))
 }
 
 const getOptions = (input, cb) => {
@@ -78,7 +81,6 @@ export default class SearchBar extends React.Component<SearchBarProps> {
         optionComponent={TrackValue as any}
         placeholder={'add a song'}
         onValueClick={(option: any) => {
-          console.error(option)
           this.props.handleSelection(option.value)
         }}
         onChange={(option: any) => {
