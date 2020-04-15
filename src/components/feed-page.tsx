@@ -44,6 +44,5 @@ class FeedPage extends React.Component<Props> {
 
 export default connect<{}, {}, Props>((state) => ({
   user: getCurrentUser(state),
-  // events: getCombinedEvents(state),
   events: getEventsDenormalized(state),
 }))(FeedPage)

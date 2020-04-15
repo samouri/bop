@@ -272,24 +272,6 @@ export const getEventsDenormalized = createSelector(
   }
 )
 
-export const getCombinedEvents = createSelector([getEventsDenormalized], (events) => {
-  const destutteredEvents: Array<any> = []
-
-  _.forEach(events, (event, i: number) => {
-    const lastEvent = _.last(destutteredEvents)
-    const lastType = _.get(lastEvent, 'eventType')
-    const lastPlaylist = _.get(lastEvent, ['song', 'playlistId'])
-
-    if (lastType === event.eventType && lastPlaylist === _.get(event, ['song', 'playlistId'])) {
-      lastEvent.combined = _.concat(lastEvent.combined || [lastEvent], event)
-    } else {
-      destutteredEvents.push({ ...event })
-    }
-  })
-
-  return destutteredEvents
-})
-
 const playlists = combineReducers({
   byId: playlistsById,
 })

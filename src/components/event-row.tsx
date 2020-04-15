@@ -3,83 +3,8 @@ import * as _ from 'lodash'
 import cx from 'classnames'
 import { Link } from 'react-router-dom'
 import { withSongControls, withPlayer } from './hocs'
-import CoverFlow from 'react-coverflow'
 import { DenormalizedSong } from '../state/reducer'
 import { parseDuration } from '../utils'
-
-class CombinedSongEvent extends React.Component<any> {
-  sliderRef = null
-  state = { current: 0 }
-
-  handleSliderMouseOver = (i) => {
-    // console.error(i);
-    // this.sliderRef && (this.sliderRef as any).slickGoTo(i);
-  }
-
-  handleSliderChange = (i) => {
-    this.setState({ current: i })
-  }
-
-  componentWillReceiveProps(nextProps) {
-    const currSongId = _.get(this.props, ['player', 'songId'])
-    const nextSongId = _.get(nextProps, ['player', 'songId'])
-    if (nextSongId === currSongId) {
-      return
-    }
-
-    const songIndex = _.findIndex(this.props.event.combined, {
-      id: nextSongId,
-    })
-    console.error('onlye one!!', songIndex)
-    if (songIndex >= 0) {
-      this.setState({ current: songIndex })
-      this.sliderRef && (this.sliderRef as any).slickGoTo(songIndex)
-    }
-  }
-
-  render() {
-    const event: any = this.props.event
-
-    if (!event || !event.combined || !event.song) {
-      return null
-    }
-
-    const thumbs = _.map(event.combined, (evt: any, i: number) => {
-      return (
-        // <div key={`${evt.eventType}-${evt.id}`}>
-        // <i className="fa fa-play combined-song-event__play" />
-        <img
-          key={`${evt.eventType}-${evt.id}`}
-          src={evt.song.metadata.thumbnail_url}
-          alt={_.truncate(evt.song.metadata.title, { length: 20 })}
-          data-action={this.props.play}
-        />
-        // </div>
-      )
-    })
-
-    return (
-      <div style={{ paddingBottom: '20px' }}>
-        <SongEvent event={event} />
-        <div>
-          <CoverFlow
-            width={800}
-            height={200}
-            displayQuantityOfSide={2}
-            navigation={false}
-            enableScroll={true}
-            clickable={true}
-            active={0}
-          >
-            {thumbs}
-          </CoverFlow>
-        </div>
-      </div>
-    )
-  }
-}
-
-// const ConnectedCombinedSongEvent = connect()(CombinedSongEvent);
 
 const SongEvent = ({ event }) => {
   const { song, user } = event
@@ -88,10 +13,6 @@ const SongEvent = ({ event }) => {
   }
 
   let action = 'added a song to'
-  if (event.combined) {
-    action = `added ${event.combined.length} songs to`
-  }
-
   const playlistName = song.playlists?.name
   return (
     <div>
@@ -183,15 +104,12 @@ class SingleEvent extends React.Component<Props> {
 }
 
 const EventRow = withPlayer(({ event, stream, player }) => {
-  if (event.eventType === 'song' && event.combined) {
-    return <CombinedSongEvent event={event} stream={stream} player={player} />
-  }
   return <ConnectedSingleEvent event={event} stream={stream} songId={event.song && event.song.id} />
 })
 
 type Props = {
   dispatch: any
-  event: { song: DenormalizedSong; eventType; combined }
+  event: { song: DenormalizedSong }
   isPlaying: boolean
   isSelected: boolean
   stream: any
