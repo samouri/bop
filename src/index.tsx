@@ -7,7 +7,7 @@ import { createStore, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import logger from 'redux-logger'
 import thunk from 'redux-thunk'
-import * as _ from 'lodash'
+import _ from 'lodash'
 import promise from 'redux-promise'
 
 import PlaylistPage from './components/playlist-page'

@@ -1,5 +1,5 @@
 import config from './config'
-import * as _ from 'lodash'
+import _ from 'lodash'
 import * as generated from './generated'
 
 import { normalize, schema } from 'normalizr'
@@ -23,15 +23,6 @@ const api = {
   metadata: new generated.MetadataApi(config),
   users: new generated.UsersApi(config),
   events: new generated.EventsApi(config),
-}
-
-declare global {
-  interface Window {
-    swagger: any
-    sdk: any
-    swaggerClient: any
-    api: any
-  }
 }
 
 export const mapLastFmItemToBop = (song: any) => {
@@ -298,10 +289,11 @@ class BopSdk {
   }
 }
 
-window.api = api
+;(window as any).api = api
 
 const sdk = new BopSdk()
-window.sdk = sdk
+;(window as any).sdk = sdk
+
 export default sdk
 
 export type ApiSongs = generated.Songs
