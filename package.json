@@ -3,7 +3,7 @@
   "version": "0.7.0",
   "description": "BopWebsiteUI",
   "main": "index.js",
-  "dependencies": {
+  "devDependencies": {
     "@now/node": "^1.5.0",
     "@types/classnames": "^2.2.10",
     "@types/jest": "^25.2.1",
@@ -17,15 +17,16 @@
     "@types/redux-actions": "^2.6.1",
     "@types/redux-logger": "^3.0.7",
     "@types/redux-promise": "^0.5.28",
+    "now": "^18.0.0"
+  },
+  "dependencies": {
     "classnames": "^2.2.6",
     "fuzzysearch": "^1.0.3",
-    "global": "^4.4.0",
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "moment-twitter": "^0.2.0",
     "mousetrap": "^1.6.5",
     "normalizr": "^3.6.0",
-    "now": "^17.1.1",
     "portable-fetch": "^3.0.0",
     "prettier": "^2.0.4",
     "react": "^16.13.1",
@@ -39,20 +40,14 @@
     "react-scripts": "^3.4.1",
     "react-select": "^1.0.48",
     "react-slick": "^0.25.2",
-    "react-storybook": "^1.0.0",
-    "react-waypoint": "^9.0.2",
     "redux": "^4.0.5",
     "redux-actions": "^2.6.5",
     "redux-logger": "^3.0.6",
     "redux-promise": "^0.6.0",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.0.0",
-    "swagger-client": "^3.10.0",
-    "swagger-codegen": "^0.1.1",
-    "typescript": "^3.8.3",
-    "whatwg-fetch": "^3.0.0"
+    "typescript": "^3.8.3"
   },
-  "devDependencies": {},
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
