@@ -22,7 +22,7 @@
   "dependencies": {
     "classnames": "^2.2.6",
     "fuzzysearch": "^1.0.3",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "mousetrap": "^1.6.5",
     "normalizr": "^3.6.0",
     "portable-fetch": "^3.0.0",
